@@ -77,6 +77,35 @@ export interface ProposalUploadRequest extends SignatureRequest {
     "notification">;
 }
 
+export interface ConfigSpaceRequest extends SignatureRequest {
+  config: CreateFormValues;
+  calendar?: string;
+}
+
+export type CreateFormValues = {
+  name: string;
+  discord: {
+    guildId: string;
+    roles: { governance: string; };
+    channelIds: {
+      proposals: string;
+    }
+  };
+  juicebox: {
+    projectId: string;
+    gnosisSafeAddress: string;
+  };
+  snapshot: {
+    space: string;
+    minTokenPassingAmount: number;
+    passingRatio: number;
+  };
+}
+
+export type ConfigSpacePayload = {
+  space: string;
+}
+
 // from https://github.com/jigglyjams/nance-ts/blob/main/src/types.ts
 type ProposalType = 'Payout' | 'ReservedToken' | 'ParameterUpdate' | 'ProcessUpdate' | 'CustomTransaction';
 
