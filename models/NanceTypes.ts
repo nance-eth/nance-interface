@@ -84,23 +84,42 @@ export interface ConfigSpaceRequest extends SignatureRequest {
 
 export type CreateFormValues = {
   name: string;
-  discord: {
-    guildId: string;
-    roles: { governance: string; };
-    channelIds: {
-      proposals: string;
-    }
-  };
-  juicebox: {
-    projectId: string;
-    gnosisSafeAddress: string;
-  };
-  snapshot: {
-    space: string;
-    minTokenPassingAmount: number;
-    passingRatio: number;
-  };
+  discord: DiscordConfig;
+  juicebox: JuiceboxConfig;
+  snapshot: SnapshotConfig;
 }
+
+export type DiscordConfig = {
+  guildId: string;
+  roleIds: DiscordConfigRoles;
+  channelIds: DiscordConfigChannels;
+}
+
+export type DiscordConfigChannels = {
+  proposals: string;
+}
+
+export type DiscordConfigRoles = {
+  governance: string;
+}
+
+export type JuiceboxConfig = {
+  projectId: string;
+  gnosisSafeAddress: string;
+}
+
+export type SnapshotConfig = {
+  space: string;
+  minTokenPassingAmount: number;
+  passingRatio: number;
+}
+
+export type CreateFormKeys = 'name' |
+  `discord.${keyof DiscordConfig}` |
+  `discord.channelIds.${keyof DiscordConfigChannels}`|
+  `discord.roleIds.${keyof DiscordConfigRoles}` |
+  `snapshot.${keyof SnapshotConfig}` |
+  `juicebox.${keyof JuiceboxConfig}`
 
 export type ConfigSpacePayload = {
   space: string;
