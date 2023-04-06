@@ -112,8 +112,8 @@ export function useProposalUpload(space: string, proposalId: string, shouldFetch
     );
 }
 
-export function useCreateSpace(space: string, shouldFetch: boolean = true) {
-    const url = `${NANCE_API_URL}/nanceish/config`
+export function useCreateSpace(shouldFetch: boolean = true) {
+    const url = `${NANCE_API_URL}/ish/config`
     let fetcher = creator
     return useSWRMutation(
         shouldFetch ? url : null,
