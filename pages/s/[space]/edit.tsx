@@ -778,7 +778,7 @@ function CustomTransactionActionForm({ genFieldName }:
               render={({ field: { onChange, onBlur, value, ref } }) =>
                 <FunctionSelector address={watch(genFieldName("contract"))} val={value} setVal={onChange} setFunctionFragment={(f) => {
                   setFunctionFragment(f);
-                  setValue(genFieldName("functionFragment"), JSON.stringify(f));
+                  setValue(genFieldName("functionFragment"), f);
                 }} inputStyle="h-10" />
               }
             />
