@@ -184,6 +184,7 @@ export type CustomTransaction = {
   // can have unnamed parameters
   functionName: string;
   args: any[];
+  tenderlyId: string;
 }
 
 export function extractFunctionName(str) {
