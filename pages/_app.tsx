@@ -1,13 +1,17 @@
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css';
-
+import { useState, useEffect } from 'react';
 import { GraphQLClient, ClientContext } from 'graphql-hooks'
 import memCache from 'graphql-hooks-memcache'
 
 import {
   getDefaultWallets,
   RainbowKitProvider,
+  RainbowKitAuthenticationProvider,
+  AuthenticationStatus
 } from '@rainbow-me/rainbowkit';
+import { SessionProvider } from 'next-auth/react';
+import { authenticationAdapter } from '../libs/rainbowSessionAdapter';
 import {
   WagmiConfig, createClient,
   configureChains, chain
@@ -21,8 +25,7 @@ import { Flowbite } from 'flowbite-react';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/react';
 
-import { SessionProvider } from 'next-auth/react';
-import { RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
+import { getAuthStatus } from '../hooks/NanceHooks';
 
 const graphqlClient = new GraphQLClient({
   url: 'https://hub.snapshot.org/graphql',
@@ -58,31 +61,49 @@ const theme = {
 }
 
 function MyApp({ Component, pageProps }) {
+  const [authenticationStatus, setAuthenticationStatus] = useState('loading');
+  useEffect(() => {
+    const loadAuthenticationStatus = async () => {
+      try {
+        const status = await getAuthStatus();
+        if (status.data?.authenticated) {
+          setAuthenticationStatus('authenticated');
+        } else {
+          setAuthenticationStatus('unauthenticated');
+        }
+      } catch (error) {
+        console.error('Error loading authentication status:', error);
+        setAuthenticationStatus('unauthenticated');
+      }
+    };
+    loadAuthenticationStatus();
+  }, []);
   return (
     <>
       <WagmiConfig client={wagmiClient}>
-        <SessionProvider refetchInterval={0} session={pageProps.session}>
-          <RainbowKitSiweNextAuthProvider>
-            <RainbowKitProvider
-              chains={chains}
-              appInfo={{
-                appName: 'JBDAO',
-                learnMoreUrl: 'https://jbdao.org',
-              }}>
-              <ClientContext.Provider value={graphqlClient}>
-                <NextQueryParamProvider>
-                  <JuiceProvider provider={wagmiClient.provider}>
-                    <Flowbite theme={theme}>
-                      <ErrorBoundary>
-                        <Component {...pageProps} />
-                      </ErrorBoundary>
-                    </Flowbite>
-                  </JuiceProvider>
-                </NextQueryParamProvider>
-              </ClientContext.Provider>
-            </RainbowKitProvider>
-          </RainbowKitSiweNextAuthProvider>
-        </SessionProvider>
+        <RainbowKitAuthenticationProvider
+          adapter={authenticationAdapter}
+          status={authenticationStatus as AuthenticationStatus}
+        >
+          <RainbowKitProvider
+            chains={chains}
+            appInfo={{
+              appName: 'JBDAO',
+              learnMoreUrl: 'https://jbdao.org',
+            }}>
+            <ClientContext.Provider value={graphqlClient}>
+              <NextQueryParamProvider>
+                <JuiceProvider provider={wagmiClient.provider}>
+                  <Flowbite theme={theme}>
+                    <ErrorBoundary>
+                      <Component {...pageProps} />
+                    </ErrorBoundary>
+                  </Flowbite>
+                </JuiceProvider>
+              </NextQueryParamProvider>
+            </ClientContext.Provider>
+          </RainbowKitProvider>
+        </RainbowKitAuthenticationProvider>
       </WagmiConfig>
       <Analytics />
     </>

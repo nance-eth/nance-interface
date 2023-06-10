@@ -15,6 +15,7 @@ import {
     ProposalDeleteRequest,
     ProposalsPacket
 } from '../models/NanceTypes';
+import { SiweMessage } from 'siwe';
 
 function jsonFetcher(): Fetcher<APIResponse<any>, string> {
     return async (url) => {
@@ -80,7 +81,7 @@ async function uploader(url: RequestInfo | URL, { arg }: { arg: ProposalUploadRe
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(arg)
+      body: JSON.stringify(arg),
     })
     const json: APIResponse<ProposalUploadPayload> = await res.json()
     if (json.success === false) {
@@ -146,6 +147,24 @@ async function deleter(url: RequestInfo | URL, { arg }: { arg: ProposalDeleteReq
 
 export function getPath(space: string, command: string) {
     return `${NANCE_API_URL}/${space}/${command}`;
+}
+
+export async function getNanceNonce() {
+    return fetch(`${NANCE_API_URL}/auth/nonce`).then(res => res.text());
+}
+
+export async function postNanceVerify(message: SiweMessage, signature: string) {
+    return fetch(`${NANCE_API_URL}/auth/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, signature }),
+    }).then(async (res) => {
+        return await res.json();
+    });
+}
+
+export async function getAuthStatus() {
+    return fetch(`${NANCE_API_URL}/auth/status`).then(res => res.json()); // NOTE: may need { credentials: 'include' } here but caused CORs issues
 }
 
 export async function fetchCreatedProposals(space: string, author: string) {
