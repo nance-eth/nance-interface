@@ -158,13 +158,22 @@ export async function postNanceVerify(message: SiweMessage, signature: string) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature }),
-    }).then(async (res) => {
-        return await res.json();
-    });
+    }).then(res => res.json());
 }
 
 export async function getAuthStatus() {
-    return fetch(`${NANCE_API_URL}/auth/status`).then(res => res.json()); // NOTE: may need { credentials: 'include' } here but caused CORs issues
+    return fetch(`${NANCE_API_URL}/auth/status`, {
+        credentials: 'include',
+    }).then(res => res.json()); // NOTE: may need { credentials: 'include' } here but caused CORs issues
+}
+
+export function useAuthStatus(shouldFetch: boolean = true) {
+    return useSWR<APIResponse<string>, string>(
+        shouldFetch ? `${NANCE_API_URL}/auth/status` : null,
+        url => fetch(url, {
+            credentials: 'include',
+        }).then(res => res.json()),
+    );
 }
 
 export async function fetchCreatedProposals(space: string, author: string) {

@@ -8,10 +8,9 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
   RainbowKitAuthenticationProvider,
-  AuthenticationStatus
+  AuthenticationStatus,
+  createAuthenticationAdapter
 } from '@rainbow-me/rainbowkit';
-import { SessionProvider } from 'next-auth/react';
-import { authenticationAdapter } from '../libs/rainbowSessionAdapter';
 import {
   WagmiConfig, createClient,
   configureChains, chain
@@ -25,7 +24,8 @@ import { Flowbite } from 'flowbite-react';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/react';
 
-import { getAuthStatus } from '../hooks/NanceHooks';
+import { getAuthStatus, getNanceNonce, postNanceVerify } from '../hooks/NanceHooks';
+import { SiweMessage } from 'siwe';
 
 const graphqlClient = new GraphQLClient({
   url: 'https://hub.snapshot.org/graphql',
@@ -62,6 +62,7 @@ const theme = {
 
 function MyApp({ Component, pageProps }) {
   const [authenticationStatus, setAuthenticationStatus] = useState('loading');
+
   useEffect(() => {
     const loadAuthenticationStatus = async () => {
       try {
@@ -78,6 +79,42 @@ function MyApp({ Component, pageProps }) {
     };
     loadAuthenticationStatus();
   }, []);
+
+  const authenticationAdapter = createAuthenticationAdapter({
+    getNonce: async () => {
+      return getNanceNonce();
+    },
+    createMessage: ({ nonce, address, chainId }) => {
+      return new SiweMessage({
+        domain: window.location.host,
+        address,
+        statement: 'Sign in with Ethereum to Nance',
+        uri: 'http://localhost:3001',
+        version: '1',
+        chainId,
+        nonce,
+      });
+    },
+    getMessageBody: ({ message }) => {
+      return message.prepareMessage();
+    },
+    verify: async ({ message, signature }) => {
+      const res = await postNanceVerify(message, signature);
+      console.debug("rainbow", res)
+
+      // update status in App component so RainbowKit can know
+      setAuthenticationStatus(
+        res.success ? 'authenticated' : 'unauthenticated'
+      );
+
+      if (res.success) return true;
+      return false;
+    },
+    signOut: async () => {
+      await fetch('/api/logout');
+    },
+  });  
+
   return (
     <>
       <WagmiConfig client={wagmiClient}>
