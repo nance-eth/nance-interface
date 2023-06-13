@@ -67,10 +67,10 @@ function MyApp({ Component, pageProps }) {
     const loadAuthenticationStatus = async () => {
       try {
         const status = await getAuthStatus();
-        if (status.data?.authenticated) {
-          setAuthenticationStatus('authenticated');
-        } else {
+        if (status.data === 'unauthenticated') {
           setAuthenticationStatus('unauthenticated');
+        } else {
+          setAuthenticationStatus('authenticated');
         }
       } catch (error) {
         console.error('Error loading authentication status:', error);

@@ -154,11 +154,13 @@ export async function getNanceNonce() {
 }
 
 export async function postNanceVerify(message: SiweMessage, signature: string) {
-    return fetch(`${NANCE_API_URL}/auth/verify`, {
+    const res = await fetch(`${NANCE_API_URL}/auth/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature }),
-    }).then(res => res.json());
+        credentials: 'include'
+    });
+    return res.json();
 }
 
 export async function getAuthStatus() {
