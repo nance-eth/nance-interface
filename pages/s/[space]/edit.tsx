@@ -6,11 +6,11 @@ import React from "react";
 import { useRouter } from "next/router";
 import Notification from "../../../components/Notification";
 import GenericButton from "../../../components/GenericButton";
-import { fetchProposal, useProposalUpload } from "../../../hooks/NanceHooks";
+import { useProposalUpload } from "../../../hooks/NanceHooks";
 import { imageUpload } from "../../../hooks/ImageUpload";
 import { fileDrop } from "../../../hooks/FileDrop";
 import { Proposal, ProposalUploadRequest, Action, JBSplitNanceStruct } from "../../../models/NanceTypes";
-import { NANCE_DEFAULT_JUICEBOX_PROJECT, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
+import { NANCE_API_URL, NANCE_DEFAULT_JUICEBOX_PROJECT, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
 import Link from "next/link";
 
 import { useSigner } from "wagmi";
@@ -39,19 +39,26 @@ import SelectForm from "../../../components/form/SelectForm";
 import ProjectForm from "../../../components/form/ProjectForm";
 import JBSplitEntry from "../../../components/juicebox/JBSplitEntry";
 import Footer from "../../../components/Footer";
+import { getToken } from "next-auth/jwt";
 
 const ProposalMetadataContext = React.createContext({
   loadedProposal: null as Proposal | null
 });
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps({ req, query, params}) {
   // check proposal parameter type
-  console.debug(context.query);
-  const proposalParam: string = context.query.proposalId;
-  const spaceParam: string = context.params.space;
+  const proposalParam: string = query.proposalId;
+  const spaceParam: string = params.space;
+
+  // Attach the JWT token to the request headers
+  const token = await getToken({ req, raw: true });
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
   let proposalResponse = null;
   if (proposalParam) {
-    proposalResponse = await fetchProposal(spaceParam, proposalParam);
+    proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, {headers}).then(res => res.json())
     if (proposalResponse?.data) {
       proposalResponse.data.body = await markdownToHtml(proposalResponse.data.body)
     }

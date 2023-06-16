@@ -13,7 +13,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import ColorBar from "../../../components/ColorBar";
-import { fetchProposal, useProposal, useProposalDelete, useProposalUpload } from "../../../hooks/NanceHooks";
+import { useProposal, useProposalDelete, useProposalUpload } from "../../../hooks/NanceHooks";
 import { canEditProposal, getLastSlash } from "../../../libs/nance";
 import { Proposal, Payout, Action, Transfer, CustomTransaction, Reserve, ProposalDeleteRequest, ProposalUploadRequest } from "../../../models/NanceTypes";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -35,6 +35,7 @@ import { signPayload } from "../../../libs/signer";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { useRouter } from "next/router";
 import Notification from "../../../components/Notification";
+import { getToken } from "next-auth/jwt";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -72,15 +73,21 @@ function getDomain(url) {
   return domain;
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps({ req, params }) {
   let snapshotProposal: SnapshotProposal;
   let proposal: Proposal;
 
   // check proposal parameter type
-  const proposalParam: string = context.params.proposal;
-  const spaceParam: string = context.params.space;
+  const proposalParam: string = params.proposal;
+  const spaceParam: string = params.space;
 
-  const proposalResponse = await fetchProposal(spaceParam, proposalParam);
+  // Attach the JWT token to the request headers
+  const token = await getToken({ req, raw: true });
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  const proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, {headers}).then(res => res.json())
   proposal = proposalResponse.data;
   const proposalHash = getLastSlash(proposal?.voteURL);
   if (proposalHash) {
