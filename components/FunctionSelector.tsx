@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, useState } from 'react'
-import { CheckIcon, ChevronDownIcon } from '@heroicons/react/solid'
+import { useState } from 'react'
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/solid'
 import { Combobox } from '@headlessui/react'
-import { useEnsAddress, useContract } from 'wagmi'
+import { useContract } from 'wagmi'
 import { useEtherscanContractABI } from '../hooks/EtherscanHooks'
 import { FunctionFragment } from 'ethers/lib/utils'
 
@@ -17,18 +17,19 @@ export default function FunctionSelector({ address, val, setVal, setFunctionFrag
   }) {
 
   const [query, setQuery] = useState('')
-  const { data: abi, isLoading, error } = useEtherscanContractABI(address, address.length === 42)
+  const { data: abi, isLoading, error, isProxy } = useEtherscanContractABI(address, address.length === 42)
 
   const contract = useContract({
     address,
     abi: !error && abi as any,
   })
-  const functions = Object.keys(contract?.interface.functions || {});
+  const fragmentMap = {};
+  Object.values(contract?.interface.functions || {}).forEach(f => fragmentMap[f.format("full")] = f)
 
   const filteredOption =
     query === ''
-      ? functions
-      : functions.filter((functionName) => {
+      ? Object.keys(fragmentMap)
+      : Object.keys(fragmentMap).filter((functionName) => {
         return functionName.toLowerCase().includes(query.toLowerCase())
       })
 
@@ -36,7 +37,7 @@ export default function FunctionSelector({ address, val, setVal, setFunctionFrag
     <Combobox as="div" value={val} onChange={(val) => {
       setVal(val)
       try {
-        setFunctionFragment(contract?.interface?.getFunction(val))
+        setFunctionFragment(fragmentMap[val])
       } catch (e) {
         console.warn("FunctionSelector.getFunction error", e)
       }

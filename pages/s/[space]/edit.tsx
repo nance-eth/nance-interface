@@ -6,7 +6,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Notification from "../../../components/Notification";
 import GenericButton from "../../../components/GenericButton";
-import { useProposalUpload } from "../../../hooks/NanceHooks";
+import { fetchProposal, useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { imageUpload } from "../../../hooks/ImageUpload";
 import { fileDrop } from "../../../hooks/FileDrop";
 import { Proposal, ProposalUploadRequest, Action, JBSplitNanceStruct } from "../../../models/NanceTypes";
@@ -21,7 +21,7 @@ import { Editor } from '@tinymce/tinymce-react';
 
 import { markdownToHtml, htmlToMarkdown } from '../../../libs/markdown';
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { CheckIcon, ChevronDownIcon, CurrencyDollarIcon, LightningBoltIcon, PlusIcon, SwitchVerticalIcon, UserGroupIcon, XIcon } from "@heroicons/react/solid";
+import { CheckIcon, ChevronDownIcon, CurrencyDollarIcon, BoltIcon, PlusIcon, ArrowsUpDownIcon, UserGroupIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Combobox, Dialog, Disclosure, Listbox, Transition } from '@headlessui/react';
 import { ErrorMessage } from "@hookform/error-message";
 import FunctionSelector from "../../../components/FunctionSelector";
@@ -30,7 +30,7 @@ import { CONTRACT_MAP, ZERO_ADDRESS } from "../../../constants/Contract";
 import { useCurrentFundingCycleV2 } from "../../../hooks/juicebox/CurrentFundingCycle";
 import { useCurrentSplits } from "../../../hooks/juicebox/CurrentSplits";
 import { JBConstants } from "../../../models/JuiceboxTypes";
-import { CheckCircleIcon, TrashIcon } from "@heroicons/react/outline";
+import { CheckCircleIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
 import AddressForm from "../../../components/form/AddressForm";
 import NumberForm from "../../../components/form/NumberForm";
 import BooleanForm from "../../../components/form/BooleanForm";
@@ -42,13 +42,16 @@ import Footer from "../../../components/Footer";
 import { getToken } from "next-auth/jwt";
 
 const ProposalMetadataContext = React.createContext({
-  loadedProposal: null as Proposal | null
+  loadedProposal: null as Proposal | null,
+  fork: false as boolean,
+  space: '' as string
 });
 
 export async function getServerSideProps({ req, query, params}) {
   // check proposal parameter type
   const proposalParam: string = query.proposalId;
   const spaceParam: string = params.space;
+  const forkParam: string = query.fork;
 
   // Attach the JWT token to the request headers
   const token = await getToken({ req, raw: true });
@@ -65,10 +68,10 @@ export async function getServerSideProps({ req, query, params}) {
   }
 
   // Pass data to the page via props
-  return { props: { space: spaceParam, loadedProposal: proposalResponse?.data || null } }
+  return { props: { space: spaceParam, loadedProposal: proposalResponse?.data || null, fork: forkParam === "true" } }
 }
 
-export default function NanceEditProposal({ space, loadedProposal }: { space: string, loadedProposal: Proposal }) {
+export default function NanceEditProposal({ space, loadedProposal, fork }: { space: string, loadedProposal: Proposal, fork: boolean }) {
   const router = useRouter();
 
   const [query, setQuery] = useQueryParams({
@@ -91,10 +94,10 @@ export default function NanceEditProposal({ space, loadedProposal }: { space: st
       <div className="m-4 lg:m-6 flex justify-center items-center">
         <div className="max-w-7xl w-full">
           <p className="text-2xl font-bold">
-            {proposalId ? "Edit" : "New"} Proposal for <a href={`/s/${space}`}>{space}</a>
+            {(proposalId && !fork) ? "Edit" : "New"} Proposal for <a href={`/s/${space}`}>{space}</a>
           </p>
 
-          <ProposalMetadataContext.Provider value={{ loadedProposal }}>
+          <ProposalMetadataContext.Provider value={{ loadedProposal, fork, space }}>
             <Form space={space} />
           </ProposalMetadataContext.Provider>
         </div>
@@ -124,22 +127,26 @@ function Form({ space }: { space: string }) {
   const [selected, setSelected] = useState(ProposalStatus[0])
 
   // hooks
-  const { isMutating, error: uploadError, trigger, data, reset } = useProposalUpload(space, metadata.loadedProposal?.hash, router.isReady);
+  const { isMutating, error: uploadError, trigger, data, reset } = useProposalUpload(space, !metadata.fork && metadata.loadedProposal?.hash, router.isReady);
   
   const { data: signer } = useSigner()
   const jrpcSigner = signer as JsonRpcSigner;
   const { openConnectModal } = useConnectModal();
 
-  const isNew = metadata.loadedProposal === null;
+  const isNew = metadata.fork || metadata.loadedProposal === null;
 
   // form
   const methods = useForm<ProposalFormValues>();
   const { register, handleSubmit, control, formState } = methods;
   const onSubmit: SubmitHandler<ProposalFormValues> = async (formData) => {
-    const { hash } = metadata?.loadedProposal ?? {};
+    let hash;
+    if (!metadata.fork && metadata?.loadedProposal) {
+      hash = metadata.loadedProposal.hash;
+    }
+
     const payload = {
       ...formData.proposal,
-      status: selected.value,
+      status: metadata.loadedProposal?.status || selected.value,
       body: await htmlToMarkdown(formData.proposal.body),
       hash
     };
@@ -201,7 +208,7 @@ function Form({ space }: { space: string }) {
         <Notification title="Error" description={error.error_description || error.message || error} show={true} close={resetSignAndUpload} checked={false} />
       }
       <form className="space-y-6 mt-6" onSubmit={handleSubmit(onSubmit)}>
-        <Actions loadedActions={metadata.loadedProposal?.actions || []} />
+        <Actions loadedActions={(metadata.fork) ? metadata.loadedProposal?.actions.map(({ uuid, ...rest }) => rest) : metadata.loadedProposal?.actions || []} />
 
         <div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
           <div>
@@ -224,7 +231,7 @@ function Form({ space }: { space: string }) {
                     render={({ field: { onChange, onBlur, value, ref } }) =>
                       <Editor
                         apiKey={process.env.NEXT_PUBLIC_TINY_KEY || 'no-api-key'}
-                        onInit={(evt, editor) => console.log(editor.getBody())}
+                        onInit={(evt, editor) => editor.setContent(metadata.loadedProposal?.body || TEMPLATE)}
                         initialValue={metadata.loadedProposal?.body || TEMPLATE}
                         value={value}
                         onEditorChange={(newValue, editor) => onChange(newValue)}
@@ -391,16 +398,6 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
 
   return (
     <div>
-      <div className="bg-white p-8 shadow rounded-lg flex flex-col items-center justify-center">
-        <GenericButton onClick={() => setOpen(true)} className="px-3 py-3">
-          <PlusIcon className="w-5 h-5" />
-          <p className="ml-1 font-semibold text-xl">Add an action</p>
-        </GenericButton>
-        <p className="text-gray-500 text-sm mt-1">
-          <CheckCircleIcon className="h-5 w-5 inline mr-1" />
-          Specify on-chain actions you want to execute with current proposal
-        </p>
-      </div>
       
       {fields.map((field: any, index) => {
         if (field.type === "Payout") {
@@ -408,7 +405,7 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
             <div key={field.id} className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold text-xl">Payout</h3>
-                <XIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
+                <XMarkIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
               </div>
               <input
                 type="text"
@@ -423,7 +420,7 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
             <div key={field.id} className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold text-xl">Transfer</h3>
-                <XIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
+                <XMarkIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
               </div>
               <input
                 type="text"
@@ -438,7 +435,7 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
             <div key={field.id} className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold text-xl">Reserve</h3>
-                <XIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
+                <XMarkIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
               </div>
               <input
                 type="text"
@@ -453,7 +450,7 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
             <div key={field.id} className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold text-xl">Custom Transaction</h3>
-                <XIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
+                <XMarkIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
               </div>
               <input
                 type="text"
@@ -468,12 +465,24 @@ function Actions({ loadedActions }: { loadedActions: Action[] }) {
             <div key={field.id} className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6">
               <div className="flex justify-between mb-2">
                 <h3 className="font-semibold text-xl">{field.type}</h3>
-                <XIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
+                <XMarkIcon className="w-5 h-5 cursor-pointer" onClick={() => remove(index)} />
               </div>
             </div>
           )
         }
       })}
+
+      <div className="bg-white p-8 mt-4 shadow rounded-lg flex flex-col items-center justify-center hover:cursor-pointer"
+        onClick={() => setOpen(true)}>
+        <div className="w-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-8">
+          <SquaresPlusIcon className="w-14 h-14 text-gray-400" />
+            <p className="mt-2 font-medium text-l">Add an action</p>
+          <p className="text-gray-500 text-sm mt-6">
+            {/* <InformationCircleIcon className="h-5 w-5 inline mr-1 mb-0.5" /> */}
+            Specify this proposal{"'"}s onchain actions
+          </p>
+        </div>
+      </div>
 
       <ActionPalettes open={open} setOpen={setOpen} selectedAction={selectedAction} setSelectedAction={newAction} />
     </div>
@@ -512,7 +521,7 @@ const items: ActionItem[] = [
     description: 'Transfer tokens from Safe.',
     url: '#',
     color: 'bg-blue-500',
-    icon: SwitchVerticalIcon,
+    icon: ArrowsUpDownIcon,
   },
   {
     id: 4,
@@ -520,7 +529,7 @@ const items: ActionItem[] = [
     description: 'Execute custom transaction with Safe.',
     url: '#',
     color: 'bg-blue-500',
-    icon: LightningBoltIcon,
+    icon: BoltIcon,
   },
   // More items...
 ]
@@ -664,33 +673,39 @@ function TransferActionForm({ genFieldName }:
 function ReserveActionForm({ genFieldName }:
   { genFieldName: (field: string) => any }) {
 
+  const {space} = useContext(ProposalMetadataContext);
+
   const { watch, formState: { errors } } = useFormContext();
   const { fields, append, remove, prepend } = useFieldArray<{
     splits: JBSplitNanceStruct[];
     [key: string]: any;
   }>({ name: genFieldName("splits") });
   
-  const { value: _fc, loading: fcIsLoading } = useCurrentFundingCycleV2({ projectId: NANCE_DEFAULT_JUICEBOX_PROJECT, isV3: true });
+  const { data: spaceInfo } = useSpaceInfo({space});
+  const projectId = spaceInfo?.data?.juiceboxProjectId;
+  const { value: _fc, loading: fcIsLoading } = useCurrentFundingCycleV2({ projectId, isV3: true });
   const [fc, metadata] = _fc || [];
-  const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(NANCE_DEFAULT_JUICEBOX_PROJECT, fc?.configuration, JBConstants.SplitGroup.RESERVED_TOKEN, true);
+  const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.RESERVED_TOKEN, true);
   // TODO: reserve rate, percent / total_percentage JBConstants
 
   useEffect(() => {
-    const arr = ticketMods ? [...ticketMods] : [];
-    arr.sort((a, b) => b.percent.sub(a.percent).toNumber());
-    arr.forEach(ticket => {
-      const split: JBSplitNanceStruct = {
-        preferClaimed: ticket.preferClaimed,
-        preferAddToBalance: ticket.preferAddToBalance,
-        percent: ticket.percent.toNumber(),
-        projectId: ticket.projectId.toNumber(),
-        beneficiary: ticket.beneficiary,
-        lockedUntil: ticket.lockedUntil.toNumber(),
-        allocator: ticket.allocator
-      }
-      append(split)
-    })
-  }, [ticketMods])
+    if (fields.length === 0) { // if no splits in proposal (not editing) then load from JB project
+      const arr = ticketMods ? [...ticketMods] : [];
+      arr.sort((a, b) => b.percent.sub(a.percent).toNumber());
+      arr.forEach(ticket => {
+        const split: JBSplitNanceStruct = {
+          preferClaimed: ticket.preferClaimed,
+          preferAddToBalance: ticket.preferAddToBalance,
+          percent: ticket.percent.toNumber(),
+          projectId: ticket.projectId.toNumber(),
+          beneficiary: ticket.beneficiary,
+          lockedUntil: ticket.lockedUntil.toNumber(),
+          allocator: ticket.allocator
+        }
+        append(split)
+      })
+    }
+  }, [ticketMods, append, fields])
 
   return (
     <div className="flex flex-col gap-6">
@@ -757,8 +772,20 @@ function ReserveActionForm({ genFieldName }:
 function CustomTransactionActionForm({ genFieldName }:
   { genFieldName: (field: string) => any }) {
 
-  const { watch, control, formState: { errors } } = useFormContext();
   const [functionFragment, setFunctionFragment] = useState<FunctionFragment>();
+
+  const { watch, control, formState: { errors } } = useFormContext();
+  const { replace } = useFieldArray<{
+    args: any[];
+    [key: string]: any;
+  }>({ name: genFieldName("args") });
+  
+  useEffect(() => {
+    if(functionFragment?.inputs && replace) {
+      console.debug(functionFragment)
+      replace(functionFragment.inputs.map(p => ""))
+    }
+  }, [functionFragment, replace])
 
   return (
     <div className="grid grid-cols-4 gap-6">
@@ -783,7 +810,7 @@ function CustomTransactionActionForm({ genFieldName }:
                 required: "Can't be empty"
               }}
               render={({ field: { onChange, onBlur, value, ref } }) =>
-                <FunctionSelector address={watch(genFieldName("contract"))} val={value} setVal={onChange} setFunctionFragment={setFunctionFragment} inputStyle="h-10" />
+                <FunctionSelector address={watch(genFieldName("contract"))} val={value} setVal={onChange} setFunctionFragment={(f) => setFunctionFragment(f)} inputStyle="h-10" />
               }
             />
             <ErrorMessage
@@ -797,21 +824,21 @@ function CustomTransactionActionForm({ genFieldName }:
 
       {
         functionFragment?.inputs?.map((param, index) => (
-          <div key={param.name} className="col-span-4 sm:col-span-1">
+          <div key={index} className="col-span-4 sm:col-span-1">
             {param.type === "address" && (
-              <AddressForm label={`Param: ${param.name}`} fieldName={genFieldName(`args.${param.name}`)} />
+              <AddressForm label={`Param: ${param.name || '_'}`} fieldName={genFieldName(`args.${index}`)} />
             )}
 
             {param.type.includes("int") && (
-              <NumberForm label={`Param: ${param.name}`} fieldName={genFieldName(`args.${param.name}`)} fieldType={param.type} />
+              <NumberForm label={`Param: ${param.name || '_'}`} fieldName={genFieldName(`args.${index}`)} fieldType={param.type} />
             )}
 
             {param.type === "bool" && (
-              <BooleanForm label={`Param: ${param.name}`} fieldName={genFieldName(`args.${param.name}`)} />
+              <BooleanForm label={`Param: ${param.name || '_'}`} fieldName={genFieldName(`args.${index}`)} />
             )}
 
             {param.type !== "address" && !param.type.includes("int") && param.type !== "bool" && (
-              <StringForm label={`Param: ${param.name}`} fieldName={genFieldName(`args.${param.name}`)} fieldType={param.type} />
+              <StringForm label={`Param: ${param.name || '_'}`} fieldName={genFieldName(`args.${index}`)} fieldType={param.type} />
             )}
           </div>
         ))

@@ -8,9 +8,10 @@ import { Proposal, ProposalsPacket } from "../../models/NanceTypes";
 import FormattedAddress from "../FormattedAddress";
 import { classNames } from "../../libs/tailwind";
 import { Tooltip } from "flowbite-react";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, InformationCircleIcon, PencilAltIcon, XCircleIcon, XIcon } from '@heroicons/react/solid';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, InformationCircleIcon, PencilSquareIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { formatDistanceToNowStrict, toDate } from "date-fns";
 import ColorBar from "../ColorBar";
+import NewVoteButton from "../NewVoteButton";
 
 type SortOptions = "" | "status" | "title" | "approval" | "participants" | "voted"
 const SortOptionsArr = ["status", "title", "approval", "participants", "voted"]
@@ -32,15 +33,15 @@ function getVotedIcon(choice) {
       return null
     } else if (typeof choice === 'string') {
       if (choice === 'For' || choice === 'Yes') {
-        return <CheckIcon className="h-5 w-5 text-green-500" aria-hidden="true" />
+        return <CheckIcon className="h-5 w-5 text-green-500 text-center" aria-hidden="true" />
       } else if (choice === 'Against' || choice === 'No') {
-        return <XIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+        return <XMarkIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
       }
     }
   
     return (
       <Tooltip content={JSON.stringify(choice)}>
-        <InformationCircleIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
+        <InformationCircleIcon className="h-5 w-5 text-gray-500 text-center" aria-hidden="true" />
       </Tooltip>
     )
 }
@@ -51,7 +52,7 @@ function getRandomInt(max) {
 export default function ProposalCards({ loading, proposalsPacket, query, setQuery, maxCycle, proposalUrlPrefix }:
     {
       loading: boolean, proposalsPacket: ProposalsPacket,
-      query: { cycle: number, keyword: string, sortBy: string, sortDesc: boolean },
+      query: { cycle: number, keyword: string, sortBy: string, sortDesc: boolean, page: number, limit: number },
       setQuery: (o: object) => void, maxCycle: number,
       proposalUrlPrefix: string
     }) {
@@ -61,12 +62,12 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
   
     // for those proposals with no results cached by nance, we need to fetch them from snapshot
     const snapshotProposalIds: string[] = proposalsPacket?.proposals?.filter(p => p.voteURL).map(p => getLastSlash(p.voteURL)) || [];
-    const { data, loading: snapshotLoading, error } = useProposalsByID(snapshotProposalIds, address, snapshotProposalIds.length === 0);
+    const { data, loading: snapshotLoading, error, refetch } = useProposalsByID(snapshotProposalIds, address, snapshotProposalIds.length === 0);
     // convert proposalsData to dict with proposal id as key
     const snapshotProposalDict: { [id: string]: SnapshotProposal } = {};
     data?.proposalsData?.forEach(p => snapshotProposalDict[p.id] = p);
     // override the snapshot proposal vote results into proposals.voteResults
-    const mergedProposals: Proposal[] = proposalsPacket?.proposals?.map(p => {
+    const mergedProposals = proposalsPacket?.proposals?.map(p => {
       const snapshotProposal = snapshotProposalDict[getLastSlash(p.voteURL)];
       if (snapshotProposal) {
         return {
@@ -82,12 +83,19 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
     });
     const votedData = data?.votedData;
     // sort proposals
-    let sortedProposals = mergedProposals?.sort((a, b) => b.governanceCycle - a.governanceCycle) || []
+    // FIXME this can only sort proposals in current page
+    let sortedProposals = mergedProposals || []
     if (!query.sortBy || !SortOptionsArr.includes(query.sortBy)) {
-      // fall back to default sorting
-      sortedProposals
-        .sort((a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0))
-        .sort((a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status))
+      if (query.keyword) {
+        // keep relevance order
+      } else {
+        // fall back to default sorting
+        // if no keyword
+        sortedProposals
+          .sort((a, b) => b.governanceCycle - a.governanceCycle) 
+          .sort((a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0))
+          .sort((a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status))
+      }
     } else {
       if (query.sortBy === "status") {
         sortedProposals.sort((a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status))
@@ -99,8 +107,32 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
       } else if (query.sortBy === "participants") {
         sortedProposals.sort((a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0))
       } else if (query.sortBy === "voted") {
-        const votedWeightOf = (p: Proposal) => votedData?.[getLastSlash(p.voteURL)] !== undefined ? 1 : -1
+        const votedWeightOf = (p: Proposal) => {
+          const voted = votedData?.[getLastSlash(p.voteURL)] !== undefined;
+          const hasSnapshotVoting = snapshotProposalDict[getLastSlash(p.voteURL)];
+          
+          if (hasSnapshotVoting) {
+            if (voted) return 2;
+            else return 1;
+          } else {
+            return 0;
+          }
+        }
         sortedProposals.sort((a, b) => votedWeightOf(b) - (votedWeightOf(a)))
+      } else if (query.sortBy === "title") {
+        sortedProposals.sort((a, b) => {
+          const nameA = a.title;
+          const nameB = b.title;
+          if (nameA < nameB) {
+            return -1;
+          }
+          if (nameA > nameB) {
+            return 1;
+          }
+        
+          // names must be equal
+          return 0;
+        })
       } else {
         sortedProposals.sort()
       }
@@ -176,7 +208,7 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                   >
                     <SortableTableHeader val="participants" label="Participants" />
                   </th>
-                  <th scope="col" className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 md:table-cell">
+                  <th scope="col" className="hidden px-3 py-3.5 text-center text-sm font-semibold text-gray-900 md:table-cell">
                     <SortableTableHeader val="voted" label="Voted" />
                   </th>
                 </tr>
@@ -190,7 +222,7 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                         'relative py-4 pl-6 pr-3 text-sm hidden md:table-cell'
                       )}
                     >
-                      <div className="font-medium text-gray-900">
+                      <Link href={`${proposalUrlPrefix}${proposal.proposalId || proposal.hash}`} className="font-medium text-gray-900">
                         {(proposal.status === 'Discussion' || proposal.status === 'Draft' || proposal.status === 'Revoked') && (
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                             {proposal.status}
@@ -206,12 +238,17 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                             Cancelled
                           </span>
                         )}
+                        {proposal.status === 'Temperature Check' && (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                            Temp-check
+                          </span>
+                        )}
                         {(proposal.status !== 'Discussion' && proposal.status !== 'Approved' && proposal.status !== 'Cancelled' && proposal.status !== 'Draft' && proposal.status !== 'Revoked') && (
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
                             {proposal.status}
                           </span>
                         )}
-                      </div>
+                      </Link>
   
                       {proposalIdx !== 0 ? <div className="absolute right-0 left-6 -top-px h-px bg-gray-200" /> : null}
                     </td>
@@ -221,7 +258,7 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                         'px-3 py-3.5 text-sm text-gray-500'
                       )}
                     >
-                      <div className="flex flex-col space-y-1">
+                      <Link href={`${proposalUrlPrefix}${proposal.proposalId || proposal.hash}`} className="flex flex-col space-y-1">
                         <div className="text-gray-900 block md:hidden">
                           {(proposal.status === 'Discussion' || proposal.status === 'Draft' || proposal.status === 'Revoked') && (
                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -249,12 +286,14 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                           <FormattedAddress address={proposal.authorAddress} noLink />
                         </span>
   
-                        <Link href={`${proposalUrlPrefix}${proposal.proposalId || proposal.hash}`} legacyBehavior>
-                          <a className="break-words text-base text-black">
-                            {proposal.title}
-                          </a>
-                        </Link>
-                      </div>
+                        <p className="break-words text-base text-black">
+                          {proposal.title}
+                        </p>
+
+                        <div className="md:hidden">
+                          <VotesBar proposal={proposal} snapshotProposal={snapshotProposalDict[getLastSlash(proposal.voteURL)]} />
+                        </div>
+                      </Link>
   
                     </td>
                     <td
@@ -271,7 +310,9 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                         'hidden px-3 py-3.5 text-sm text-black md:table-cell text-center'
                       )}
                     >
-                      {proposal?.voteResults?.votes || '-'}
+                      <Link href={`${proposalUrlPrefix}${proposal.proposalId || proposal.hash}`}>
+                        {proposal?.voteResults?.votes || '-'}
+                      </Link>
                     </td>
                     <td
                       className={classNames(
@@ -279,7 +320,9 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
                         'px-3 py-3.5 text-sm text-gray-500 hidden md:table-cell text-center'
                       )}
                     >
-                      {getVotedIcon(votedData?.[getLastSlash(proposal.voteURL)]?.choice)}
+                      {!votedData?.[getLastSlash(proposal.voteURL)] && snapshotProposalDict[getLastSlash(proposal.voteURL)] ?
+                        <NewVoteButton proposal={snapshotProposalDict[getLastSlash(proposal.voteURL)]} refetch={refetch} isSmall />
+                      : <div className="flex justify-center">{getVotedIcon(votedData?.[getLastSlash(proposal.voteURL)]?.choice)}</div>}
                     </td>
                   </tr>
                 ))}
@@ -297,8 +340,18 @@ export default function ProposalCards({ loading, proposalsPacket, query, setQuer
             <button type="button"
               className="items-center rounded border border-transparent bg-indigo-700 px-2.5 py-1.5 text-sm font-medium text-white shadow-sm"
               onClick={router.back}>
-              Back to previous page
+              Back
             </button>
+
+            {
+              query.page && query.page > 1 && (
+                <button type="button"
+                  className="items-center rounded border border-transparent bg-indigo-700 px-2.5 py-1.5 text-sm font-medium text-white shadow-sm"
+                  onClick={() => setQuery({ page: 1 })}>
+                  Go to first page
+                </button>
+              )
+            }
   
             {
               query.keyword && (
@@ -346,7 +399,7 @@ function VotingTimeIndicator({p}: {p: SnapshotProposal}) {
     if (currentTime < p.start) {
       return (
         <div className="flex space-x-1 text-xs justify-center place-items-center">
-          <PencilAltIcon className="h-3 w-3" />
+          <PencilSquareIcon className="h-3 w-3" />
           <p>{startLabel}</p>
         </div>
       )

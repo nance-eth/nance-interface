@@ -1,4 +1,4 @@
-import { DocumentSearchIcon } from "@heroicons/react/outline";
+import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { useQueryParams, StringParam, withDefault, BooleanParam, NumberParam } from "next-query-params";
 import { useRouter } from "next/router";
@@ -8,6 +8,7 @@ import ScrollToBottom from "../ScrollToBottom";
 import SearchableComboBox, { Option } from "../SearchableComboBox";
 import ProposalCards from "./ProposalCards";
 import { getLastSlash } from "../../libs/nance";
+import Pagination from "../Pagination";
 
 export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space: string, proposalUrlPrefix?: string }) {
     // State
@@ -18,16 +19,17 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
     const router = useRouter();
     const [query, setQuery] = useQueryParams({
       keyword: StringParam,
-      //limit: NumberParam,
-      sortBy: withDefault(StringParam, 'status'),
+      limit:withDefault(NumberParam, 15),
+      page:withDefault(NumberParam, 1),
+      sortBy: withDefault(StringParam, ''),
       sortDesc: withDefault(BooleanParam, true),
       cycle: NumberParam
     });
-    const { keyword, cycle } = query;
+    const { keyword, cycle, limit, page } = query;
   
     // External Hooks
     const { data: infoData, isLoading: infoLoading, error: infoError } = useSpaceInfo({ space }, router.isReady);
-    const { data: proposalData, isLoading: proposalsLoading, error: proposalError } = useProposals({ space, cycle, keyword }, router.isReady);
+    const { data: proposalData, isLoading: proposalsLoading, error: proposalError } = useProposals({ space, cycle, keyword, page, limit }, router.isReady);
     const currentCycle = cycle || infoData?.data?.currentCycle;
     const allCycle = { id: "All", label: `All`, status: true };
     
@@ -93,11 +95,11 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
                 </div>
   
                 <div className="break-words p-2 md:w-2/12 text-center rounded-md border-2 border-blue-600 bg-indigo-100">
-                  <a className="text-2xl font-semibold text-gray-900"
+                  <p className="text-2xl font-semibold">{remainingTime} remaining</p>
+                  <a className="text-sm text-gray-900"
                     href="https://info.juicebox.money/dao/process/" target="_blank" rel="noopener noreferrer">
                     {infoData?.data?.currentEvent?.title || "Unknown"} of GC{infoData?.data?.currentCycle}
                   </a>
-                  <p className="text-sm font-medium text-gray-500">{remainingTime} remaining</p>
                 </div>
               </div>
             </div>
@@ -122,7 +124,7 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
                 <div className="mt-1 flex rounded-md shadow-sm">
                   <div className="relative flex flex-grow items-stretch focus-within:z-10">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <DocumentSearchIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                      <DocumentMagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </div>
                     <input
                       type="text"
@@ -149,10 +151,8 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
             <div className="">
               <ProposalCards proposalUrlPrefix={proposalUrlPrefix} loading={infoLoading || proposalsLoading} proposalsPacket={proposalData?.data} query={query} setQuery={setQuery} maxCycle={(infoData?.data?.currentCycle ?? 0) + 1} />
             </div>
-  
-            <div className="mt-6 text-center">
-              {proposalData?.data?.proposals.length > 0 && `Total Proposals: ${proposalData?.data?.proposals.length}`}
-            </div>
+
+            <Pagination page={page} setPage={(p) => setQuery({page: p})} limit={limit} total={0} infinite />
 
             <div className="mt-2 text-center">
               {infoData?.data?.dolthubLink && (

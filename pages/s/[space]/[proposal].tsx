@@ -1,34 +1,28 @@
 import { fetchProposalInfo, SnapshotProposal, useProposalVotes, VOTES_PER_PAGE } from "../../../hooks/snapshot/Proposals";
-import { useAccount, useSigner } from 'wagmi'
+import { useSigner } from 'wagmi'
 import SiteNav from "../../../components/SiteNav";
-import ReactMarkdown from "react-markdown";
 import { Tooltip } from 'flowbite-react';
 import FormattedAddress from "../../../components/FormattedAddress";
 import { format, toDate } from "date-fns";
-import { createContext, useContext, useEffect, useState, Fragment } from "react";
-import VotingModal from "../../../components/VotingModal";
+import { createContext, useContext, useState, Fragment } from "react";
 import { withDefault, NumberParam, createEnumParam, useQueryParams } from "next-query-params";
 import { processChoices } from "../../../libs/snapshotUtil";
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
 import ColorBar from "../../../components/ColorBar";
-import { useProposal, useProposalDelete, useProposalUpload } from "../../../hooks/NanceHooks";
+import { fetchProposal, useProposal, useProposalDelete, useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { canEditProposal, getLastSlash } from "../../../libs/nance";
-import { Proposal, Payout, Action, Transfer, CustomTransaction, Reserve, ProposalDeleteRequest, ProposalUploadRequest } from "../../../models/NanceTypes";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { Proposal, Payout, Action, Transfer, CustomTransaction, Reserve, ProposalDeleteRequest, ProposalUploadRequest, extractFunctionName, parseFunctionAbiWithNamedArgs } from "../../../models/NanceTypes";
 import Link from "next/link";
 import Custom404 from "../../404";
 import VoterProfile from "../../../components/VoterProfile";
 import ScrollToBottom from "../../../components/ScrollToBottom";
-import { CheckIcon, ChevronDownIcon, ExternalLinkIcon } from "@heroicons/react/solid";
+import { CheckIcon, ChevronDownIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/solid";
 import ResolvedProject from "../../../components/ResolvedProject";
 import { NANCE_API_URL, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
 import { CONTRACT_MAP } from "../../../constants/Contract";
 import ResolvedContract from "../../../components/ResolvedContract";
 import JBSplitEntry from "../../../components/juicebox/JBSplitEntry";
 import Footer from "../../../components/Footer";
-import { ArrowCircleLeftIcon, ArrowCircleRightIcon } from "@heroicons/react/outline";
+import { ArrowLeftCircleIcon, ArrowRightCircleIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import { Disclosure, Listbox, Transition } from "@headlessui/react";
 import { numToPrettyString } from "../../../libs/NumberFormatter";
 import { signPayload } from "../../../libs/signer";
@@ -36,6 +30,9 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { useRouter } from "next/router";
 import Notification from "../../../components/Notification";
 import { getToken } from "next-auth/jwt";
+import { BigNumber } from "ethers";
+import NewVoteButton from "../../../components/NewVoteButton";
+import MarkdownWithTOC from "../../../components/MarkdownWithTOC";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -106,6 +103,7 @@ export async function getServerSideProps({ req, params }) {
 
 interface ProposalCommonProps {
   space: string;
+  snapshotSpace: string;
   status: string;
   title: string;
   author: string;
@@ -114,6 +112,7 @@ interface ProposalCommonProps {
   created: number;
   end: number;
   snapshot: string;
+  snapshotHash: string;
   ipfs: string;
   discussion: string;
   governanceCycle: number;
@@ -134,7 +133,8 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
-    withField: withDefault(createEnumParam(["reason", "app"]), "")
+    withField: withDefault(createEnumParam(["reason", "app"]), ""),
+    filterBy: withDefault(createEnumParam(["for", "against"]), ""),
   });
   const editPageQuery = {
     proposalId: proposal?.hash
@@ -144,6 +144,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
   const jrpcSigner = signer as JsonRpcSigner;
   const [signError, setSignError] = useState(undefined);
   const [selected, setSelected] = useState(ProposalStatus[0])
+  const { data: spaceInfo } = useSpaceInfo({space})
   const { isMutating, error: uploadError, trigger, data, reset } = useProposalUpload(space, proposal?.hash, router.isReady);
   const { trigger: deleteTrigger, reset: deleteReset } = useProposalDelete(space, proposal?.hash, router.isReady);
   const resetSignAndUpload = () => {
@@ -209,6 +210,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
 
   const commonProps: ProposalCommonProps = {
     space,
+    snapshotSpace: spaceInfo?.data?.snapshotSpace || "",
     status: snapshotProposal?.state || proposal.status,
     title: snapshotProposal?.title || proposal.title,
     author: snapshotProposal?.author || proposal.authorAddress,
@@ -217,6 +219,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
     created: snapshotProposal?.start || Math.floor(new Date(proposal.date).getTime() / 1000),
     end: snapshotProposal?.end || 0,
     snapshot: snapshotProposal?.snapshot || "",
+    snapshotHash: proposal?.voteURL || "",
     ipfs: snapshotProposal?.ipfs || proposal?.ipfsURL || "",
     discussion: proposal?.discussionThreadURL || "",
     governanceCycle: proposal.governanceCycle || 0,
@@ -232,6 +235,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
         description={commonProps.body?.slice(0, 140) || 'No content'}
         image={`https://cdn.stamp.fyi/space/jbdao.eth?w=1200&h=630`}
         space={space}
+        proposalId={proposal?.hash}
         withWallet />
 
       <div className="min-h-full">
@@ -313,17 +317,17 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
                           <>
                             <Listbox.Label className="sr-only">Change published status</Listbox.Label>
                             <div className="relative">
-                              <div className="inline-flex divide-x divide-red-700 rounded-md shadow-sm w-full">
+                              <div className="inline-flex divide-x divide-gray-700 rounded-md shadow-sm w-full">
                                 <button onClick={() => {
                                   if(selected.title === "Archive") {
                                     archiveProposal();
                                   } else if(selected.title === "Delete") {
                                     deleteProposal();
                                   }
-                                }} className="inline-flex items-center justify-center rounded-none rounded-l-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium disabled:text-black text-white shadow-sm hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 w-full">
+                                }} className="inline-flex items-center justify-center rounded-none rounded-l-md border border-transparent bg-gray-600 px-4 py-2 text-sm font-medium disabled:text-black text-white shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 w-full">
                                   {selected.title}
                                 </button>
-                                <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md bg-red-600 p-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-gray-50">
+                                <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md bg-gray-600 p-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 focus:ring-offset-gray-50">
                                   <span className="sr-only">Change proposal status</span>
                                   <ChevronDownIcon className="h-5 w-5 text-white" aria-hidden="true" />
                                 </Listbox.Button>
@@ -342,7 +346,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
                                       key={option.title}
                                       className={({ active }) =>
                                         classNames(
-                                          active ? 'bg-red-600 text-white' : 'text-gray-900',
+                                          active ? 'bg-gray-600 text-white' : 'text-gray-900',
                                           'cursor-default select-none p-4 text-sm'
                                         )
                                       }
@@ -353,12 +357,12 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
                                           <div className="flex justify-between">
                                             <p className={selected ? 'font-semibold' : 'font-normal'}>{option.title}</p>
                                             {selected ? (
-                                              <span className={active ? 'text-white' : 'text-red-600'}>
+                                              <span className={active ? 'text-white' : 'text-gray-600'}>
                                                 <CheckIcon className="h-5 w-5" aria-hidden="true" />
                                               </span>
                                             ) : null}
                                           </div>
-                                          <p className={classNames(active ? 'text-red-200' : 'text-gray-500', 'mt-2')}>
+                                          <p className={classNames(active ? 'text-gray-200' : 'text-gray-500', 'mt-2')}>
                                             {option.description}
                                           </p>
                                         </div>
@@ -419,6 +423,11 @@ function ProposalContent({ body }: { body: string }) {
   return (
     <div className="">
       <div className="px-4 py-5 sm:px-6 flex flex-col">
+        <Link href={`/s/${commonProps.space}`} className="flex mb-4 rounded-md border-1 shadow-sm w-fit p-2">
+          <ArrowUturnLeftIcon className="h-5 w-5 mr-1" />
+          Back
+        </Link>
+
         <h1 id="applicant-information-title" className="text-3xl font-medium">
           {canEditProposal(commonProps.status) ? `[${commonProps.status}] ` : ""}{commonProps.title}
         </h1>
@@ -444,7 +453,7 @@ function ProposalContent({ body }: { body: string }) {
           <h2 className="text-gray-500 mb-3">
             Metadata 
             <a href={`${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`} className="ml-2">
-              <ExternalLinkIcon  className="h-4 w-4 inline" />
+              <ArrowTopRightOnSquareIcon  className="h-4 w-4 inline" />
             </a>
           </h2>
 
@@ -463,7 +472,7 @@ function ProposalContent({ body }: { body: string }) {
                 <div className="col-span-2 flex flex-col mt-2 w-full space-y-2">
                   {commonProps.actions.map((action, index) => (
                     <div key={index} className="ml-2 flex space-x-2 w-full break-words">
-                      <span className="inline-flex items-center rounded-md bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
+                      <span className="inline-flex items-center rounded-md bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800 h-min w-min">
                         {action.type}
                         {/* {action.type === "Reserve" && (
                           <span>
@@ -500,13 +509,33 @@ function ProposalContent({ body }: { body: string }) {
                       )}
 
                       {action.type === "Custom Transaction" && (
-                        <span className="line-clamp-5">
+                        <span className="line-clamp-6">
                           <ResolvedContract address={(action.payload as CustomTransaction).contract} style="inline ml-1" />
                           &#46;
-                          <a href={`https://etherfunk.io/address/${(action.payload as CustomTransaction).contract}?fn=${(action.payload as CustomTransaction).functionName?.split("(")[0]}`} rel="noopener noreferrer" target="_blank" className="hover:underline inline">
-                            {(action.payload as CustomTransaction).functionName?.split("(")[0]}
-                            {`(${Object.values((action.payload as CustomTransaction).args || {}).join(",")}) {value: ${(action.payload as CustomTransaction).value}}`}
+                          <a href={`https://etherfunk.io/address/${(action.payload as CustomTransaction).contract}?fn=${extractFunctionName((action.payload as CustomTransaction).functionName)}`} rel="noopener noreferrer" target="_blank" className="hover:underline inline">
+                            {extractFunctionName((action.payload as CustomTransaction).functionName)}
                           </a>
+                          
+                          <span>{"("}</span>
+                          <span>
+                            {parseFunctionAbiWithNamedArgs((action.payload as CustomTransaction).functionName, (action.payload as CustomTransaction).args).map((pair, index) => (
+                              <span key={index} className="ml-1 first:ml-0 after:content-[','] last:after:content-[''] text-gray-500 ">
+                                <span className="inline-block">{pair[0]}</span>
+                                <span>{`: ${pair[1]}`}</span>
+                              </span>
+                            ))}
+                          </span>
+                          <span>{")"}</span>
+
+                          {BigNumber.from((action.payload as CustomTransaction).value).gt(0) && (
+                            <span>
+                              <span>{"{"}</span>
+                              <span className="text-gray-500">value</span>
+                              <span>{`: ${(action.payload as CustomTransaction).value}`}</span>
+                              <span>{"}"}</span>
+                            </span>
+                          )}
+
                         </span>
                       )}
 
@@ -531,7 +560,7 @@ function ProposalContent({ body }: { body: string }) {
             {({ open }) => (
               /* Use the `open` state to conditionally change the direction of an icon. */
               <>
-                <Disclosure.Button className="my-1 p-1 w-full text-center text-white bg-blue-600 hover:bg-blue-500 rounded-md">
+                <Disclosure.Button className="my-2 p-1 w-full text-center text-white bg-blue-600 hover:bg-blue-500 rounded-md">
                   {open ? "See less" : "See more"}
                 </Disclosure.Button>
                 <Disclosure.Panel className="grid grid-cols-2 gaps-4" as="div">
@@ -552,24 +581,31 @@ function ProposalContent({ body }: { body: string }) {
                     </>
                   )}
 
-                  {commonProps.snapshot && (
+                  {commonProps.snapshotSpace && commonProps.snapshotHash && (
                     <>
                       <span className="font-medium">Snapshot:</span>
-                      <a target="_blank" rel="noreferrer" href={`https://etherscan.io/block/${commonProps.snapshot}`}>{commonProps.snapshot}<ExternalLinkIcon className="h-3 w-3 inline text-xs" /></a>
+                      <a target="_blank" rel="noreferrer" href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}>{commonProps.snapshotHash.substring(0, 8)}<ArrowTopRightOnSquareIcon className="h-3 w-3 inline text-xs" /></a>
+                    </>
+                  )}
+
+                  {commonProps.snapshot && (
+                    <>
+                      <span className="font-medium">Block:</span>
+                      <a target="_blank" rel="noreferrer" href={`https://etherscan.io/block/${commonProps.snapshot}`}>{commonProps.snapshot}<ArrowTopRightOnSquareIcon className="h-3 w-3 inline text-xs" /></a>
                     </>
                   )}
 
                   {commonProps.discussion && (
                     <>
                       <span className="font-medium">Discussion:</span>
-                      <a target="_blank" rel="noreferrer" href={openInDiscord(commonProps.discussion)}>{getDomain(commonProps.discussion)}<ExternalLinkIcon className="h-3 w-3 inline text-xs" /></a>
+                      <a target="_blank" rel="noreferrer" href={openInDiscord(commonProps.discussion)}>{getDomain(commonProps.discussion)}<ArrowTopRightOnSquareIcon className="h-3 w-3 inline text-xs" /></a>
                     </>
                   )}
 
                   {commonProps.ipfs && (
                     <>
                       <span className="font-medium">IPFS:</span>
-                      <a target="_blank" rel="noreferrer" href={`https://snapshot.mypinata.cloud/ipfs/${commonProps.ipfs}`}>{getLastSlash(commonProps.ipfs).slice(0,7)}<ExternalLinkIcon className="h-3 w-3 inline text-xs" /></a>
+                      <a target="_blank" rel="noreferrer" href={`https://snapshot.mypinata.cloud/ipfs/${commonProps.ipfs}`}>{getLastSlash(commonProps.ipfs).slice(0,7)}<ArrowTopRightOnSquareIcon className="h-3 w-3 inline text-xs" /></a>
                     </>
                   )}
                 </Disclosure.Panel>
@@ -580,9 +616,7 @@ function ProposalContent({ body }: { body: string }) {
       </div>
 
       <div className="px-4 sm:px-6">
-        <article className="prose prose-lg prose-indigo mx-auto text-gray-500 break-words">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw, rehypeSanitize]}>{body}</ReactMarkdown>
-        </article>
+        <MarkdownWithTOC body={body} />
       </div>
 
       <div className="px-4 py-5 sm:px-6 mt-4">
@@ -611,13 +645,13 @@ function ProposalNavigator() {
     <div className="flex flex-col space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4 justify-between text-gray-500">
       {prevProp?.data?.title && (
         <a href={commonProps.space === NANCE_DEFAULT_SPACE ? `/p/${proposalId-1}` : `/s/${commonProps.space}/${proposalId-1}`} className="w-full md:w-1/2">
-          <ArrowCircleLeftIcon className="h-5 w-5 inline"/> {prevProp?.data?.title}
+          <ArrowLeftCircleIcon className="h-5 w-5 inline"/> {prevProp?.data?.title}
         </a>
       )}
 
       {nextProp?.data?.title && (
         <a href={commonProps.space === NANCE_DEFAULT_SPACE ? `/p/${proposalId+1}` : `/s/${commonProps.space}/${proposalId+1}`}  className="w-full md:w-1/2">
-          <ArrowCircleRightIcon className="h-5 w-5 inline"/> {nextProp?.data?.title}
+          <ArrowRightCircleIcon className="h-5 w-5 inline"/> {nextProp?.data?.title}
         </a>
       )}
     </div>
@@ -697,13 +731,21 @@ function ProposalVotes() {
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
-    withField: withDefault(createEnumParam(["reason", "app"]), "")
+    withField: withDefault(createEnumParam(["reason", "app"]), ""),
+    filterBy: withDefault(createEnumParam(["for", "against"]), ""),
   });
 
   const { loading, data, error, refetch } = useProposalVotes(proposalInfo, Math.max((query.page - 1) * VOTES_PER_PAGE, 0), query.sortBy as "created" | "vp", query.withField as "reason" | "app" | "");
 
   const proposalType = proposalInfo.type;
   const isSimpleVoting = !['approval', 'ranked-choice', 'quadratic', 'weighted'].includes(proposalType);
+
+  let votes = data?.votesData;
+  if (query.filterBy === "for") {
+    votes = votes.filter((v) => v.choice === "For")
+  } else if (query.filterBy === "against") {
+    votes = votes.filter((v) => v.choice === "Against")
+  }
 
   return (
     <div className="flex flex-col" style={{
@@ -714,8 +756,27 @@ function ProposalVotes() {
           {isSimpleVoting && (
             <>
               <div className="flex justify-between">
-                <p className="text-green-500 text-sm">FOR {formatNumber(proposalInfo.scores[0] || 0)}</p>
-                <p className="text-red-500 text-sm">AGAINST {formatNumber(proposalInfo.scores[1] || 0)}</p>
+
+                <p className={classNames(
+                  "text-green-500 text-sm cursor-pointer",
+                  query.filterBy === "for" ? "underline" : ""
+                )} onClick={() => {
+                  if(query.filterBy === "for") setQuery({filterBy: ""})
+                  else setQuery({filterBy: "for"})
+                }}>
+                  FOR {formatNumber(proposalInfo.scores[0] || 0)}
+                </p>
+
+                <p className={classNames(
+                  "text-red-500 text-sm cursor-pointer",
+                  query.filterBy === "against" ? "underline" : ""
+                )} onClick={() => {
+                  if(query.filterBy === "against") setQuery({filterBy: ""})
+                  else setQuery({filterBy: "against"})
+                }}>
+                  AGAINST {formatNumber(proposalInfo.scores[1] || 0)}
+                </p>
+
               </div>
 
               <div className='p-3 text-sm text-gray-500'>
@@ -744,7 +805,7 @@ function ProposalVotes() {
 
         <ul role="list" className="space-y-2 pt-2">
           {loading && "loading..."}
-          {data?.votesData?.map((vote) => (
+          {votes?.map((vote) => (
             <li key={vote.id}>
               <div className={classNames(
                 "flex flex-col",
@@ -809,50 +870,7 @@ function ProposalVotes() {
         </ul>
       </div>
 
-      <NewVote refetch={refetch} />
-    </div>
-  )
-}
-
-function NewVote({ refetch }: { refetch: (option?: any) => void }) {
-  const { proposalInfo } = useContext(ProposalContext);
-  // state
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [buttonLabel, setButtonLabel] = useState('Vote');
-  // external hook
-  const { address, isConnected } = useAccount();
-  const { openConnectModal } = useConnectModal();
-
-  useEffect(() => {
-    if (proposalInfo?.state !== 'active') {
-      setButtonLabel('Voting Closed');
-    } else if (isConnected) {
-      setButtonLabel('Vote');
-    } else {
-      setButtonLabel('Connect Wallet');
-    }
-  }, [isConnected, proposalInfo?.state]);
-
-  return (
-    <div className="my-4">
-      <button id="vote" className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium disabled:text-black text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300 w-full"
-        onClick={() => {
-          if (isConnected) {
-            setModalIsOpen(true);
-          } else {
-            openConnectModal();
-          }
-        }}
-        disabled={proposalInfo?.state !== 'active'}>
-
-        <span>
-          {buttonLabel}
-        </span>
-      </button>
-
-      {proposalInfo?.choices && (
-        <VotingModal modalIsOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} address={address} spaceId='jbdao.eth' proposal={proposalInfo} spaceHideAbstain={true} refetch={refetch} />
-      )}
+      <NewVoteButton proposal={proposalInfo} refetch={refetch} />
     </div>
   )
 }

@@ -13,7 +13,8 @@ import {
     FetchReconfigureData,
     ProposalUploadPayload,
     ProposalDeleteRequest,
-    ProposalsPacket
+    ProposalsPacket,
+    ProposalsPacketWithoutBody
 } from '../models/NanceTypes';
 
 function jsonFetcher(): Fetcher<APIResponse<any>, string> {
@@ -48,6 +49,12 @@ export function useProposals(args: ProposalsRequest, shouldFetch: boolean = true
     }
     if (args.keyword) {
         urlParams.set('keyword', args.keyword);
+    }
+    if (args.limit) {
+        urlParams.set('limit', args.limit.toString());
+    }
+    if (args.page) {
+        urlParams.set('page', args.page.toString());
     }
 
     return useSWR<APIResponse<ProposalsPacket>, string>(
