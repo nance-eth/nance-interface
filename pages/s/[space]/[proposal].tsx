@@ -8,7 +8,7 @@ import { createContext, useContext, useState, Fragment } from "react";
 import { withDefault, NumberParam, createEnumParam, useQueryParams } from "next-query-params";
 import { processChoices } from "../../../libs/snapshotUtil";
 import ColorBar from "../../../components/ColorBar";
-import { fetchProposal, useProposal, useProposalDelete, useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
+import { useProposal, useProposalDelete, useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { canEditProposal, getLastSlash } from "../../../libs/nance";
 import { Proposal, Payout, Action, Transfer, CustomTransaction, Reserve, ProposalDeleteRequest, ProposalUploadRequest, extractFunctionName, parseFunctionAbiWithNamedArgs } from "../../../models/NanceTypes";
 import Link from "next/link";

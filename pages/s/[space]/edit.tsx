@@ -6,11 +6,11 @@ import React from "react";
 import { useRouter } from "next/router";
 import Notification from "../../../components/Notification";
 import GenericButton from "../../../components/GenericButton";
-import { fetchProposal, useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
+import { useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { imageUpload } from "../../../hooks/ImageUpload";
 import { fileDrop } from "../../../hooks/FileDrop";
 import { Proposal, ProposalUploadRequest, Action, JBSplitNanceStruct } from "../../../models/NanceTypes";
-import { NANCE_API_URL, NANCE_DEFAULT_JUICEBOX_PROJECT, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
+import { NANCE_API_URL, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
 import Link from "next/link";
 
 import { useSigner } from "wagmi";
