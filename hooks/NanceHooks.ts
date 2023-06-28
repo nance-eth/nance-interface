@@ -58,7 +58,7 @@ export function useProposals(args: ProposalsRequest, shouldFetch: boolean = true
     }
 
     return useSWR<APIResponse<ProposalsPacket>, string>(
-        shouldFetch ? `${NANCE_PROXY_API_URL}/${args.space}/proposals` + urlParams.toString() : null,
+        shouldFetch ? `${NANCE_PROXY_API_URL}/${args.space}/proposals?` + urlParams.toString() : null,
         jsonFetcher(),
     );
 }
