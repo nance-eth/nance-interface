@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Attach the JWT token to the request headers
     const token = await getToken({ req, raw: true });
     const headers = {
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     };
 
