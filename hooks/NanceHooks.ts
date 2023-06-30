@@ -14,7 +14,6 @@ import {
     ProposalUploadPayload,
     ProposalDeleteRequest,
     ProposalsPacket,
-    ProposalsPacketWithoutBody
 } from '../models/NanceTypes';
 
 function jsonFetcher(): Fetcher<APIResponse<any>, string> {

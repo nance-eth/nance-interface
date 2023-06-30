@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const destinationPath = path.join('/');
 
     // Attach the JWT token to the request headers
-    const token = await getToken({ req, raw: true });
+    const token = await getToken({ req, raw: true }); // Fixme this should be empty if wallet was disconnected
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
