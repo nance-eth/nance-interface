@@ -1,5 +1,4 @@
 import { fetchProposalInfo, SnapshotProposal, useProposalVotes, VOTES_PER_PAGE } from "../../../hooks/snapshot/Proposals";
-import { useAccount } from 'wagmi'
 import SiteNav from "../../../components/SiteNav";
 import { Tooltip } from 'flowbite-react';
 import FormattedAddress from "../../../components/FormattedAddress";
@@ -31,6 +30,7 @@ import { getToken } from "next-auth/jwt";
 import { BigNumber } from "ethers";
 import NewVoteButton from "../../../components/NewVoteButton";
 import MarkdownWithTOC from "../../../components/MarkdownWithTOC";
+import { useSession } from "next-auth/react";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -138,7 +138,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
     proposalId: proposal?.hash
   };
 
-  const { address, isConnecting, isDisconnected } = useAccount();
+  const { data: session, status } = useSession();
   const [selected, setSelected] = useState(ProposalStatus[0])
   const { data: spaceInfo } = useSpaceInfo({space})
   const { isMutating, error: uploadError, trigger, data, reset } = useProposalUpload(space, proposal?.hash, router.isReady);
@@ -273,7 +273,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
                         </>
                       )}
                       
-                      {canEditProposal(proposal.status) && (
+                      {canEditProposal(proposal.status) && status === "authenticated" && (
                         <Link
                           legacyBehavior
                           href={{
@@ -287,7 +287,7 @@ export default function NanceProposalPage({ space, proposal, snapshotProposal }:
                         </Link>
                       )}
 
-                      {canEditProposal(proposal.status) && (
+                      {canEditProposal(proposal.status) && status === "authenticated" && (
                         <Listbox value={selected} onChange={setSelected} as="div">
                         {({ open }) => (
                           <>

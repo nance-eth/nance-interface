@@ -13,10 +13,6 @@ import { Proposal, ProposalUploadRequest, Action, JBSplitNanceStruct } from "../
 import { NANCE_API_URL, NANCE_DEFAULT_SPACE } from "../../../constants/Nance";
 import Link from "next/link";
 
-import { useAccount, useSigner } from "wagmi";
-import { JsonRpcSigner } from "@ethersproject/providers";
-import { signPayload } from "../../../libs/signer";
-
 import { Editor } from '@tinymce/tinymce-react';
 
 import { markdownToHtml, htmlToMarkdown } from '../../../libs/markdown';
@@ -40,6 +36,7 @@ import ProjectForm from "../../../components/form/ProjectForm";
 import JBSplitEntry from "../../../components/juicebox/JBSplitEntry";
 import Footer from "../../../components/Footer";
 import { getToken } from "next-auth/jwt";
+import { useSession } from "next-auth/react";
 
 const ProposalMetadataContext = React.createContext({
   loadedProposal: null as Proposal | null,
@@ -127,11 +124,10 @@ function Form({ space }: { space: string }) {
   // hooks
   const { isMutating, error: uploadError, trigger, data, reset } = useProposalUpload(space, !metadata.fork && metadata.loadedProposal?.hash, router.isReady);
   
-  const { address, isConnecting, isDisconnected } = useAccount();
+  const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();
 
   const isNew = metadata.fork || metadata.loadedProposal === null;
-  console.debug("edit.useAccount", address, isConnecting, isDisconnected)
 
   // form
   const methods = useForm<ProposalFormValues>();
@@ -267,7 +263,7 @@ function Form({ space }: { space: string }) {
             </a>
           </Link>
 
-          {(isDisconnected || (!address && !isConnecting)) && (
+          {status === "unauthenticated" && (
             <button type="button" onClick={() => openConnectModal()}
               className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
             >
@@ -275,7 +271,7 @@ function Form({ space }: { space: string }) {
             </button>
           )}
 
-          {!isDisconnected && (
+          {status !== "unauthenticated" && (
             <Listbox value={selected} onChange={setSelected} as="div">
               {({ open }) => (
                 <>
@@ -290,7 +286,7 @@ function Form({ space }: { space: string }) {
                         }
                         className="ml-3 inline-flex justify-center rounded-none rounded-l-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
                       >
-                        {isConnecting ? 
+                        {status === "loading" ? 
                           (isMutating ? "Submitting..." : "Connecting...") : 
                           (formErrors.length > 0 ? "Error in form" : selected.display)}
                       </button>
