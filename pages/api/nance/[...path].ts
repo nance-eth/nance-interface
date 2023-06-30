@@ -15,16 +15,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const destinationPath = path.join('/');
 
+    // extract params
+    const params = new URLSearchParams(req.query as any)
+    params.delete("path");
+
     // Attach the JWT token to the request headers
     const token = await getToken({ req, raw: true }); // Fixme this should be empty if wallet was disconnected
     const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
     };
 
     // Forward the request to the destination URL
-    console.debug("/api/nance forwarding", destinationPath, method, headers, body);
-    const response = await fetch(`${destinationUrl}${destinationPath}`, {
+    const url = `${destinationUrl}${destinationPath}?${params}`;
+    console.debug("/api/nance forwarding", url, method, headers, body);
+    const response = await fetch(url, {
       method,
       headers,
       body: method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
