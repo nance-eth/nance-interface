@@ -1,28 +1,30 @@
 import { Disclosure } from '@headlessui/react'
-import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import Head from 'next/head'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { NANCE_DEFAULT_SPACE } from "../constants/Nance";
 
 interface SiteNavProps {
   pageTitle: string,
   description?: string,
   image?: string
   withWallet?: boolean;
+  space?: string;
+  proposalId?: string;
 }
 
-export default function SiteNav({ pageTitle, description, image, withWallet }: SiteNavProps) {
+export default function SiteNav({ pageTitle, description, image, withWallet, space, proposalId }: SiteNavProps) {
   const router = useRouter();
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Governance Process', href: '/process' },
-    { name: 'How to Submit a Proposal', href: '/guide' },
     { name: 'Treasury', href: '/treasury' },
-    { name: 'Reconfiguration', href: '/juicebox' },
+    { name: 'Reconfiguration', href: `/s/${space ?? NANCE_DEFAULT_SPACE}/reconfigure` },
     { name: 'Analytics', href: 'https://app.flipsidecrypto.com/dashboard/snapshot-plus-data-ueqrnb' },
-    { name: 'Discord', href: 'https://discord.gg/juicebox' }
+    { name: 'Support us', href: 'https://juicebox.money/v2/p/477' },
+    { name: 'Other spaces', href: '/s' }
   ]
 
   const meta = {
@@ -30,6 +32,12 @@ export default function SiteNav({ pageTitle, description, image, withWallet }: S
     description: description || "Nance platform for automatic governance.",
     url: `https://jbdao.org${router.asPath}`,
     image: image || "/images/unsplash_application.jpeg",
+  }
+
+  const canForkProposal = !!proposalId;
+  let editProposalUrl = space ? `/s/${space}/edit` : "/edit";
+  if (canForkProposal) {
+    editProposalUrl = editProposalUrl + `?&proposalId=${proposalId}&fork=true`
   }
 
   return (
@@ -61,7 +69,7 @@ export default function SiteNav({ pageTitle, description, image, withWallet }: S
                 <div className="flex justify-between h-16">
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center">
-                      <Link href="/">
+                      <Link href="/" legacyBehavior>
                         <a>
                           <img
                             className="block h-8 w-auto"
@@ -71,7 +79,7 @@ export default function SiteNav({ pageTitle, description, image, withWallet }: S
                         </a>
                       </Link>
                     </div>
-                    <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+                    <div className="hidden xl:-my-px xl:ml-6 xl:flex xl:space-x-8">
                       {navigation.map((item) => (
                         <a
                           key={item.name}
@@ -84,27 +92,32 @@ export default function SiteNav({ pageTitle, description, image, withWallet }: S
                     </div>
                   </div>
 
-                  {withWallet && (
-                    <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                      <ConnectButton />
-                    </div>
-                  )}
+                  <div className="hidden xl:ml-6 xl:flex xl:items-center xl:space-x-6">
+                    <button
+                      type="button"
+                      className="w-fit inline-flex items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 text-md font-bold disabled:text-black text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+                      onClick={() => router.push(editProposalUrl)}>
+                      {canForkProposal ? "Fork Proposal" : "New Proposal"}
+                    </button>
 
-                  <div className="-mr-2 flex items-center sm:hidden">
+                    { withWallet && <ConnectButton /> }
+                  </div>
+
+                  <div className="-mr-2 flex items-center xl:hidden">
                     {/* Mobile menu button */}
                     <Disclosure.Button className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
-                        <XIcon className="block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
                       ) : (
-                        <MenuIcon className="block h-6 w-6" aria-hidden="true" />
+                        <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
                       )}
                     </Disclosure.Button>
                   </div>
                 </div>
               </div>
 
-              <Disclosure.Panel className="sm:hidden">
+              <Disclosure.Panel className="xl:hidden">
                 <div className="py-2 space-y-1">
                   {navigation.map((item) => (
                     <Disclosure.Button
@@ -118,11 +131,15 @@ export default function SiteNav({ pageTitle, description, image, withWallet }: S
                   ))}
                 </div>
 
-                {withWallet && (
-                  <div className="py-2 mx-2 border-t border-gray-200">
-                    <ConnectButton />
-                  </div>
-                )}
+                <div className="py-2 mx-2 border-t border-gray-200 space-y-3">
+                  <button
+                    type="button"
+                    className="w-fit inline-flex items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 text-md font-bold disabled:text-black text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    onClick={() => router.push(editProposalUrl)}>
+                      {canForkProposal ? "Fork Proposal" : "New Proposal"}
+                    </button>
+                  { withWallet && <ConnectButton /> }
+                </div>
 
               </Disclosure.Panel>
             </>

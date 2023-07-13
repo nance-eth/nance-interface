@@ -1,7 +1,7 @@
 import { Switch } from "@headlessui/react";
 import { BigNumber, constants } from "ethers";
 import { commify } from "ethers/lib/utils";
-import { BooleanParam, useQueryParam } from "next-query-params";
+import { BooleanParam, useQueryParam, withDefault } from "next-query-params";
 import FormattedAddress from "../components/FormattedAddress";
 import ResolvedProject from "../components/ResolvedProject";
 import SiteNav from "../components/SiteNav"
@@ -14,6 +14,8 @@ import { useTokenBalanceOfProject, useTotalSupplyOfProject } from "../hooks/juic
 import { useTokenUsdPrice } from "../hooks/PriceHook";
 import { useMultisigAssets } from "../hooks/SafeHooks";
 import { JBConstants, JBSplit } from "../models/JuiceboxTypes";
+import Footer from "../components/Footer";
+import { classNames } from "../libs/tailwind";
 
 function formatUSD(usd: number) {
   return usd ? '$' + commify(usd.toFixed(2)) : '$0';
@@ -23,7 +25,7 @@ function keyOfSplit(mod: JBSplit) {
   return `${mod.beneficiary}-${mod.projectId}-${mod.allocator}`;
 }
 
-function usdOfSplit(percent: BigNumber, target: BigNumber, fee: BigNumber) {
+function usdOfSplit(percent: BigNumber | undefined, target: BigNumber | undefined, fee: BigNumber | undefined) {
   if (!percent || !target || !fee) return undefined;
 
   const _totalPercent = JBConstants.TotalPercent.Splits[2];
@@ -37,28 +39,27 @@ function usdOfSplit(percent: BigNumber, target: BigNumber, fee: BigNumber) {
   return amount.gte(JBConstants.UintMax) ? -1 : amount.div(constants.WeiPerEther).toNumber();
 }
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
 const JBDAO_SAFE = "0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e"
 
 export default function TreasuryPage() {
   // state
-  const [excludeJBX, setExcludeJBX] = useQueryParam("excludeJBX", BooleanParam);
+  const [excludeJBX, setExcludeJBX] = useQueryParam("excludeJBX", withDefault(BooleanParam, true));
 
   // read project balance from JBETHTerminal
-  const { data: ethPrice, isLoading: ethPriceLoading } = useTokenUsdPrice("ETH")
-  const { data: jbxPrice, isLoading: jbxPriceLoading } = useTokenUsdPrice("JBX", !excludeJBX)
+  const { data: _jbxPrice, isLoading: jbxPriceLoading } = useTokenUsdPrice("JBX", !excludeJBX)
   const { value: v1ETHBalance, loading: v1ETHBalanceLoading } = useTerminalBalanceV1({ projectId: 1 });
   const { value: v2ETHBalance, loading: v2ETHBalanceLoading } = useTerminalBalance({ projectId: 1, isV2: true });
   const { value: v3ETHBalance, loading: v3ETHBalanceLoading } = useTerminalBalance({ projectId: 1 });
   const { data: safeAssets, isLoading: safeAssetsLoading } = useMultisigAssets(JBDAO_SAFE);
+  
+  const ethPrice = parseFloat(safeAssets?.find((o) => o.token === null)?.fiatConversion || "0")
+  const jbxPrice = _jbxPrice || 0
 
-  console.debug("ETH", {
+  console.debug("TreasuryPage.stats", {
     v1: v1ETHBalance?.div(constants.WeiPerEther).toNumber(),
     v2: v2ETHBalance?.div(constants.WeiPerEther).toNumber(),
-    v3: v3ETHBalance?.div(constants.WeiPerEther).toNumber()
+    v3: v3ETHBalance?.div(constants.WeiPerEther).toNumber(),
+    ethPrice, jbxPrice
   })
 
   // get all current payouts
@@ -76,24 +77,24 @@ export default function TreasuryPage() {
   // get v1 JBX balance
   const { value: v1JBXBalance, loading: v1JBXBalanceIsLoading } = useTokenBalanceOfProject({ holder: excludeJBX ? undefined : JBDAO_SAFE, projectId: 1, version: 1 });
 
-  const loading = ethPriceLoading || jbxPriceLoading || v1ETHBalanceLoading || v2ETHBalanceLoading || v3ETHBalanceLoading || safeAssetsLoading;
-  const _ethInProjects = (loading ? 0 : v1ETHBalance?.add(v2ETHBalance).add(v3ETHBalance).div(constants.WeiPerEther).toNumber()) || 0;
+  const loading = jbxPriceLoading || v1ETHBalanceLoading || v2ETHBalanceLoading || v3ETHBalanceLoading || safeAssetsLoading;
+  const _ethInProjects = (loading ? 0 : v1ETHBalance?.add(v2ETHBalance!).add(v3ETHBalance!).div(constants.WeiPerEther).toNumber()) || 0;
   const _jbxInProjects = (loading ? 0 : v1JBXBalance?.div(constants.WeiPerEther).toNumber()) || 0;
   const usdInProjects = _ethInProjects * ethPrice;
 
   const assets: Entry[] = safeAssets?.map(asset => ({ key: asset.token?.symbol || 'ETH', val: parseFloat(asset.fiatBalance) })).sort((a, b) => b.val - a.val) || [];
   // add ethInProjects in addition to safe assets
   if (assets.find(a => a.key === 'ETH')) {
-    assets.find(a => a.key === 'ETH').val += usdInProjects;
+    assets.find(a => a.key === 'ETH')!.val += usdInProjects;
   } else {
     assets.push({ key: 'ETH', val: usdInProjects })
   }
   // add jbxInProjects in addition to safe assets
   if (assets.find(a => a.key === 'JBX')) {
     if (excludeJBX) {
-      assets.find(a => a.key === 'JBX').val = 0;
+      assets.find(a => a.key === 'JBX')!.val = 0;
     } else {
-      assets.find(a => a.key === 'JBX').val += _jbxInProjects * jbxPrice;
+      assets.find(a => a.key === 'JBX')!.val += _jbxInProjects * jbxPrice;
     }
   } else if (!excludeJBX) {
     assets.push({ key: 'JBX', val: _jbxInProjects * jbxPrice })
@@ -101,7 +102,7 @@ export default function TreasuryPage() {
 
   const usdInTotal = assets?.filter(asset => !excludeJBX || asset.key !== 'JBX').reduce((acc, asset) => acc + asset.val, 0) || 0;
 
-  const payouts: Entry[] = payoutMods?.map(mod => ({ key: mod, val: usdOfSplit(mod.percent, target, fee) })).sort((a, b) => b.val - a.val) || [];
+  const payouts: Entry[] = payoutMods?.map(mod => ({ key: mod, val: usdOfSplit(mod.percent, target, fee) ?? 0 })).sort((a, b) => b.val - a.val) || [];
   const usdInPayouts = target?.div(constants.WeiPerEther).toNumber() || 0;
   const supplies: Entry[] = [
     { key: 'v1', val: v1JBXSupply?.div(constants.WeiPerEther).toNumber() || 0 },
@@ -182,13 +183,14 @@ export default function TreasuryPage() {
 
       </div>
 
+      <Footer />
     </>
 
   )
 }
 
 interface Entry {
-  key: any
+  key: string | JBSplit
   val: number
 }
 

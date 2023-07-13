@@ -1,23 +1,31 @@
-import axios from 'axios';
+const API = 'https://ipfs.infura.io:5001/api/v0';
+const gateway = 'nance.infura-ipfs.io/ipfs';
+const AUTH_HEADER = `Basic ${Buffer.from(
+  `${process.env.NEXT_PUBLIC_INFURA_IPFS_ID}:${process.env.NEXT_PUBLIC_INFURA_IPFS_SECRET}`,
+).toString('base64')}`;
 
-const API = 'https://api.nft.storage';
-const gateway = 'ipfs.nftstorage.link';
-const key = process.env.NEXT_PUBLIC_STORAGE_KEY
-
+// https://github.com/jbx-protocol/juice-interface/blob/main/src/lib/infura/ipfs.ts
 export async function imageUpload(blobInfo: any) {
-  const data = Buffer.from(blobInfo.base64(), 'base64');
-  return axios({
-    method: 'post',
-    url: `${API}/upload`,
-    headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type': '*/*',
-    },
-    data
-  }).then((res) => {
-    const cid = res.data.value.cid;
-    return `https://${cid}.${gateway}`
-  }).catch((e) => {
-    return Promise.reject(e);
-  });
+  const formData = new FormData();
+  formData.append('file', blobInfo.blob());
+
+  try {
+    const response = await fetch(`${API}/add`, {
+      method: 'POST',
+      headers: {
+        'Authorization': AUTH_HEADER,
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Image upload failed');
+    }
+
+    const data = await response.json();
+    const cid = data.Hash;
+    return `https://${gateway}/${cid}`;
+  } catch (error) {
+    return Promise.reject(error);
+  }
 }

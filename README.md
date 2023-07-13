@@ -10,13 +10,45 @@ yarn install && yarn build && yarn export
 
 You should set these env variables accordingly for the app to work.
 
-* `NEXT_PUBLIC_NANCE_API_URL` API url of [Nance](https://nance.app/).
-* `NEXT_PUBLIC_INFURA_KEY` API key of [Infura](https://www.infura.io/)
-* `NEXT_PUBLIC_SUBGRAPH_ID` Subgraph Deployment ID of [Juicebox](https://thegraph.com/explorer/subgraphs/FVmuv3TndQDNd2BWARV8Y27yuKKukryKXPzvAS5E7htC?view=Overview&chain=mainnet)
-* `NEXT_PUBLIC_SNAPSHOT_SUBGRAPH_ID` Subgraph Deployment ID of [Snapshot](https://thegraph.com/hosted-service/subgraph/snapshot-labs/snapshot)
-* `NEXT_PUBLIC_TINY_KEY` API Key of [TinyMCE, WYSIWYG Editor](https://www.tiny.cloud/)
-* `NEXT_PUBLIC_OVERRIDE_SPACE` By default, the space is `juicebox`, you can use this to override.
-* `NEXT_PUBLIC_STORAGE_KEY` API Key of [NFT.storage](https://nft.storage/), used by proposal editor to upload attached images on IPFS.
+```bash
+cp exmaple.env .env.local
+vim .env.local
+```
+
+#### Nance API
+
+Specify url of [Nance](https://nance.app/) backend as `NEXT_PUBLIC_NANCE_API_URL`, and your space id as `NEXT_PUBLIC_OVERRIDE_SPACE`.
+
+#### Ethereum
+
+We need [Infura](https://www.infura.io/) RPC to interact with Ethereum. Please specify `NEXT_PUBLIC_INFURA_KEY`.
+
+#### Juicebox Subgraph
+
+To get infomation of Juicebox projects, we need to specify the subgraph url of Juicebox: `NEXT_PUBLIC_SUBGRAPH_ID`
+
+#### Snapshot Subgraph
+
+To find delegations, we need to specify the subgraph url of [Snapshot](https://thegraph.com/hosted-service/subgraph/snapshot-labs/snapshot): `NEXT_PUBLIC_SNAPSHOT_SUBGRAPH_ID`
+
+#### NextAuth SIWE
+
+To support session, you need to implement backend for NextAuth and set two env variables: [`NEXTAUTH_URL`](https://next-auth.js.org/configuration/options#nextauth_url) and [`NEXTAUTH_SECRET`](https://next-auth.js.org/configuration/options#nextauth_secret)
+
+#### RichText Editor
+
+We use [TinyMCE](https://www.tiny.cloud/) editor for editing RichText and Infura IPFS Gateway for uploading images.
+Env: 
+* `NEXT_PUBLIC_TINY_KEY`
+* `NEXT_PUBLIC_INFURA_IPFS_ID` & `NEXT_PUBLIC_INFURA_IPFS_SECRET`
+
+#### Etherscan API
+
+`NEXT_PUBLIC_ETHERSCAN_KEY` Etherscan API Key, used to retrieve contract ABI when adding custom transaction action to proposal.
+
+#### WalletConnect V2 ProjectId
+
+`WALLETCONNECT_PROJECT_ID`
 
 ### Framework & Library
 

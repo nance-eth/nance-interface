@@ -1,22 +1,18 @@
 import { useEffect, useState } from "react";
 import fetchProjectInfo, { ProjectInfo } from "../hooks/juicebox/Project";
-
+import { classNames } from '../libs/tailwind';
 
 export interface Props {
-    version: number;
-    projectId: number;
+    version: number | undefined;
+    projectId: number | undefined;
     style?: string;
-}
-
-function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
 }
 
 export default function ResolvedProject({ version, projectId, style }: Props) {
     // state
     const [isError, setError] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(false);
-    const [projectInfo, setProjectInfo] = useState<ProjectInfo>(undefined);
+    const [projectInfo, setProjectInfo] = useState<ProjectInfo>();
 
     useEffect(() => {
         if(!version || !projectId) {
@@ -60,7 +56,7 @@ export default function ResolvedProject({ version, projectId, style }: Props) {
                     "text-xs text-gray-500",
                     style,
                 )}>
-                {`Project #${projectId} (V${version})`}
+                {`Project #${projectId}`}
             </span>
         )
     }
@@ -72,7 +68,7 @@ export default function ResolvedProject({ version, projectId, style }: Props) {
                 style,
             )}
             href={version == 1 ? `https://juicebox.money/p/${projectInfo?.handle}` : `https://juicebox.money/${projectInfo?.handle ? `@${projectInfo?.handle}` : `v2/p/${projectId}`}`}>
-            {projectInfo?.handle ? `@${projectInfo.handle} (V${version})` : `Project #${projectId} (V${version})`}
+            {projectInfo?.handle ? `@${projectInfo.handle}` : `Project #${projectId}`}
         </a>
     )
 }

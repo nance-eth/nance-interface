@@ -1,25 +1,27 @@
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css';
-
 import { GraphQLClient, ClientContext } from 'graphql-hooks'
 import memCache from 'graphql-hooks-memcache'
 
 import {
   getDefaultWallets,
-  RainbowKitProvider,
+  RainbowKitProvider
 } from '@rainbow-me/rainbowkit';
 import {
-  WagmiConfig, createClient,
-  configureChains, chain
+  WagmiConfig, createConfig,
+  configureChains, mainnet
 } from 'wagmi'
+import { watchAccount } from '@wagmi/core'
 import { infuraProvider } from 'wagmi/providers/infura'
 
 import { NextQueryParamProvider } from 'next-query-params';
 
-import { JuiceProvider } from 'juice-hooks'
 import { Flowbite } from 'flowbite-react';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/react';
+
+import { SessionProvider, signOut, useSession } from 'next-auth/react';
+import { RainbowKitSiweNextAuthProvider } from '@rainbow-me/rainbowkit-siwe-next-auth';
 
 const graphqlClient = new GraphQLClient({
   url: 'https://hub.snapshot.org/graphql',
@@ -27,22 +29,23 @@ const graphqlClient = new GraphQLClient({
 })
 
 // WAGMI and RainbowKit configuration
-const { chains, provider } = configureChains(
-  [chain.mainnet],
+const { chains, publicClient } = configureChains(
+  [mainnet],
   [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_KEY }),
+    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_KEY || "" }),
   ],
 )
 
 const { connectors } = getDefaultWallets({
-  appName: 'My RainbowKit App',
+  appName: "Nance Interface",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
   chains
 });
 
-const wagmiClient = createClient({
+const wagmiConfig = createConfig({
   autoConnect: true,
   connectors,
-  provider
+  publicClient
 })
 
 const theme = {
@@ -54,28 +57,43 @@ const theme = {
   }
 }
 
-function MyApp({ Component, pageProps }) {
+function AccountWatcher() {
+  // check for user wallet switch and logout
+  // TODO: refetch proposals on login, but how?
+  const { data: session, status } = useSession();
+  watchAccount((account) => {
+    if (session?.user && account.address !== session?.user?.name) {
+      signOut();
+    }
+  });
+  return null;
+}
+
+function MyApp({ Component, pageProps }: any) {
   return (
     <>
-      <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider
-          chains={chains}
-          appInfo={{
-            appName: 'JBDAO',
-            learnMoreUrl: 'https://jbdao.org',
-          }}>
-          <ClientContext.Provider value={graphqlClient}>
-            <NextQueryParamProvider>
-              <JuiceProvider provider={wagmiClient.provider}>
-                <Flowbite theme={theme}>
-                  <ErrorBoundary>
-                    <Component {...pageProps} />
-                  </ErrorBoundary>
-                </Flowbite>
-              </JuiceProvider>
-            </NextQueryParamProvider>
-          </ClientContext.Provider>
-        </RainbowKitProvider>
+      <WagmiConfig config={wagmiConfig}>
+        <SessionProvider refetchInterval={0} session={pageProps.session}>
+          <AccountWatcher />
+          <RainbowKitSiweNextAuthProvider>
+            <RainbowKitProvider
+              chains={chains}
+              appInfo={{
+                appName: 'JBDAO',
+                learnMoreUrl: 'https://jbdao.org',
+              }}>
+              <ClientContext.Provider value={graphqlClient}>
+                <NextQueryParamProvider>
+                  <Flowbite theme={theme}>
+                    <ErrorBoundary>
+                      <Component {...pageProps} />
+                    </ErrorBoundary>
+                  </Flowbite>
+                </NextQueryParamProvider>
+              </ClientContext.Provider>
+            </RainbowKitProvider>
+          </RainbowKitSiweNextAuthProvider>
+        </SessionProvider>
       </WagmiConfig>
       <Analytics />
     </>

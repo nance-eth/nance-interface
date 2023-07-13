@@ -1,12 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { fetchDelegators } from '../../hooks/snapshot/Delegations'
-import { fetchAllVotesOfAddress } from '../../hooks/snapshot/Proposals'
+import { AllVotes, fetchAllVotesOfAddress } from '../../hooks/snapshot/Proposals'
 import { fetchVotingPower } from '../../hooks/snapshot/VotingPower'
+import { fetchCreatedProposals } from '../../hooks/NanceHooks'
+import { Proposal } from '../../models/NanceTypes'
 
-export interface ProfileResponse {
+export type ProfileResponse = {
   vp: number
-  votes: number
   delegators: string[]
+  proposals: Pick<Proposal, "title" | "hash" | "proposalId">[],
+  votes: AllVotes
+}
+
+// FIXME retrieve from API instead of fix values here
+const NANCE_MAPPING: {[key: string]: string} = {
+  "jbdao.eth": "juicebox",
+  "gov.thirstythirsty.eth": "thirstythirsty",
+  "jigglyjams.eth": "waterbox"
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -15,15 +25,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const proposal = req.query.proposal as string
   console.debug('api.profile', { query: req.query })
 
+  const nanceSpace = NANCE_MAPPING[space]
+
   try {
     const vp = await fetchVotingPower(voter, space, proposal)
     const votes = await fetchAllVotesOfAddress(voter, 1000, space)
     const delegators = await fetchDelegators(voter, space)
+    const proposals = await fetchCreatedProposals(nanceSpace, voter)
 
     const response: ProfileResponse = {
       vp: vp?.vp ?? 0,
-      votes: votes?.length ?? 0,
-      delegators: delegators?.map(o => o.delegator) ?? []
+      delegators: delegators?.map(o => o.delegator) ?? [],
+      proposals: proposals?.data?.proposals.map(p => {return { title: p.title, hash: p.hash, proposalId: p.proposalId }}) ?? [],
+      votes
     }
 
     res.setHeader(
@@ -32,6 +46,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     )
     res.status(200).json(response)
   } catch (err) {
-    res.status(500).json({ err: JSON.stringify(err) })
+    console.debug("api.profile.error", err)
+    if (err instanceof Error) {
+      res.status(500).json({ err: err.message })
+    } else {
+      res.status(500).json({ err: `Something wrong happened: ${JSON.stringify(err)}` })
+    }
   }
 }

@@ -20,7 +20,7 @@ export interface SnapshotVotingPower {
   vp_state: string;
 }
 
-export default function useVotingPower(voter: string, space: string, proposal: string): { data: number, loading: boolean } {
+export default function useVotingPower(voter: string | undefined, space: string | undefined, proposal: string | undefined): { data: number, loading: boolean } {
   const { loading, data, error } = useQuery<{ vp: SnapshotVotingPower }>(QUERY, {
     skip: !voter || !space || !proposal,
     variables: { voter, space, proposal }
@@ -32,11 +32,11 @@ export default function useVotingPower(voter: string, space: string, proposal: s
   }
 
   const vp = data?.vp?.vp;
-  return { data: vp, loading };
+  return { data: vp ?? 0, loading };
 }
 
 export async function fetchVotingPower(voter: string, space: string, proposal: string): Promise<SnapshotVotingPower> {
-  return fetch('https://hub.snapshot.org/graphql', {
+  const ret = await fetch('https://hub.snapshot.org/graphql', {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
@@ -45,5 +45,16 @@ export async function fetchVotingPower(voter: string, space: string, proposal: s
       query: QUERY,
       variables: { voter, space, proposal }
     }),
-  }).then(res => res.json()).then(json => json.data.vp)
+  }).then(res => res.json())
+  
+  if(ret.errors) {
+    console.warn("fetchVotingPower errors occurred: ", ret.errors)
+    return {
+      vp: 0,
+      vp_by_strategy: [],
+      vp_state: "error"
+    }
+  } else {
+    return ret.data.vp;
+  }
 }

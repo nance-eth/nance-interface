@@ -3,10 +3,13 @@ const removeImports = require('next-remove-imports')();
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    images: {
-      unoptimized: true,
-    },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'http.cat'
+      },
+    ],
   },
   async redirects() {
     return [
@@ -23,6 +26,16 @@ const nextConfig = {
       {
         source: '/snapshot/jbdao.eth/proposal/:slug',
         destination: '/p/:slug',
+        permanent: true,
+      },
+      {
+        source: '/p/:path',
+        destination: '/s/juicebox/:path',
+        permanent: true,
+      },
+      {
+        source: '/edit',
+        destination: '/s/juicebox/edit',
         permanent: true,
       },
     ]

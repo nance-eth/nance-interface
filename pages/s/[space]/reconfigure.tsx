@@ -1,40 +1,38 @@
 import { BigNumber, utils } from 'ethers'
 import { useEffect, useState } from "react";
-import SiteNav from "../components/SiteNav";
-import useCurrentFundingCycle, { useCurrentFundingCycleV2 } from '../hooks/juicebox/CurrentFundingCycle';
-import { useCurrentPayoutMods, useCurrentTicketMods } from '../hooks/juicebox/CurrentMods';
-import { JBConstants, parseV1Metadata, payoutMod2Split, ticketMod2Split, V1FundingCycleMetadata } from '../models/JuiceboxTypes'
+import { useRouter } from "next/router";
+import SiteNav from "../../../components/SiteNav";
+import useCurrentFundingCycle, { useCurrentFundingCycleV2 } from '../../../hooks/juicebox/CurrentFundingCycle';
+import { useCurrentPayoutMods, useCurrentTicketMods } from '../../../hooks/juicebox/CurrentMods';
+import { JBConstants, parseV1Metadata, payoutMod2Split, ticketMod2Split, V1FundingCycleMetadata } from '../../../models/JuiceboxTypes'
 import { NumberParam, StringParam, useQueryParams, withDefault } from 'next-query-params';
-import { AddressMap, SafeTransactionSelector, TxOption } from '../components/safe/SafeTransactionSelector';
-import useProjectInfo from '../hooks/juicebox/ProjectInfo';
-import ProjectSearch, { ProjectOption } from "../components/juicebox/ProjectSearch";
-import ResolvedProject from "../components/ResolvedProject";
-import ReconfigurationCompare, { FundingCycleConfigProps, MetadataArgs } from '../components/juicebox/ReconfigurationCompare';
-import { useCurrentSplits } from '../hooks/juicebox/CurrentSplits';
-import { useDistributionLimit } from '../hooks/juicebox/DistributionLimit';
-import useTerminalFee from '../hooks/juicebox/TerminalFee';
-import { useReconfigureRequest } from '../hooks/NanceHooks';
-import { useAccount, useSigner } from 'wagmi';
-import { JsonRpcSigner } from "@ethersproject/providers";
-import { GnosisHandler } from '../libs/gnosis';
-import { QueueSafeTransaction, SafeMultisigTransaction } from '../models/SafeTypes';
-import parseSafeJuiceboxTx, { getVersionOfTx } from '../libs/SafeJuiceboxParser';
-import Tabs from '../components/Tabs';
-import { useMultisigTransactionOf } from '../hooks/SafeHooks';
-import { Switch } from '@headlessui/react';
-import fetchMetadata, { consolidateMetadata, ProjectMetadataV4 } from '../libs/projectMetadata';
+import { AddressMap, SafeTransactionSelector, TxOption } from '../../../components/safe/SafeTransactionSelector';
+import useProjectInfo from '../../../hooks/juicebox/ProjectInfo';
+import ProjectSearch from "../../../components/juicebox/ProjectSearch";
+import ResolvedProject from "../../../components/ResolvedProject";
+import ReconfigurationCompare, { FundingCycleConfigProps, MetadataArgs } from '../../../components/juicebox/ReconfigurationCompare';
+import { useCurrentSplits } from '../../../hooks/juicebox/CurrentSplits';
+import { useDistributionLimit } from '../../../hooks/juicebox/DistributionLimit';
+import useTerminalFee from '../../../hooks/juicebox/TerminalFee';
+import { useReconfigureRequest } from '../../../hooks/NanceHooks';
+import { useAccount, useWalletClient } from 'wagmi';
+import { GnosisHandler } from '../../../libs/gnosis';
+import { QueueSafeTransaction, SafeMultisigTransaction } from '../../../models/SafeTypes';
+import parseSafeJuiceboxTx, { getVersionOfTx } from '../../../libs/SafeJuiceboxParser';
+import Tabs from '../../../components/Tabs';
+import { useMultisigTransactionOf } from '../../../hooks/SafeHooks';
+import fetchMetadata, { consolidateMetadata, ProjectMetadataV4 } from '../../../libs/projectMetadata';
+import Footer from '../../../components/Footer';
+import { useSpaceInfo } from '../../../hooks/NanceHooks';
+import { JB_IPFS_GATEWAY } from '../../../constants/Juicebox';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
-function v1metadata2args(m: V1FundingCycleMetadata): MetadataArgs {
+function v1metadata2args(m: V1FundingCycleMetadata | undefined): MetadataArgs | undefined {
   if (!m) return undefined;
   return {
     redemptionRate: BigNumber.from(m.bondingCurveRate),
     reservedRate: BigNumber.from(m.reservedRate),
-    pausePay: m.payIsPaused,
-    allowMinting: m.ticketPrintingIsAllowed,
+    pausePay: !!m.payIsPaused,
+    allowMinting: !!m.ticketPrintingIsAllowed,
     allowTerminalMigration: false,
     allowControllerMigration: false
   }
@@ -50,8 +48,20 @@ const CONTRACT_MAP: AddressMap = {
   "0xB9E4B658298C7A36BdF4C2832042A5D6700c3Ab8": "ModStore"
 }
 
-export default function JuiceboxPage() {
+export async function getServerSideProps(context: any) {
+  const spaceParam: string = context.params.space;
+
+  // Pass data to the page via props
+  return {
+    props: {
+      space: spaceParam
+    }
+  }
+}
+
+export default function JuiceboxPage(spaceProps: { space: string }) {
   // router
+  const router = useRouter();
   const [query, setQuery] = useQueryParams({
     project: withDefault(NumberParam, 1),
     version: withDefault(NumberParam, 3),
@@ -62,33 +72,33 @@ export default function JuiceboxPage() {
   const version = query.version;
   const role = query.role;
   // state
-  const [selectedSafeTx, setSelectedSafeTx] = useState<TxOption>(undefined);
-  const [metadata, setMetadata] = useState<ProjectMetadataV4>(undefined);
+  const [selectedSafeTx, setSelectedSafeTx] = useState<TxOption>();
+  const [metadata, setMetadata] = useState<ProjectMetadataV4>();
   // FIXME remove me on endpoint and here
-  const [currentTime, setCurrentTime] = useState<string>(undefined);
+  const [currentTime, setCurrentTime] = useState<string>();
+
+  // nance
+  const { data: infoData, isLoading: infoLoading, error: infoError } = useSpaceInfo({ space: spaceProps.space }, router.isReady);
+  const { address } = useAccount();
+  const { data: walletClient } = useWalletClient()
+  const { data: reconfig, isLoading: reconfigLoading, error: reconfigError } = useReconfigureRequest({
+    space: spaceProps.space,
+    version: `V${version}`,
+    address: address || '0x0000000000000000000000000000000000000000',
+    datetime: currentTime || "",
+    network: 'mainnet'
+  }, currentTime !== undefined && project === 1);
+  const reconfigData = reconfig?.data
 
   // external hooks
-  const { data: projectInfo, loading: infoIsLoading } = useProjectInfo(version, project);
-  const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : undefined;
+  const { data: projectInfo, loading: infoIsLoading } = useProjectInfo(3, parseInt(infoData?.data?.juiceboxProjectId ?? ""));
+  const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : "";
   const { data: specifiedSafeTx } = useMultisigTransactionOf(owner, query.safeTxHash, query.safeTxHash !== "");
 
   const setSelectedTxOption = (tx: TxOption) => {
     setSelectedSafeTx(tx);
     setQuery({ safeTxHash: tx?.tx?.safeTxHash });
   }
-
-  // nance
-  const { address } = useAccount();
-  const { data: signer, isError, isLoading: signerLoading } = useSigner()
-  const jrpcSigner = signer as JsonRpcSigner;
-  const { data: reconfig, isLoading: reconfigLoading, error: reconfigError } = useReconfigureRequest({
-    space: "juicebox",
-    version: `V${version}`,
-    address: address || '0x0000000000000000000000000000000000000000',
-    datetime: currentTime,
-    network: 'mainnet'
-  }, currentTime !== undefined && project === 1);
-  const reconfigData = reconfig?.data
 
   // this will override selectedSafeTx from options
   const rawData = reconfig?.data?.transaction?.bytes
@@ -98,22 +108,25 @@ export default function JuiceboxPage() {
   }
 
   // nance post safe transaction
-  const [nonce, setNonce] = useState<string>(undefined);
-  const [error, setError] = useState<string>(undefined)
+  const [nonce, setNonce] = useState<string>();
+  const [error, setError] = useState<string>()
   const [gnosisLoading, setGnosisLoading] = useState(false)
-  const [gnosisResponse, setGnosisResponse] = useState({ success: undefined, data: undefined })
+  const [gnosisResponse, setGnosisResponse] = useState<{ success: boolean, data: any }>()
   const postTransaction = async () => {
     setGnosisLoading(true);
     const gnosis = new GnosisHandler(owner, 'mainnet');
     const txnPartial = {
-      to: reconfigData?.transaction?.address,
+      to: reconfigData?.transaction?.address || "",
       value: 0,
-      data: reconfigData?.transaction?.bytes,
-      nonce: nonce || reconfigData?.nonce
+      data: reconfigData?.transaction?.bytes || "",
+      nonce: nonce || reconfigData?.nonce || ""
     };
     const { safeTxGas } = await gnosis.getEstimate(txnPartial);
     const { message, transactionHash } = await gnosis.getGnosisMessageToSign(safeTxGas, txnPartial);
-    const signature = await signer.signMessage(message).then((sig) => {
+    const signature = await walletClient?.signMessage({
+      account: (await walletClient.getAddresses())[0],
+      message: { raw: message }
+    }).then((sig) => {
       return sig.replace(/1b$/, '1f').replace(/1c$/, '20')
     }).catch(() => {
       setGnosisLoading(false)
@@ -123,21 +136,14 @@ export default function JuiceboxPage() {
     if (signature === 'signature rejected') { return }
     const txn: QueueSafeTransaction = {
       ...txnPartial,
-      address,
+      address: address || "",
       safeTxGas,
       transactionHash,
-      signature
+      signature: signature || ""
     };
     const res = await gnosis.queueTransaction(txn)
     setGnosisLoading(false);
     setGnosisResponse(res)
-  }
-
-  const onProjectOptionSet = (option: ProjectOption) => {
-    setQuery({
-      project: option.projectId,
-      version: parseInt(option.version[0] ?? "1")
-    });
   }
 
   useEffect(() => {
@@ -161,22 +167,35 @@ export default function JuiceboxPage() {
     }
   }, [projectInfo]);
 
-  const notSupportedByNance = project !== 1 && role === "Bookkeeper";
+  // sync current projectId as default value in ProjectSearch
+  useEffect(() => {
+    const pid = infoData?.data?.juiceboxProjectId;
+    if (pid) {
+      setQuery({
+        project: parseInt(pid)
+      })
+    }
+  }, [infoData])
 
+  const notSupportedByNance = project !== 1 && role === "Bookkeeper";
+  const logo = (metadata?.logoUri?.includes('ipfs://')) ? `${JB_IPFS_GATEWAY}/${metadata?.logoUri?.split('ipfs://')[1]}` : metadata?.logoUri;
   return (
     <>
       <SiteNav pageTitle="Juicebox Reconfiguration Helper" withWallet />
       <Tabs tabs={TABS} currentTab={role} setCurrentTab={(tab) => setQuery({ role: tab })} />
       <div className="bg-white">
         <div id="project-info" className="flex flex-col items-center py-2 mx-6">
-          <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={metadata?.logoUri || '/images/juiceboxdao_logo.gif'} alt="project logo" />
+          <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-full" src={logo || '/images/juiceboxdao_logo.gif'} alt="project logo" />
           <p className="text-base font-medium text-gray-900">{metadata?.name || `Untitled Project (${project})`}</p>
           <dd className="text-gray-700 break-words line-clamp-3 w-1/3">{metadata?.description || 'Loading metadata...'}</dd>
-          <ResolvedProject projectId={project} version={version} />
+          <ResolvedProject projectId={parseInt(infoData?.data?.juiceboxProjectId ?? "1")} version={version} />
         </div>
 
-        <div id="project-selector" className="flex justify-center gap-x-3 pt-2 mx-6">
-          <ProjectSearch onProjectOptionSet={onProjectOptionSet} label="Seach project by handle" />
+        <div id="project-selector" className="flex flex-col items-center gap-x-3 pt-2 mx-6">
+          <div className="w-1/2">
+            <label className="block text-sm font-medium text-gray-700">Seach project</label>
+            <ProjectSearch val={query.project} setVal={(p) => setQuery({ project: p })} />
+          </div>
         </div>
         <div id="safetx-loader" className="flex justify-center pt-2 mx-6">
           {role === "Multisig" && (
@@ -208,7 +227,7 @@ export default function JuiceboxPage() {
               <div className="flex space-x-2">
                 <button
                   className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
-                  disabled={!jrpcSigner || !rawData}
+                  disabled={!walletClient || !rawData}
                   onClick={postTransaction}
                 >{(gnosisLoading) ? 'Signing...' : 'Queue'}</button>
                 <input
@@ -240,24 +259,27 @@ export default function JuiceboxPage() {
           </div>
         )}
       </div>
+      <Footer />
     </>
   )
 }
 
-function V1Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
+const ZERO_BN = BigNumber.from(0);
+
+function V1Compare({ projectId, tx, rawData = "" }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
   // state
-  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>(undefined);
+  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>();
 
   // for compare
   const { value: fc, loading: fcIsLoading } = useCurrentFundingCycle({ projectId });
   const { value: payoutMods, loading: payoutModsIsLoading } = useCurrentPayoutMods(projectId, fc?.configured);
   const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentTicketMods(projectId, fc?.configured);
-  const metadata = parseV1Metadata(fc?.metadata);
-  const currentConfig: FundingCycleConfigProps = {
+  const metadata = parseV1Metadata(fc?.metadata || ZERO_BN);
+  const currentConfig: any = {
     version: 1,
     fundingCycle: {
       ...fc,
-      configuration: fc?.configured
+      configuration: fc?.configured || ZERO_BN
     },
     metadata: v1metadata2args(metadata),
     payoutMods: payoutMods?.map(payoutMod2Split),
@@ -268,7 +290,7 @@ function V1Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   const dataIsEmpty = !fc || !payoutMods || !ticketMods
 
   useEffect(() => {
-    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 1), tx?.data || rawData, tx?.submissionDate, fc?.fee, fc?.configured);
+    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 1), tx?.data || rawData, tx?.submissionDate || "", fc?.fee || BigNumber.from(0), fc?.configured || BigNumber.from(0));
     if (newConfig) {
       setPreviewConfig(newConfig);
     }
@@ -281,9 +303,9 @@ function V1Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   )
 }
 
-function V2Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
+function V2Compare({ projectId, tx, rawData = "" }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
   // state
-  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>(undefined);
+  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>();
 
   // for compare
   const { value: _fc, loading: fcIsLoading } = useCurrentFundingCycleV2({ projectId });
@@ -294,7 +316,7 @@ function V2Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   const { value: payoutMods, loading: payoutModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.ETH);
   const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.RESERVED_TOKEN);
   //const metadata = parseV1Metadata(fc?.metadata);
-  const currentConfig: FundingCycleConfigProps = {
+  const currentConfig: any = {
     version: 2,
     fundingCycle: {
       ...fc,
@@ -312,7 +334,7 @@ function V2Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   const dataIsEmpty = !fc || !payoutMods || !ticketMods
 
   useEffect(() => {
-    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 2), tx?.data || rawData, tx?.submissionDate, fee, fc?.configuration);
+    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 2), tx?.data || rawData, tx?.submissionDate || "", fee || BigNumber.from(0), fc?.configuration || BigNumber.from(0));
     if (newConfig) {
       setPreviewConfig(newConfig);
     }
@@ -325,10 +347,10 @@ function V2Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   )
 }
 
-function V3Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
+function V3Compare({ projectId, tx, rawData = "" }: { projectId: number, tx?: SafeMultisigTransaction, rawData?: string }) {
   const isV3 = true;
   // state
-  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>(undefined);
+  const [previewConfig, setPreviewConfig] = useState<FundingCycleConfigProps>();
 
   // for compare
   const { value: _fc, loading: fcIsLoading } = useCurrentFundingCycleV2({ projectId, isV3 });
@@ -339,7 +361,7 @@ function V3Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   const { value: payoutMods, loading: payoutModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.ETH, isV3);
   const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.RESERVED_TOKEN, isV3);
   //const metadata = parseV1Metadata(fc?.metadata);
-  const currentConfig: FundingCycleConfigProps = {
+  const currentConfig: any = {
     version: 2,
     fundingCycle: {
       ...fc,
@@ -357,7 +379,7 @@ function V3Compare({ projectId, tx, rawData }: { projectId: number, tx?: SafeMul
   const dataIsEmpty = !fc || !payoutMods || !ticketMods
 
   useEffect(() => {
-    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 3), tx?.data || rawData, tx?.submissionDate, fee, fc?.configuration);
+    const newConfig = parseSafeJuiceboxTx(getVersionOfTx(tx, 3), tx?.data || rawData, tx?.submissionDate || "", fee || BigNumber.from(0), fc?.configuration || BigNumber.from(0));
     if (newConfig) {
       setPreviewConfig(newConfig);
     }

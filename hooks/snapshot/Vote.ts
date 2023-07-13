@@ -1,8 +1,9 @@
 import snapshot from '@snapshot-labs/snapshot.js'
 import { ProposalType } from '@snapshot-labs/snapshot.js/dist/sign/types';
-import { Wallet } from 'ethers';
+import { Signer, Wallet } from 'ethers';
 import { useCallback, useState } from 'react';
-import { useAccount, useSigner } from "wagmi"
+import { useAccount } from "wagmi"
+import { useEthersSigner } from '../ViemAdapter';
 
 const hub = 'https://hub.snapshot.org'; // or https://testnet.snapshot.org for testnet
 const client = new snapshot.Client712(hub);
@@ -19,9 +20,9 @@ export default function useVote(
     // state
     const [value, setValue] = useState<unknown>()
     const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState(undefined);
+    const [error, setError] = useState<any>(undefined);
     // external state
-    const { data: signer } = useSigner();
+    const signer = useEthersSigner();
     const { address, isConnected } = useAccount();
 
     const trigger = useCallback(async () => {
@@ -29,8 +30,8 @@ export default function useVote(
             setError(undefined);
             setLoading(true);
             const receipt = await client.vote(
-                signer as Wallet, 
-                address, 
+                signer as Signer as Wallet, 
+                address as any, 
                 {
                     space,
                     proposal,
@@ -41,7 +42,7 @@ export default function useVote(
                 }
             );
             setValue(receipt);
-        } catch(err) {
+        } catch(err: any) {
             console.warn("🚨 useVote.trigger.error ->", err);
             setError(err);
             setValue(undefined);
