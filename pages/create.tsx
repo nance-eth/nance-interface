@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-undef */
-import { useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { FaSpinner } from "react-icons/fa";
 import SiteNav from "../components/SiteNav";
@@ -11,7 +11,8 @@ import Notification from "../components/Notification";
 import { CreateFormValues, CreateFormKeys } from "../models/NanceTypes";
 import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
-import { useFetchDiscordUser } from "../hooks/discordHooks";
+import { useFetchDiscordUser, useLogoutDiscordUser, useFetchDiscordGuilds } from "../hooks/discordHooks";
+import { DiscordGuild } from "../models/DiscordTypes";
 
 type TextInputProps = {
   label: string;
@@ -28,15 +29,18 @@ export default function CreateSpacePage() {
   // hooks
   const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();
-  const { data: discordUser, isLoading: discordLoading } = useFetchDiscordUser({address: session?.user?.name}, router.isReady);
+  const { data: discordUser, isLoading: discordLoading } = useFetchDiscordUser({address: session?.user?.name || ''}, router.isReady);
+  const { data: discordUserGuilds, isLoading: discordGuildsLoading } = useFetchDiscordGuilds({address: session?.user?.name || ''}, router.isReady);
+  const { data: discordLogoutResponse, trigger: discordLogoutTrigger  } = useLogoutDiscordUser({address: session?.user?.name || ''}, router.isReady);
 
+  console.log(discordUserGuilds);
   return (
     <>
       <SiteNav pageTitle='nance control panel' withWallet/>
 
       <div className="flex justify-center">
         <div className="w-100">
-          <h1 className="text-lg font-bold text-gray-900 mt-8 mb-5">Create New Nance Instance</h1>
+          <h1 className="text-lg text-center font-bold text-gray-900 mt-8 mb-5">Create New Nance Instance</h1>
           {status === "unauthenticated" && (
             <button type="button" onClick={() => openConnectModal?.()}
             className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium
@@ -48,9 +52,37 @@ export default function CreateSpacePage() {
 
           {status === "authenticated" && (
             <>
-              <p>logged in as {`${discordUser?.username}`}</p>
-              <Image className="rounded-full overflow-hidden" src={`${avatarBaseUrl}/${discordUser?.id}/${discordUser?.avatar}.png`} alt={discordUser?.username} width={50} height={50} />
-              <Form />
+              { !discordUser && !discordLoading && (
+                <div className="flex justify-center">
+                  <button
+                    className="w-fit inline-flex items-center justify-center rounded-xl border border-transparent bg-purple-800 px-3 py-2 text-md font-bold disabled:text-black text-white shadow-sm hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    onClick={() => router.push(discordAuthUrl('create'))}
+                  >
+                    Connect Discord
+                  </button>
+                </div>
+              )}
+              <div className="flex justify-center">
+                { discordLoading && <FaSpinner className="animate-spin" /> }
+              </div>
+              { !discordLoading && discordUser && (
+                <>
+                  <div className="flex justify-center">
+                    <div className="block text-center">
+                      <p className="">{`${discordUser?.username}`}</p>
+                      <a className="text-xs underline hover:cursor-pointer" onClick={ () => {
+                        discordLogoutTrigger()
+                        window.location.reload()
+                      }
+                      }>disconnect</a>
+                    </div>
+                    <Image className="rounded-full overflow-hidden ml-4" src={`${avatarBaseUrl}/${discordUser?.id}/${discordUser?.avatar}.png`} alt={discordUser?.username || ''} width={50} height={50} />
+                  </div>
+                </>
+              )}
+              { discordUserGuilds && discordUserGuilds.length > 0 && (
+                <Form discordUserGuilds={discordUserGuilds} />
+              )}
             </>
           )}
         </div>
@@ -59,7 +91,7 @@ export default function CreateSpacePage() {
   );
 }
 
-function Form() {
+function Form({ discordUserGuilds }: { discordUserGuilds: DiscordGuild[]}) {
   // query and context
   const router = useRouter();
 

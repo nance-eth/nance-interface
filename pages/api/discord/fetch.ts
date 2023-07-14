@@ -5,6 +5,7 @@ const DISCORD_API = "https://discord.com/api/v10";
 
 const getTokenByAddress = async (address: string) => {
   const redisValue = await redis.get(address);
+  if (!redisValue) return null;
   const token = JSON.parse(redisValue!).access_token;
   return token;
 }
@@ -14,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!address) return res.status(400).send("Missing address");
   if (!command) return res.status(400).send("Missing command");
   const token = await getTokenByAddress(address);
+  if (!token) return res.status(400).send("Missing token");
   const url = `${DISCORD_API}/${command}`;
   console.log(token, url);
   const response = await fetch(url, {
