@@ -9,6 +9,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'http.cat'
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.discordapp.com'
+      },
     ],
   },
   async redirects() {

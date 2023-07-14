@@ -89,17 +89,17 @@ export interface ProposalDeleteRequest {
   hash: string;
 }
 
-export interface ConfigSpaceRequest extends SignatureRequest {
+export interface ConfigSpaceRequest {
   config: CreateFormValues;
   calendar?: string;
 }
 
 export type CreateFormValues = {
   name: string;
-  discord: DiscordConfig;
-  propertyKeys: Partial<PropertyKeys>;
-  juicebox: JuiceboxConfig;
-  snapshot: SnapshotConfig;
+  // discord: DiscordConfig;
+  // propertyKeys: Partial<PropertyKeys>;
+  // juicebox: JuiceboxConfig;
+  // snapshot: SnapshotConfig;
 }
 
 export type DiscordConfig = {
