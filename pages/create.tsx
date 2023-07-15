@@ -13,6 +13,7 @@ import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser, useFetchDiscordGuilds } from "../hooks/discordHooks";
 import { DiscordGuild } from "../models/DiscordTypes";
+import DiscordGuildSelector from "../components/DiscordGuildSelect";
 
 type TextInputProps = {
   label: string;
@@ -120,11 +121,12 @@ function Form({ discordUserGuilds }: { discordUserGuilds: DiscordGuild[]}) {
         }
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
+          <DiscordGuildSelector guilds={discordUserGuilds} />
           {(
             <button
               type="submit"
               disabled={ !isValid || isMutating }
-              className="ml-300 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm
+              className="mt-5 ml-300 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm
               hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400 w-20"
             >
               Submit
