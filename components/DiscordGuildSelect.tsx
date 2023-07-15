@@ -6,7 +6,7 @@ import { DiscordGuild } from '../models/DiscordTypes'
 import { guildIconBaseUrl } from '../libs/discordURL'
 
 const getGuildIconUrl = (guild: DiscordGuild) => {
-  if (!guild.icon) return "images/default_server_icon.png"
+  if (!guild.icon) return "/images/default_server_icon.png"
   return `${guildIconBaseUrl}/${guild.id}/${guild.icon}.png`
 }
 
