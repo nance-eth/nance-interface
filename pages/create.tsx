@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-no-undef */
-import { useState } from "react";
 import Image from "next/image";
 import { FaSpinner } from "react-icons/fa";
 import SiteNav from "../components/SiteNav";
@@ -11,9 +10,10 @@ import Notification from "../components/Notification";
 import { CreateFormValues, CreateFormKeys } from "../models/NanceTypes";
 import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
-import { useFetchDiscordUser, useLogoutDiscordUser, useFetchDiscordGuilds } from "../hooks/discordHooks";
+import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
 import { DiscordGuild } from "../models/DiscordTypes";
 import DiscordGuildSelector from "../components/DiscordGuildSelect";
+import { Session } from "next-auth";
 
 type TextInputProps = {
   label: string;
@@ -31,10 +31,8 @@ export default function CreateSpacePage() {
   const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();
   const { data: discordUser, isLoading: discordLoading } = useFetchDiscordUser({address: session?.user?.name || ''}, router.isReady);
-  const { data: discordUserGuilds, isLoading: discordGuildsLoading } = useFetchDiscordGuilds({address: session?.user?.name || ''}, router.isReady);
   const { data: discordLogoutResponse, trigger: discordLogoutTrigger  } = useLogoutDiscordUser({address: session?.user?.name || ''}, router.isReady);
 
-  console.log(discordUserGuilds);
   return (
     <>
       <SiteNav pageTitle='nance control panel' withWallet/>
@@ -81,8 +79,8 @@ export default function CreateSpacePage() {
                   </div>
                 </>
               )}
-              { discordUserGuilds && discordUserGuilds.length > 0 && (
-                <Form discordUserGuilds={discordUserGuilds} />
+              { discordUser && (
+                <Form session={session} />
               )}
             </>
           )}
@@ -92,7 +90,7 @@ export default function CreateSpacePage() {
   );
 }
 
-function Form({ discordUserGuilds }: { discordUserGuilds: DiscordGuild[]}) {
+function Form({ session }: { session: Session}) {
   // query and context
   const router = useRouter();
 
@@ -121,7 +119,7 @@ function Form({ discordUserGuilds }: { discordUserGuilds: DiscordGuild[]}) {
         }
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
-          <DiscordGuildSelector guilds={discordUserGuilds} />
+          <DiscordGuildSelector session={session} />
           {(
             <button
               type="submit"

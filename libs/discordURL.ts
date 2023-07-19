@@ -18,6 +18,8 @@ export const guildIconBaseUrl = "https://cdn.discordapp.com/icons"
 
 export const DISCORD_PROXY_API_URL = "/api/discord"
 
-export const DISCORD_PROXY_FETCH_URL = `${DISCORD_PROXY_API_URL}/fetch`
+export const DISCORD_PROXY_USER_URL = `${DISCORD_PROXY_API_URL}/user`
+
+export const DISCORD_PROXY_BOT_URL = `${DISCORD_PROXY_API_URL}/bot`
 
 export const DISCORD_PROXY_LOGOUT_URL = `${DISCORD_PROXY_API_URL}/logout`

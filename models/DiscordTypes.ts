@@ -25,3 +25,20 @@ export interface DiscordGuild {
   approximate_member_count: number;
   approximate_presence_count: number;
 };
+
+export interface DiscordChannel {
+  id: string;
+  name: string;
+  type: number;
+  guild_id: string;
+  position: number;
+  permission_overwrites: any[];
+  rate_limit_per_user: number;
+  nsfw: boolean;
+  topic: string | null;
+  last_message_id: string | null;
+  bitrate: number;
+  user_limit: number;
+  parent_id: string | null;
+  last_pin_timestamp: string | null;
+};
