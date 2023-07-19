@@ -186,7 +186,8 @@ export async function fetchCreatedProposals(space: string | undefined, author: s
                     proposalIdPrefix: "",
                     minTokenPassingAmount: 0
                 },
-                proposals: []
+                proposals: [],
+                privateProposals: []
             }
         } as APIResponse<ProposalsPacket>;
     }
