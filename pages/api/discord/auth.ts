@@ -34,6 +34,7 @@ export default async function handler(req: any, res: any) {
       const discordUser = await response.json();
       const session = await getSession({ req });
       console.log('session', session);
+      console.log('cookies', req.cookies);
       const key = session?.user?.name ?? req.cookies["next-auth"]["session-token"];
       redis.set(key, JSON.stringify(discordUser));
     } catch (error) {
