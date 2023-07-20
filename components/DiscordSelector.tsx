@@ -18,7 +18,7 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function DiscordSelector({ session }: { session: Session}) {
+export default function DiscordSelector({ session, setComplete }: { session: Session, setComplete: (complete: boolean) => void}) {
   const router = useRouter();
 
   const { data: guilds, isLoading: discordGuildsLoading } = useFetchDiscordGuilds({address: session?.user?.name || ''}, router.isReady);

@@ -11,9 +11,10 @@ import { CreateFormValues, CreateFormKeys } from "../models/NanceTypes";
 import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
-import { DiscordGuild } from "../models/DiscordTypes";
 import DiscordSelector from "../components/DiscordSelector";
+import SnapshotSearch from "../components/SnapshotSearch";
 import { Session } from "next-auth";
+import { useState } from "react";
 
 type TextInputProps = {
   label: string;
@@ -90,13 +91,14 @@ export default function CreateSpacePage() {
   );
 }
 
-function Form({ session }: { session: Session}) {
+function Form({ session }: { session: Session }) {
   // query and context
   const router = useRouter();
 
   // hooks
   const { isMutating, error: uploadError, trigger, data, reset } = useCreateSpace(router.isReady);
-
+  // state
+  const [discordComplete, setDiscordComplete] = useState(false);
   // form
   const methods = useForm<CreateFormValues>({ mode: 'onChange' });
   const { register, handleSubmit, control, formState: { errors, isValid } } = methods;
@@ -119,7 +121,8 @@ function Form({ session }: { session: Session}) {
         }
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
-          <DiscordSelector session={session} />
+          <DiscordSelector session={session} setComplete={setDiscordComplete}/>
+          <SnapshotSearch />
           {(
             <button
               type="submit"
