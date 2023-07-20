@@ -17,7 +17,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const token = await getTokenByAddress(address);
   if (!token) return res.status(400).send("Missing token");
   const url = `${DISCORD_API}/${command}`;
-  console.log(url)
   const response = await fetch(url, {
     method: 'GET',
     headers: {

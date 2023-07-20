@@ -1,16 +1,18 @@
 import useSWR, { Fetcher } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { DiscordGuild, DiscordUser, DiscordChannel } from '../models/DiscordTypes'
-import { DISCORD_PROXY_USER_URL, DISCORD_PROXY_BOT_URL, DISCORD_PROXY_LOGOUT_URL } from "../libs/discordURL"
+import { DISCORD_PROXY_USER_URL, DISCORD_PROXY_BOT_URL, DISCORD_PROXY_LOGOUT_URL, DISCORD_CLIENT_ID } from "../libs/discordURL"
+
+// const DISCORD_CLIENT_ID = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
 
 const USER_COMMANDS = {
   user: "users/@me",
   guilds: "users/@me/guilds",
-  channels: "guilds/{guildId}/channels",
 }
 
 const BOT_COMMANDS = {
   channels: "guilds/{guildId}/channels",
+  member: "guilds/{guildId}/members",
 }
 
 function jsonFetcher(): Fetcher<any, string> {
@@ -38,7 +40,33 @@ function guildsFetcher(): Fetcher<any, string> {
   }
 }
 
+function textChannelsFetcher(): Fetcher<any, string> {
+  return async (url) => {
+      const res = await fetch(url)
+      const json = await res.json()
+      if (json?.success === 'false') {
+          throw new Error(`An error occurred while fetching the data: ${json?.error}`)
+      }
+      if (json.code) return []
+      return json.filter((channel: DiscordChannel) => {
+        return channel.type === 0
+      })
+  }
+}
+
+function isBotMemberFetcher(): Fetcher<any, string> {
+  return async (url) => {
+      const res = await fetch(url)
+      const json = await res.json()
+      if (json?.success === 'false') {
+          throw new Error(`An error occurred while fetching the data: ${json?.error}`)
+      }
+      return (json.code) ? false : true;
+  }
+}
+
 export function useFetchDiscordUser(args: { address: string }, shouldFetch: boolean = true) {
+  console.log(`${DISCORD_PROXY_USER_URL}?address=${args.address}&command=${USER_COMMANDS.user}`)
   shouldFetch = args.address ? true : false;
     return useSWR<DiscordUser, string>(
         shouldFetch ? `${DISCORD_PROXY_USER_URL}?address=${args.address}&command=${USER_COMMANDS.user}` : null,
@@ -62,13 +90,20 @@ export function useFetchDiscordGuilds(args: { address: string }, shouldFetch: bo
     );
 }
 
-export function useFetchDiscordChannels(args: { address: string, guildId?: string }, shouldFetch: boolean = true) {
+export function useFetchDiscordChannels(args: { guildId: string }, shouldFetch: boolean = true) {
   const command = BOT_COMMANDS.channels.replace("{guildId}", args?.guildId || '');
-  const url = `${DISCORD_PROXY_BOT_URL}?address=${args.address}&command=${command}`
-  console.log(url)
-  shouldFetch = args.address ? true : false;
+  shouldFetch = args.guildId ? true : false;
     return useSWRMutation<DiscordChannel[], string>(
-        shouldFetch ? `${DISCORD_PROXY_BOT_URL}?address=${args.address}&command=${command}` : null,
-        jsonFetcher(),
+        shouldFetch ? `${DISCORD_PROXY_BOT_URL}?command=${command}` : null,
+        textChannelsFetcher(),
+    );
+}
+
+export function useIsBotMemberOfGuild(args: {guildId?: string }, shouldFetch: boolean = true) {
+  const command = `${BOT_COMMANDS.member.replace("{guildId}", args?.guildId || '')}/${DISCORD_CLIENT_ID}`;
+  shouldFetch = args.guildId ? true : false;
+    return useSWRMutation<boolean, string>(
+        shouldFetch ? `${DISCORD_PROXY_BOT_URL}?command=${command}` : null,
+        isBotMemberFetcher(),
     );
 }

@@ -12,7 +12,7 @@ import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
 import { DiscordGuild } from "../models/DiscordTypes";
-import DiscordGuildSelector from "../components/DiscordGuildSelect";
+import DiscordSelector from "../components/DiscordSelector";
 import { Session } from "next-auth";
 
 type TextInputProps = {
@@ -31,7 +31,7 @@ export default function CreateSpacePage() {
   const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();
   const { data: discordUser, isLoading: discordLoading } = useFetchDiscordUser({address: session?.user?.name || ''}, router.isReady);
-  const { data: discordLogoutResponse, trigger: discordLogoutTrigger  } = useLogoutDiscordUser({address: session?.user?.name || ''}, router.isReady);
+  const { trigger: discordLogoutTrigger  } = useLogoutDiscordUser({address: session?.user?.name || ''}, router.isReady);
 
   return (
     <>
@@ -119,7 +119,7 @@ function Form({ session }: { session: Session}) {
         }
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
-          <DiscordGuildSelector session={session} />
+          <DiscordSelector session={session} />
           {(
             <button
               type="submit"
