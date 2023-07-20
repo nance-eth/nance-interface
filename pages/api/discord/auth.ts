@@ -1,7 +1,7 @@
 // https://discordjs.guide/oauth2/#a-quick-example
 // https://github.com/discordjs/guide/blob/main/code-samples/oauth/simple-oauth-webserver/index.js
 import { redis } from "../../../libs/redis";
-import { getSession } from "next-auth/react";
+import { decode } from "next-auth/jwt";
 import { DISCORD_OAUTH_URL, discordRedirectBaseUrl, discordScope, DISCORD_CLIENT_ID } from "../../../libs/discordURL";
 
 // const DISCORD_CLIENT_ID = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
@@ -32,10 +32,11 @@ export default async function handler(req: any, res: any) {
 
     try {
       const discordUser = await response.json();
-      const session = await getSession({ req });
-      console.log('session', session);
-      console.log('cookies', req.cookies);
-      const key = session?.user?.name ?? req.cookies["next-auth"]["session-token"];
+      const session = await decode({
+        token: req.cookies["__Secure-next-auth.session-token"] ?? req.cookies["next-auth.session-token"],
+        secret: process.env.NEXTAUTH_SECRET!,
+      });
+      const key = session?.sub ?? req.cookies["next-auth.session-token"] ?? req.cookies["__Secure-next-auth.session-token"];
       redis.set(key, JSON.stringify(discordUser));
     } catch (error) {
       console.error('Discord authentication error:', error);
