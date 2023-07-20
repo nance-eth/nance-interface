@@ -1,6 +1,6 @@
 export const DISCORD_OAUTH_URL = 'https://discord.com/api/oauth2/token';
 
-export const discordRedirectBaseUrl = "http://localhost:3001/api/discord/auth"
+export const discordRedirectBaseUrl = `${process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI_BASE}/api/discord/auth`
 
 export const discordScope = ["identify", "guilds"].join(" ");
 
