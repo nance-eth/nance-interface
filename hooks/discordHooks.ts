@@ -66,7 +66,6 @@ function isBotMemberFetcher(): Fetcher<any, string> {
 }
 
 export function useFetchDiscordUser(args: { address: string }, shouldFetch: boolean = true) {
-  console.log(`${DISCORD_PROXY_USER_URL}?address=${args.address}&command=${USER_COMMANDS.user}`)
   shouldFetch = args.address ? true : false;
     return useSWR<DiscordUser, string>(
         shouldFetch ? `${DISCORD_PROXY_USER_URL}?address=${args.address}&command=${USER_COMMANDS.user}` : null,

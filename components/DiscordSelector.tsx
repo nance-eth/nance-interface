@@ -31,12 +31,10 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
 
   const { data: botIsMember, trigger: isBotMemberTrigger } = useIsBotMemberOfGuild({guildId: selectedGuild?.id}, (router.isReady && selectedGuild !== null));
 
-  const [botIsMemberOfGuild, setBotIsMemberOfGuild] = useState(false);
 
   useEffect(() => {
     if (selectedGuild) {
       isBotMemberTrigger()
-      setBotIsMemberOfGuild(botIsMember ?? false)
     }
     if (botIsMember) {
       discordChannelsTrigger()
@@ -66,7 +64,7 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
               <Transition
                 show={open}
                 as={Fragment}
-                leave="transition ease-in duration-100"
+                leave="transition ease-in duration-10000"
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
@@ -115,12 +113,20 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
       </Listbox>
 
       {/* add bot to server button */}
-      { selectedGuild && !botIsMemberOfGuild && (
+      { selectedGuild && !botIsMember && (
         <>
         <div className="mt-4">
           <button
             type="button"
-            onClick={() => window.open(addBotUrl(selectedGuild.id), '_blank', 'width=400,height=700,noopener,noreferrer')}
+            onClick={() => {
+              window.open(addBotUrl(selectedGuild.id), '_blank', 'width=400,height=700,noopener,noreferrer')
+              if (selectedGuild && !botIsMember) {
+                const interval = setInterval(isBotMemberTrigger, 1000);
+                if (botIsMember) {
+                  clearInterval(interval);
+                }
+              }
+            }}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none"
           >
             Add bot to server
@@ -130,7 +136,7 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
       )}
 
       {/* channel select */}
-      { selectedGuild && botIsMemberOfGuild && (
+      { selectedGuild && botIsMember && (
         <Listbox value={selectedChannel} onChange={setSelectedChannel}>
         {({ open }) => (
           <>
