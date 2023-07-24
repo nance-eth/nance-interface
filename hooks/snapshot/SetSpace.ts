@@ -67,6 +67,5 @@ export default function useSetSpace(
         setError(undefined);
         setLoading(false);
     }
-    
     return { trigger, value, loading, error, reset };
 }

@@ -5,8 +5,14 @@ import { classNames } from '../libs/tailwind'
 import useSnapshotSearch, { SpaceSearch } from '../hooks/snapshot/SpaceSearch'
 import useSetSpace from '../hooks/snapshot/SetSpace'
 import Image from 'next/image'
+import { Session } from 'next-auth'
+import { Tooltip } from "flowbite-react";
 
-export default function SnapshotSearch() {
+const canEditSnapshotSpace = (space: SpaceSearch, address: string) => {
+  return space.admins.includes(address) || space.moderators.includes(address)
+}
+
+export default function SnapshotSearch({session}: {session: Session}) {
   const [query, setQuery] = useState('')
   const [selectedSpace, setSelectedSpace] = useState<SpaceSearch | null>(null);
 
@@ -15,6 +21,7 @@ export default function SnapshotSearch() {
 
   return (
     <div className="w-100">
+    <div className="mt-2 block text-sm font-medium leading-6 text-gray-900"> Select a snapshot.org space</div>
     { selectedSpace && (
       <span className="flex items-center mt-4">
         <Image src={`https://cdn.stamp.fyi/space/${selectedSpace?.id}?s=160}`} alt={selectedSpace?.name || ''} className="ml-3 h-10 w-10 flex-shrink-0 rounded-full" width={100} height={100} />
@@ -24,7 +31,6 @@ export default function SnapshotSearch() {
     )}
     { !selectedSpace && (
       <Combobox as="div" value={selectedSpace} onChange={setSelectedSpace}>
-        <Combobox.Label className="mt-2 block text-sm font-medium leading-6 text-gray-900">snapshot.org space</Combobox.Label>
         <div className="relative mt-2">
           <Combobox.Input
             className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -76,19 +82,33 @@ export default function SnapshotSearch() {
       </Combobox>
     )}
     {selectedSpace && selectedSpace.id && (
-        <>
-        <div className="mt-4">
+      <>
+      <div className="mt-4">
+      {(() => {
+        const canUserEdit = canEditSnapshotSpace(selectedSpace, session.user?.name as string);
+
+        const buttonJSX = (
           <button
             type="button"
             onClick={() => {
-              trigger()
+              trigger();
             }}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none"
+            disabled={!canUserEdit}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none disabled:bg-gray-400"
           >
             Add nance as author
           </button>
-        </div>
-        </>    )}
+        );
+
+        return canUserEdit ? (
+          buttonJSX
+          ) : (
+          <Tooltip content="You must be a moderator or admin of this snapshot space to add nance as a member">{buttonJSX}</Tooltip>
+          )
+      })()}
+      </div>
+      </>
+    )}
     </div>
   )
 }

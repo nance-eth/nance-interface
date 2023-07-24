@@ -122,7 +122,7 @@ function Form({ session }: { session: Session }) {
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
           <DiscordSelector session={session} setComplete={setDiscordComplete}/>
-          <SnapshotSearch />
+          <SnapshotSearch session={session} />
           {(
             <button
               type="submit"

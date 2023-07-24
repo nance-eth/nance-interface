@@ -11,6 +11,8 @@ query Ranking($search: String) {
       id
       name
       avatar
+      admins
+      moderators
     }
   }
 }
@@ -20,6 +22,8 @@ export interface SpaceSearch {
     id: string,
     name: string,
     avatar: string,
+    admins: string[],
+    moderators: string[]
 }
 
 export default function useSnapshotSearch(search: string): {data: SpaceSearch[] | undefined, loading: boolean} {
