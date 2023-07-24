@@ -4,39 +4,65 @@ const QUERY = `
 query SpaceSettings($spaceId: String) {
   space(id: $spaceId) {
     name
+    private
+    about
+    guidelines
+    template
+    terms
+    avatar
+    location
+    website
+    twitter
+    coingecko
+    github
+    email
     network
     symbol
-    private
-    admins
-    moderators
-    members
-    categories
-    plugins
-    voting {
-      quorum
-      hideAbstain
-    }
+    skin
+    domain
     strategies {
       name
       network
       params
     }
-    validation {
-      name
-      params
-    }
+    members
+    admins
+    moderators
+    plugins
     filters {
       minScore
       onlyMembers
     }
-    voteValidation {
+    validation {
       name
       params
     }
+    voting {
+      quorum
+      blind
+      hideAbstain
+      aliased
+      privacy
+      type
+      delay
+      period
+    }
+    categories
     treasuries {
       name
       address
       network
+    }
+    parent {
+      id
+    }
+    children {
+      id
+    }
+    delegationPortal {
+      delegationApi
+      delegationType
+      delegationContract
     }
   }
 }
