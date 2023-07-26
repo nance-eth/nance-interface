@@ -22,13 +22,28 @@ export default function SnapshotSearch({session}: {session: Session}) {
   return (
     <div className="w-100">
     <div className="mt-2 block text-sm font-medium leading-6 text-gray-900"> Select a snapshot.org space</div>
-    { selectedSpace && (
-      <span className="flex items-center mt-4">
-        <Image src={`https://cdn.stamp.fyi/space/${selectedSpace?.id}?s=160}`} alt={selectedSpace?.name || ''} className="ml-3 h-10 w-10 flex-shrink-0 rounded-full" width={100} height={100} />
-        <span className="ml-3 block truncate">{selectedSpace?.name}</span>
-        <XCircleIcon onClick={() => setSelectedSpace(null)} className="h-5 w-5 text-gray-400 ml-3 cursor-pointer" aria-hidden="true" />
-      </span>
-    )}
+    {selectedSpace && (
+        <div className="mt-4 p-2 border rounded-md border-gray-300 bg-white">
+          <span className="flex items-center">
+            <Image
+              src={`https://cdn.stamp.fyi/space/${selectedSpace?.id}?s=160}`}
+              alt={selectedSpace?.name || ''}
+              className="ml-1 h-10 w-10 flex-shrink-0 rounded-full"
+              width={100}
+              height={100}
+            />
+            <span className="ml-3 block truncate">{selectedSpace?.name}</span>
+            <XCircleIcon
+              onClick={() => {
+                setSelectedSpace(null);
+                reset();
+              }}
+              className="h-5 w-5 text-gray-400 ml-3 cursor-pointer"
+              aria-hidden="true"
+            />
+          </span>
+        </div>
+      )}
     { !selectedSpace && (
       <Combobox as="div" value={selectedSpace} onChange={setSelectedSpace}>
         <div className="relative mt-2">
@@ -87,23 +102,33 @@ export default function SnapshotSearch({session}: {session: Session}) {
       {(() => {
         const canUserEdit = canEditSnapshotSpace(selectedSpace, session.user?.name as string);
 
-        const buttonJSX = (
+        const addNanceSnapshotButton = (
           <button
             type="button"
             onClick={() => {
               trigger();
             }}
-            disabled={!canUserEdit}
+            disabled={!canUserEdit || loading}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none disabled:bg-gray-400"
           >
-            Add nance as author
+            {loading &&
+              (<>
+              <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-gray-200 rounded-full mr-2" role="status" aria-label="loading">
+              </div>
+              </>)
+            }
+              Add Nance as author
           </button>
         );
 
+        if (value) { // success
+          return null;
+        }
+
         return canUserEdit ? (
-          buttonJSX
+          addNanceSnapshotButton
           ) : (
-          <Tooltip content="You must be a moderator or admin of this snapshot space to add nance as a member">{buttonJSX}</Tooltip>
+          <Tooltip content="You must be a moderator or admin of this snapshot space to add nance as a member">{addNanceSnapshotButton}</Tooltip>
           )
       })()}
       </div>

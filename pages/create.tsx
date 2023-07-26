@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-no-undef */
 import Image from "next/image";
-import { FaSpinner } from "react-icons/fa";
 import SiteNav from "../components/SiteNav";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { useSession } from "next-auth/react";
@@ -63,7 +62,10 @@ export default function CreateSpacePage() {
                 </div>
               )}
               <div className="flex justify-center">
-                { discordLoading && <FaSpinner className="animate-spin" /> }
+                { discordLoading && (
+                  <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-blue-600 rounded-full" role="status" aria-label="loading">
+                </div>
+                ) }
               </div>
               { !discordLoading && discordUser && (
                 <>
