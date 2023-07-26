@@ -38,6 +38,7 @@ export default async function handler(req: any, res: any) {
       });
       const key = session?.sub ?? req.cookies["next-auth.session-token"] ?? req.cookies["__Secure-next-auth.session-token"];
       redis.set(key, JSON.stringify(discordUser));
+      await redis.quit();
     } catch (error) {
       console.error('Discord authentication error:', error);
       res.status(500).send('Internal Server Error');

@@ -121,7 +121,7 @@ export default function SnapshotSearch({session}: {session: Session}) {
           </button>
         );
 
-        if (value) { // success
+        if (value) { // success, dont show button
           return null;
         }
 

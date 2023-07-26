@@ -96,10 +96,8 @@ export interface ConfigSpaceRequest {
 
 export type CreateFormValues = {
   name: string;
-  // discord: DiscordConfig;
-  // propertyKeys: Partial<PropertyKeys>;
-  // juicebox: JuiceboxConfig;
-  // snapshot: SnapshotConfig;
+  discord: DiscordConfig;
+  proposalIdPrefix: string;
 }
 
 export type DiscordConfig = {

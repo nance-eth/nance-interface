@@ -14,6 +14,7 @@ import DiscordSelector from "../components/DiscordSelector";
 import SnapshotSearch from "../components/SnapshotSearch";
 import { Session } from "next-auth";
 import { useState } from "react";
+import { Tooltip } from "flowbite-react";
 
 type TextInputProps = {
   label: string;
@@ -21,8 +22,11 @@ type TextInputProps = {
   register: any;
   placeholder: string;
   required: boolean;
-  defaultValue: string | number;
   type: string;
+  maxLength: number;
+  className?: string;
+  tooltip?: string;
+  placeHolder?: string;
 }
 
 export default function CreateSpacePage() {
@@ -125,6 +129,8 @@ function Form({ session }: { session: Session }) {
           <FormInput label="Nance space name" name="name" register={register} />
           <DiscordSelector session={session} setComplete={setDiscordComplete}/>
           <SnapshotSearch session={session} />
+          <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
+            className="w-24" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"/>
           {(
             <button
               type="submit"
@@ -140,18 +146,31 @@ function Form({ session }: { session: Session }) {
   )
 }
 
-const FormInput = ({ label, name, defaultValue, register, required = true, type = "text" }: Partial<TextInputProps>) => {
+const FormInput = ({ label, name, register, required = true, type = "text", maxLength, className, tooltip, placeHolder }: Partial<TextInputProps>) => {
   return (
-    <div className="flex flex-col mb-4 w-80">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
+    <div className="flex flex-col mb-2 mt-2 w-80">
+      <label htmlFor={name} className="flex text-sm font-medium text-gray-700 relative">
+        {label}
+        {tooltip && (
+          <div className="ml-1">
+            <Tooltip content={tooltip}>
+              <span className="inline-flex items-center justify-center h-4 w-4 text-xs rounded-full bg-gray-400 text-white">
+                ?
+              </span>
+            </Tooltip>
+          </div>
+        )}
+      </label>
       <input
         type={type}
         id={name}
         name={name}
-        defaultValue={defaultValue}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        maxLength={maxLength}
+        placeholder={placeHolder}
+        autoComplete="off"
+        className={`${className} mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
         {...register(name, { required, shouldUnregister: true })}
       />
     </div>
   );
-}
+};
