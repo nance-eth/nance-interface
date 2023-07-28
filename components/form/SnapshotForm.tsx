@@ -5,7 +5,7 @@ import { Session } from "next-auth";
 
 export default function SnapshotForm(
   { session } : { session: Session }
-  ) {
+) {
   const { control, formState: { errors } } = useFormContext();
   const fieldName = 'snapshot.space';
   return (
@@ -14,18 +14,18 @@ export default function SnapshotForm(
         name={fieldName}
         control={control}
         rules={{
-            required: "Can't be empty",
+          required: "Can't be empty",
         }}
         render={({ field: { onChange, value } }) =>
-            <Snapshotsearch session={session} val={value} setVal={onChange} />
+          <Snapshotsearch session={session} val={value} setVal={onChange} />
         }
         shouldUnregister
-        />
+      />
       <ErrorMessage
         errors={errors}
         name={fieldName}
         render={({ message }) => <p className="text-red-500 mt-1">{message}</p>}
-        />
+      />
     </div>
   )
 }

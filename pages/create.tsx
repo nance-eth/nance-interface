@@ -48,7 +48,7 @@ export default function CreateSpacePage() {
           <h1 className="text-lg text-center font-bold text-gray-900 mt-8 mb-5">Create New Nance Instance</h1>
           {status === "unauthenticated" && (
             <button type="button" onClick={() => openConnectModal?.()}
-            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium
+              className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium
             text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
             >
               Connect Wallet
@@ -70,7 +70,7 @@ export default function CreateSpacePage() {
               <div className="flex justify-center">
                 { discordLoading && (
                   <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-blue-600 rounded-full" role="status" aria-label="loading">
-                </div>
+                  </div>
                 ) }
               </div>
               { !discordLoading && discordUser && (
@@ -79,8 +79,8 @@ export default function CreateSpacePage() {
                     <div className="block text-center">
                       <p className="">{`${discordUser?.username}`}</p>
                       <a className="text-xs underline hover:cursor-pointer" onClick={ () => {
-                        discordLogoutTrigger()
-                        window.location.reload()
+                        discordLogoutTrigger();
+                        window.location.reload();
                       }
                       }>disconnect</a>
                     </div>
@@ -113,44 +113,44 @@ function Form({ session }: { session: Session }) {
   const onSubmit: SubmitHandler<CreateFormValues> = async (formData) => {
     console.log(formData);
     const payload = { ...formData };
-    console.debug("📚 Nance.createSpace.onSubmit ->", { formData, payload })
-      const req = {
-          config: formData
-      }
-      console.debug("📗 Nance.createSpace.submit ->", req);
-      // return trigger(req);
-  }
+    console.debug("📚 Nance.createSpace.onSubmit ->", { formData, payload });
+    const req = {
+      config: formData
+    };
+    console.debug("📗 Nance.createSpace.submit ->", req);
+    // return trigger(req);
+  };
 
   return (
-      <FormProvider {...methods} >
-        <Notification title="Success" description="Created" show={data !== undefined} close={() => {}} checked={true} />
-        {( uploadError) &&
+    <FormProvider {...methods} >
+      <Notification title="Success" description="Created" show={data !== undefined} close={() => {}} checked={true} />
+      {( uploadError) &&
           <Notification title="Error" description={'error'} show={true} close={() => {}} checked={false} />
-        }
-        <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-          <FormInput label="Nance space name" name="name" register={register} />
-          <DiscordForm session={session}/>
-          <SnapshotForm session={session} />
-          <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
-            className="w-20" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
-          />
-          <BooleanForm label="Link to a Juicebox Project?" fieldName="juicebox" showType={false} />
-          {watch('juicebox') && (
-            <ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} />
-          )}
-          {(
-            <button
-              type="submit"
-              disabled={ !isValid || isMutating }
-              className="mt-5 ml-300 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm
+      }
+      <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+        <FormInput label="Nance space name" name="name" register={register} />
+        <DiscordForm session={session}/>
+        <SnapshotForm session={session} />
+        <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
+          className="w-20" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
+        />
+        <BooleanForm label="Link to a Juicebox Project?" fieldName="juicebox" showType={false} />
+        {watch('juicebox') && (
+          <ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} />
+        )}
+        {(
+          <button
+            type="submit"
+            disabled={ !isValid || isMutating }
+            className="mt-5 ml-300 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm
               hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400 w-20"
-            >
+          >
               Submit
-            </button>
-          )}
-        </form>
-      </FormProvider>
-  )
+          </button>
+        )}
+      </form>
+    </FormProvider>
+  );
 }
 
 const FormInput = ({ label, name, register, required = true, type = "text", maxLength, className, tooltip, placeHolder }: Partial<TextInputProps>) => {

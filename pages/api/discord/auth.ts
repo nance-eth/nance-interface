@@ -13,7 +13,7 @@ const params = {
   code: '',
   redirect_uri: '',
   scope: discordScope,
-}
+};
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "GET") return res.redirect("/create");

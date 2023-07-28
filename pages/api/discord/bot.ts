@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const response = await fetch(url, {
     method: 'GET',
     headers: {
-     'Authorization': `Bot ${token}`
+      'Authorization': `Bot ${token}`
     }
   });
   const user = await response.json();

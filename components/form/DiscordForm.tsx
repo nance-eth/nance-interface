@@ -5,7 +5,7 @@ import { Session } from "next-auth";
 
 export default function DiscordForm(
   { session } : { session: Session }
-  ) {
+) {
   const { control, formState: { errors } } = useFormContext();
   const fieldName = 'discord';
   return (
@@ -14,18 +14,18 @@ export default function DiscordForm(
         name={fieldName}
         control={control}
         rules={{
-            required: "Can't be empty",
+          required: "Can't be empty",
         }}
         render={({ field: { onChange, value } }) =>
-            <DiscordSelector session={session} val={value} setVal={onChange} />
+          <DiscordSelector session={session} val={value} setVal={onChange} />
         }
         shouldUnregister
-        />
+      />
       <ErrorMessage
         errors={errors}
         name={fieldName}
         render={({ message }) => <p className="text-red-500 mt-1">{message}</p>}
-        />
+      />
     </div>
   )
 }

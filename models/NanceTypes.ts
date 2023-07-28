@@ -235,10 +235,11 @@ export type CustomTransaction = {
   functionName: string;
   args: any[];
   tenderlyId: string;
+  tenderlyStatus: string;
 }
 
 export function extractFunctionName(str: string) {
-  return str.split("(")[0].split(" ").slice(-1)
+  return str.split("(")[0].split(" ").slice(-1);
 }
 
 export function parseFunctionAbiWithNamedArgs(functionAbi: string, args: any[] | object) {
@@ -251,7 +252,7 @@ export function parseFunctionAbiWithNamedArgs(functionAbi: string, args: any[] |
   }
 
   const ethersInterface = new Interface([abi]);
-  const paramNames = ethersInterface.fragments[0].inputs.map(p => p.name || "_")
+  const paramNames = ethersInterface.fragments[0].inputs.map(p => p.name || "_");
   let dict: any = [];
   Object.values(args).forEach((val, index) => dict.push([paramNames[index] || '_', val]));
 
