@@ -7,7 +7,6 @@ const getTokenByAddress = async (address: string) => {
   const redisValue = await redis.get(address);
   if (!redisValue) return null;
   const token = JSON.parse(redisValue!).access_token;
-  await redis.quit();
   return token;
 }
 

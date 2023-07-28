@@ -10,11 +10,13 @@ import { CreateFormValues, CreateFormKeys } from "../models/NanceTypes";
 import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
-import DiscordSelector from "../components/DiscordSelector";
-import SnapshotSearch from "../components/SnapshotSearch";
 import { Session } from "next-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tooltip } from "flowbite-react";
+import ProjectForm from "../components/form/ProjectForm";
+import BooleanForm from "../components/form/BooleanForm";
+import SnapshotForm from "../components/form/SnapshotForm";
+import DiscordForm from "../components/form/DiscordForm";
 
 type TextInputProps = {
   label: string;
@@ -107,7 +109,7 @@ function Form({ session }: { session: Session }) {
   const [discordComplete, setDiscordComplete] = useState(false);
   // form
   const methods = useForm<CreateFormValues>({ mode: 'onChange' });
-  const { register, handleSubmit, control, formState: { errors, isValid } } = methods;
+  const { register, handleSubmit, control, formState: { errors, isValid }, watch } = methods;
   const onSubmit: SubmitHandler<CreateFormValues> = async (formData) => {
     console.log(formData);
     const payload = { ...formData };
@@ -116,7 +118,7 @@ function Form({ session }: { session: Session }) {
           config: formData
       }
       console.debug("📗 Nance.createSpace.submit ->", req);
-      return trigger(req);
+      // return trigger(req);
   }
 
   return (
@@ -127,10 +129,15 @@ function Form({ session }: { session: Session }) {
         }
         <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
           <FormInput label="Nance space name" name="name" register={register} />
-          <DiscordSelector session={session} setComplete={setDiscordComplete}/>
-          <SnapshotSearch session={session} />
+          <DiscordForm session={session}/>
+          <SnapshotForm session={session} />
           <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
-            className="w-24" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"/>
+            className="w-20" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
+          />
+          <BooleanForm label="Link to a Juicebox Project?" fieldName="juicebox" showType={false} />
+          {watch('juicebox') && (
+            <ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} />
+          )}
           {(
             <button
               type="submit"

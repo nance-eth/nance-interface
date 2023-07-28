@@ -72,8 +72,8 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
                       <Link href="/" legacyBehavior>
                         <a>
                           <img
-                            className="block h-8 w-auto"
-                            src="/favicon.svg"
+                            className="block h-9 w-auto"
+                            src="/images/logo-min.svg"
                             alt="JBDAO logo"
                           />
                         </a>

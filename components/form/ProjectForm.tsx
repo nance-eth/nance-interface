@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import ProjectSearch from "../juicebox/ProjectSearch";
 
 export default function ProjectForm(
-    { label, fieldName, defaultValue = 0 } : { label: string, fieldName: any, defaultValue?: number }
+    { label, fieldName, defaultValue = 0, showType = true } : { label: string, fieldName: any, defaultValue?: number, showType?: boolean }
     ) {
     const { control, formState: { errors } } = useFormContext();
 

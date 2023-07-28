@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { DiscordChannel, DiscordGuild } from '../models/DiscordTypes'
 import { addBotUrl, guildIconBaseUrl } from '../libs/discordURL'
 import { useFetchDiscordGuilds, useFetchDiscordChannels, useIsBotMemberOfGuild } from "../hooks/discordHooks";
+import { DiscordConfig } from '../models/NanceTypes';
 
 const getGuildIconUrl = (guild: DiscordGuild | null) => {
   if (!guild) return "/images/default_server_icon.png"
@@ -18,7 +19,9 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function DiscordSelector({ session, setComplete }: { session: Session, setComplete: (complete: boolean) => void}) {
+export default function DiscordSelector(
+  {session, val, setVal}: {session: Session, val: DiscordConfig, setVal: (v: Partial<DiscordConfig>) => void})
+  {
   const router = useRouter();
 
   const { data: guilds, isLoading: discordGuildsLoading } = useFetchDiscordGuilds({address: session?.user?.name || ''}, router.isReady);
@@ -46,7 +49,10 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
   return (
     <div className="w-100">
       {/* guild select */}
-      <Listbox value={selectedGuild} onChange={setSelectedGuild}>
+      <Listbox value={selectedGuild} onChange={(v: DiscordGuild) => {
+        setSelectedGuild(v)
+        setVal({...val, guildId: v.id})
+      }}>
         {({ open }) => (
           <>
             <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">Select a Discord server</Listbox.Label>
@@ -137,7 +143,10 @@ export default function DiscordSelector({ session, setComplete }: { session: Ses
 
       {/* channel select */}
       { selectedGuild && botIsMember && (
-        <Listbox value={selectedChannel} onChange={setSelectedChannel}>
+        <Listbox value={selectedChannel} onChange={(c: DiscordChannel) => {
+          setSelectedChannel(c)
+          setVal({...val, channelIds: {proposals: c.id }})
+        }}>
         {({ open }) => (
           <>
             <Listbox.Label className="mt-2 block text-sm font-medium leading-6 text-gray-900">Select a channel to post proposals to</Listbox.Label>

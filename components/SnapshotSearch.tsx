@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CheckIcon, XCircleIcon } from '@heroicons/react/20/solid'
 import { Combobox } from '@headlessui/react'
 import { classNames } from '../libs/tailwind'
@@ -12,7 +12,9 @@ const canEditSnapshotSpace = (space: SpaceSearch, address: string) => {
   return space.admins.includes(address) || space.moderators.includes(address)
 }
 
-export default function SnapshotSearch({session}: {session: Session}) {
+export default function SnapshotSearch(
+  {session, val, setVal}: {session: Session, val: string, setVal: (v: any) => void})
+  {
   const [query, setQuery] = useState('')
   const [selectedSpace, setSelectedSpace] = useState<SpaceSearch | null>(null);
 
@@ -45,7 +47,10 @@ export default function SnapshotSearch({session}: {session: Session}) {
         </div>
       )}
     { !selectedSpace && (
-      <Combobox as="div" value={selectedSpace} onChange={setSelectedSpace}>
+      <Combobox as="div" value={selectedSpace} onChange={(v: SpaceSearch) => {
+        setSelectedSpace(v);
+        setVal(v.id);
+      }}>
         <div className="relative mt-2">
           <Combobox.Input
             className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

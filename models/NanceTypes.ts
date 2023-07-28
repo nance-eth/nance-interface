@@ -98,11 +98,13 @@ export type CreateFormValues = {
   name: string;
   discord: DiscordConfig;
   proposalIdPrefix: string;
+  juicebox: JuiceboxConfig;
+  snapshot: SnapshotConfig;
 }
 
 export type DiscordConfig = {
   guildId: string;
-  roleIds: DiscordConfigRoles;
+  roles: DiscordConfigRoles;
   channelIds: DiscordConfigChannels;
 }
 
