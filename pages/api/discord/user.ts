@@ -8,7 +8,7 @@ const getTokenByAddress = async (address: string) => {
   if (!redisValue) return null;
   const token = JSON.parse(redisValue!).access_token;
   return token;
-}
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { address, command } = req.query as Record<string, string>;

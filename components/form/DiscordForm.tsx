@@ -27,5 +27,5 @@ export default function DiscordForm(
         render={({ message }) => <p className="text-red-500 mt-1">{message}</p>}
       />
     </div>
-  )
+  );
 }
