@@ -1,11 +1,10 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { Controller, useFormContext } from "react-hook-form";
 import { Tooltip } from "flowbite-react";
+import Calendar from '../GovernanceCalendarMini';
 
 export default function GovernanceCyleForm() {
   const { register, formState: { errors } } = useFormContext();
-
-
 
   return (
     <div>
@@ -16,30 +15,17 @@ export default function GovernanceCyleForm() {
         tooltipContent="This is the total length of time before a governance cycle repeats"
         register={register}
       />
-      <SmallNumberInput 
-        label="Temperature Check Length"
-        name="temperatureCheckLength"
-        defaultValue={3}
-        register={register}
-      />
-      <SmallNumberInput 
-        label="Voting Length"
-        name="votingLength"
-        defaultValue={4}
-        register={register}
-      />
-      <SmallNumberInput 
-        label="Execution Length"
-        name="executionLength"
-        defaultValue={4}
-        register={register}
-      />
-      <SmallNumberInput 
-        label="Delay Length"
-        name="delayLength"
-        defaultValue={3}
-        register={register}
-      />
+      <div className="flex-col mb-2 w-80">
+        <label className="block text-sm font-medium text-gray-700 mt-2">
+          Select Start Date
+        </label>
+        <Calendar
+          temperatureCheckLength={3}
+          votingLength={4}
+          executionLength={4}
+          delayLength={3}
+        />
+      </div>
     </div>
   );
 }
