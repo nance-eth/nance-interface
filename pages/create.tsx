@@ -17,6 +17,7 @@ import ProjectForm from "../components/form/ProjectForm";
 import BooleanForm from "../components/form/BooleanForm";
 import SnapshotForm from "../components/form/SnapshotForm";
 import DiscordForm from "../components/form/DiscordForm";
+import GovernanceCyleForm from "../components/form/GovernanceCycleForm";
 
 type TextInputProps = {
   label: string;
@@ -132,12 +133,13 @@ function Form({ session }: { session: Session }) {
         <DiscordForm session={session}/>
         <SnapshotForm session={session} />
         <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
-          className="w-20" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
+          className="w-16" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
         />
         <BooleanForm label="Link to a Juicebox Project?" fieldName="juicebox" showType={false} />
         {watch('juicebox') && (
-          <ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} />
+          <div className="mt-2"><ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} /></div>
         )}
+        <GovernanceCyleForm />
         {(
           <button
             type="submit"
@@ -175,7 +177,7 @@ const FormInput = ({ label, name, register, required = true, type = "text", maxL
         maxLength={maxLength}
         placeholder={placeHolder}
         autoComplete="off"
-        className={`${className} mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
+        className={`${className} mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
         {...register(name, { required, shouldUnregister: true })}
       />
     </div>
