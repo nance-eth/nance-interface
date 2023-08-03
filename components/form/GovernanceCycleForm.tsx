@@ -2,6 +2,7 @@ import { ErrorMessage } from "@hookform/error-message";
 import { Controller, useFormContext } from "react-hook-form";
 import { Tooltip } from "flowbite-react";
 import GovernanceCalendarMini from '../GovernanceCalendarMini';
+import GovernanceCalendarKey from "../GovernanceCalendarKey";
 import TimePicker from "../TimePicker";
 
 export default function GovernanceCyleForm() {
@@ -18,14 +19,11 @@ export default function GovernanceCyleForm() {
       />
       <TimePicker />
       <div className="flex-col mb-2 w-80">
-        <label className="block text-sm font-medium text-gray-700 mt-2">
-          Select Start Date
-        </label>
-        <div className="mt-2 flex items-left justify-start text-left">
-          <div className="h-9 w-9 rounded-full bg-red-200"/>
-          <div className="ml-4 h-9 w-9 rounded-full bg-orange-200"/>
-          <div className="ml-4 h-9 w-9 rounded-full bg-green-200"/>
-          <div className="ml-4 h-9 w-9 rounded-full bg-blue-200"/>
+        <div className="inline-flex">
+          <label className="block text-sm font-medium text-gray-700 mt-2">
+            Select Start Date
+          </label>
+          <GovernanceCalendarKey />
         </div>
         <GovernanceCalendarMini
           temperatureCheckLength={3}
