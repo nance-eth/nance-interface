@@ -18,7 +18,7 @@ export default function GovernanceCyleForm() {
         register={register}
       />
       <TimePicker />
-      <div className="flex-col mb-2 w-80">
+      <div className="flex-col mb-1 w-80">
         <div className="inline-flex">
           <label className="block text-sm font-medium text-gray-700 mt-2">
             Select Start Date

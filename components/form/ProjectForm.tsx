@@ -3,7 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import ProjectSearch from "../juicebox/ProjectSearch";
 
 export default function ProjectForm(
-  { label, fieldName, defaultValue = 0, showType = true } : { label: string, fieldName: any, defaultValue?: number, showType?: boolean }
+  { label, fieldName, defaultValue, showType = true, disabled = false } : { label?: string, fieldName: any, defaultValue?: number, showType?: boolean, disabled?: boolean }
 ) {
   const { control, formState: { errors } } = useFormContext();
 
@@ -28,7 +28,7 @@ export default function ProjectForm(
             }
           }}
           render={({ field: { onChange, onBlur, value, ref } }) =>
-            <ProjectSearch val={value} setVal={onChange} inputStyle="rounded-none h-10 rounded-r-md" />
+            <ProjectSearch val={value} setVal={onChange} inputStyle={`${showType ? 'rounded-none rounded-r-md' : 'rounded-md'} h-10`} disabled={disabled} />
           }
           defaultValue={defaultValue}
           shouldUnregister

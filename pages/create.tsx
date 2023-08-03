@@ -14,10 +14,10 @@ import { Session } from "next-auth";
 import { useEffect, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import ProjectForm from "../components/form/ProjectForm";
-import BooleanForm from "../components/form/BooleanForm";
 import SnapshotForm from "../components/form/SnapshotForm";
 import DiscordForm from "../components/form/DiscordForm";
 import GovernanceCyleForm from "../components/form/GovernanceCycleForm";
+import ToggleSwitch from "../components/ToggleSwitch";
 
 type TextInputProps = {
   label: string;
@@ -109,7 +109,8 @@ function Form({ session }: { session: Session }) {
   // hooks
   const { isMutating, error: uploadError, trigger, data, reset } = useCreateSpace(router.isReady);
   // state
-  const [discordComplete, setDiscordComplete] = useState(false);
+  const [juiceboxProjectDisabled, setJuiceboxProjectDisabled] = useState(false);
+  const [gnosisSafeEnabled, setGnosisSafeEnabled] = useState(false);
   // form
   const methods = useForm<CreateFormValues>({ mode: 'onChange' });
   const { register, handleSubmit, control, formState: { errors, isValid }, watch } = methods;
@@ -137,10 +138,12 @@ function Form({ session }: { session: Session }) {
         <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
           className="w-16" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
         />
-        <BooleanForm label="Link to a Juicebox Project?" fieldName="juicebox" showType={false} />
-        {watch('juicebox') && (
-          <div className="mt-2"><ProjectForm label="Linked Juicebox Project" fieldName="project" showType={false} /></div>
-        )}
+
+        <ToggleSwitch enabled={juiceboxProjectDisabled} setEnabled={setJuiceboxProjectDisabled} label="Link to a Juicebox Project?" />
+        <div className="mt-2 z-20"><ProjectForm fieldName="project" showType={false} disabled={!juiceboxProjectDisabled} /></div>
+
+        <ToggleSwitch enabled={gnosisSafeEnabled} setEnabled={setGnosisSafeEnabled} label="Link to a Gnosis Safe?" />
+
         <GovernanceCyleForm />
         {(
           <button
