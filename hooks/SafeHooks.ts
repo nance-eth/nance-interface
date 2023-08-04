@@ -65,3 +65,21 @@ export function useMultisigAssets(address: string, shouldFetch: boolean = true) 
     balanceJsonFetcher(),
   );
 }
+
+function validSafeFetcher(): Fetcher<any, string> {
+  return async (url) => {
+    const res = await fetch(url);
+    if (res.status !== 200) {
+      return false;
+    }
+    const json = await res.json();
+    return json.address !== undefined;
+  };
+}
+
+export function useIsValidAddress(address: string, shouldFetch: boolean = true) {
+  return useSWR(
+    shouldFetch ? `${SAFE_API}${address}` : null,
+    validSafeFetcher(),
+  );
+}

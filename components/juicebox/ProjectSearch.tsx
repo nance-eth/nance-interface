@@ -14,7 +14,7 @@ export interface ProjectOption {
 }
 
 export default function ProjectSearch({ val, setVal, inputStyle = "", disabled = true }:
-{ val: number, setVal: (v: number | null) => void, inputStyle?: string, disabled?: boolean }) {
+{ val: number, setVal: (v: number ) => void, inputStyle?: string, disabled?: boolean }) {
   const [query, setQuery] = useState('');
 
   const { data: projects, loading } = useProjectSearch(query);

@@ -12,25 +12,13 @@ import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
 import { Session } from "next-auth";
 import { useEffect, useState } from "react";
-import { Tooltip } from "flowbite-react";
 import ProjectForm from "../components/form/ProjectForm";
 import SnapshotForm from "../components/form/SnapshotForm";
 import DiscordForm from "../components/form/DiscordForm";
 import GovernanceCyleForm from "../components/form/GovernanceCycleForm";
 import ToggleSwitch from "../components/ToggleSwitch";
-
-type TextInputProps = {
-  label: string;
-  name: CreateFormKeys;
-  register: any;
-  placeholder: string;
-  required: boolean;
-  type: string;
-  maxLength: number;
-  className?: string;
-  tooltip?: string;
-  placeHolder?: string;
-}
+import { TextInput } from "../components/form/TextForm";
+import GnosisSafeForm from "../components/form/GnosisSafeForm";
 
 export default function CreateSpacePage() {
   const router = useRouter();
@@ -110,7 +98,6 @@ function Form({ session }: { session: Session }) {
   const { isMutating, error: uploadError, trigger, data, reset } = useCreateSpace(router.isReady);
   // state
   const [juiceboxProjectDisabled, setJuiceboxProjectDisabled] = useState(false);
-  const [gnosisSafeEnabled, setGnosisSafeEnabled] = useState(false);
   // form
   const methods = useForm<CreateFormValues>({ mode: 'onChange' });
   const { register, handleSubmit, control, formState: { errors, isValid }, watch } = methods;
@@ -132,17 +119,17 @@ function Form({ session }: { session: Session }) {
           <Notification title="Error" description={'error'} show={true} close={() => {}} checked={false} />
       }
       <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-        <FormInput label="Nance space name" name="name" register={register} />
+        <TextInput label="Nance space name" name="name" register={register} />
         <DiscordForm session={session}/>
         <SnapshotForm session={session} />
-        <FormInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
+        <TextInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
           className="w-16" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
         />
 
         <ToggleSwitch enabled={juiceboxProjectDisabled} setEnabled={setJuiceboxProjectDisabled} label="Link to a Juicebox Project?" />
-        <div className="mt-2 z-20"><ProjectForm fieldName="project" showType={false} disabled={!juiceboxProjectDisabled} /></div>
+        <div className="mt-2 mb-3"><ProjectForm fieldName="project" showType={false} disabled={!juiceboxProjectDisabled} /></div>
 
-        <ToggleSwitch enabled={gnosisSafeEnabled} setEnabled={setGnosisSafeEnabled} label="Link to a Gnosis Safe?" />
+        <GnosisSafeForm />
 
         <GovernanceCyleForm />
         {(
@@ -159,32 +146,3 @@ function Form({ session }: { session: Session }) {
     </FormProvider>
   );
 }
-
-const FormInput = ({ label, name, register, required = true, type = "text", maxLength, className, tooltip, placeHolder }: Partial<TextInputProps>) => {
-  return (
-    <div className="flex flex-col mb-2 mt-2 w-80">
-      <label htmlFor={name} className="flex text-sm font-medium text-gray-700 relative">
-        {label}
-        {tooltip && (
-          <div className="ml-1">
-            <Tooltip content={tooltip}>
-              <span className="inline-flex items-center justify-center h-4 w-4 text-xs rounded-full bg-gray-400 text-white">
-                ?
-              </span>
-            </Tooltip>
-          </div>
-        )}
-      </label>
-      <input
-        type={type}
-        id={name}
-        name={name}
-        maxLength={maxLength}
-        placeholder={placeHolder}
-        autoComplete="off"
-        className={`${className} mt-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
-        {...register(name, { required, shouldUnregister: true })}
-      />
-    </div>
-  );
-};

@@ -26,7 +26,7 @@ export default function TimePicker() {
         <SmallListbox options={hours} selected={selectedHour} setSelected={setSelectedHour} /> 
         <div className="text-center mt-2 ml-2 font-semibold text-gray-900">:</div>
         <SmallListbox options={minutes} selected={selectedMinute} setSelected={setSelectedMinute} addClass="ml-2"/>
-        <SmallListbox options={ampm} selected={selectedAMPM} setSelected={setSelectedAMPM} addClass="ml-2 z-10" />
+        <SmallListbox options={ampm} selected={selectedAMPM} setSelected={setSelectedAMPM} addClass="ml-2" />
       </div>
     </>
   );
@@ -56,7 +56,7 @@ const SmallListbox = ({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className={`${addClass} absolute z-12 mt-1 max-h-100 w-12 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm`}>
+              <Listbox.Options className={`${addClass} absolute mt-1 max-h-100 w-12 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm`}>
                 {options.map((o) => (
                   <Listbox.Option
                     key={o}
