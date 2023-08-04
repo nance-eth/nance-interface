@@ -20,6 +20,7 @@ export type SpaceInfo = {
 };
 
 export type ProposalInfo = {
+  snapshotSpace: string;
   proposalIdPrefix: string;
   minTokenPassingAmount: number;
 };
@@ -178,6 +179,25 @@ export type Action = {
   payload: Payout | Reserve | Transfer | CustomTransaction;
   uuid?: string;
 }
+
+export type SQLPayout = {
+  uuidOfPayout: string;
+  uuidOfProposal: string;
+  treasuryVersion: number;
+  governanceCycleStart: number;
+  numberOfPayouts: number;
+  lockedUntil: number;
+  amount: number;
+  currency: string;
+  payName?: string;
+  payAddress?: string,
+  payProject?: number;
+  payStatus?: string;
+  payAllocator?: string;
+  authorDiscordId?: string;
+  proposalId?: number;
+  snapshotId?: string;
+};
 
 export type Payout = {
   type?: 'address' | 'project' | 'allocator';

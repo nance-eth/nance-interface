@@ -5,10 +5,13 @@ import useTerminalFee from '../../hooks/juicebox/TerminalFee';
 import { useDistributionLimit } from '../../hooks/juicebox/DistributionLimit';
 import { useCurrentSplits } from '../../hooks/juicebox/CurrentSplits';
 import { JBConstants, JBSplit } from '../../models/JuiceboxTypes';
-import { FundingCycleConfigProps, SplitEntry, formatCurrency, formattedSplit, keyOfSplit } from '../juicebox/ReconfigurationCompare';
+import { FundingCycleConfigProps, SplitEntry, calculateSplitAmount, formatCurrency, formattedSplit, keyOfNancePayout2Split, keyOfPayout2Split, keyOfSplit, splitAmount2Percent } from '../juicebox/ReconfigurationCompare';
 import FormattedAddress from '../FormattedAddress';
-import { BigNumber } from 'ethers';
-import { ProposalsPacket } from '../../models/NanceTypes';
+import { BigNumber, utils } from 'ethers';
+import { Action, Payout, ProposalsPacket, SQLPayout } from '../../models/NanceTypes';
+import { useCurrentPayouts } from '../../hooks/NanceHooks';
+import { ZERO_ADDRESS } from '../../constants/Contract';
+import TableWithSection, { SectionTableData, Status } from '../form/TableWithSection';
 
 const configFormatter: {
     name: string;
@@ -41,20 +44,193 @@ interface JuiceboxReconfigurationStruct {
     reserves: JBSplit[]
 }
 
-// TODOs:
-// ✅ get current funding cycle configuration
-// * gather all payout and reserve actions in current cycle
-// * find out those entries got updated by actions
-// * table layout
-// * two-step modal
-// * gather transfer and customTransaction actions
-// * submit txns to safe
-// * support tenderly simulation
-// * peak queued reconfiguration in safe
-export default function QueueExecutionModal({ open, setOpen, juiceboxProjectId, proposals }: {
+interface SplitDiffEntry {
+  split: JBSplit;
+  oldVal: string;
+  newVal: string;
+  proposalId: number;
+  amountUSD: number;
+}
+
+interface SplitDiff {
+  expire: {
+    [key: string]: SplitDiffEntry
+  },
+  new: {
+    [key: string]: SplitDiffEntry
+  },
+  change: {
+    [key: string]: SplitDiffEntry
+  },
+  keep: {
+    [key: string]: SplitDiffEntry
+  },
+  newDistributionLimit: BigNumber
+}
+
+const BIG_ZERO = BigNumber.from(0);
+function payoutsDiffOf(config: FundingCycleConfigProps, currentCycle: number | undefined, onchainPayouts: JBSplit[], registeredPayouts: SQLPayout[], actionPayouts: {pid: number, action: Action}[]) {
+  const diff: SplitDiff = {
+    expire: {},
+    new: {},
+    change: {},
+    keep: {},
+    newDistributionLimit: config.fundingCycle.target
+  }
+
+  // Maps
+  const registeredPayoutMap = new Map<string, SQLPayout>();
+  const actionPayoutMap = new Map<string, {pid: number, action: Action}>();
+  registeredPayouts.forEach(payout => registeredPayoutMap.set(keyOfNancePayout2Split(payout), payout));
+  actionPayouts.forEach(action => actionPayoutMap.set(keyOfPayout2Split((action.action.payload as Payout)), action));
+  //console.debug("payoutsDiffOf.start", onchainPayouts, registeredPayoutMap, actionPayoutMap);
+
+  // Calculate diff
+  //  abc.eth 20% => 100u
+  //  1. expired: numberOfPayouts == (currentCycle - governanceCycleStart + 1)
+  //  2. added: split not existed before
+  //  3. changed: payouts amount changed
+  onchainPayouts.forEach(split => {
+    const key = keyOfSplit(split);
+    const registeredPayout = registeredPayoutMap.get(key);
+    const actionPayout = actionPayoutMap.get(key);
+
+    if (actionPayout) {
+      // Amount change or refresh
+      diff.change[key] = {
+        split,
+        proposalId: actionPayout.pid,
+        oldVal: formattedSplit(
+            split.percent || BigNumber.from(0),
+            config.fundingCycle.currency,
+            config.fundingCycle.target,
+            config.fundingCycle.fee,
+            config.version
+        ) || "",
+        newVal: "",
+        amountUSD: (actionPayout.action.payload as Payout).amountUSD
+      }
+    } else if (registeredPayout) {
+      // Will it expire?
+      const willExpire = currentCycle && registeredPayout.numberOfPayouts < (currentCycle - registeredPayout.governanceCycleStart + 1)
+      if (willExpire) {
+        diff.expire[key] = {
+          split,
+          proposalId: registeredPayout.proposalId || 0,
+          oldVal: formattedSplit(
+            split.percent || BIG_ZERO,
+            config.fundingCycle.currency,
+            config.fundingCycle.target,
+            config.fundingCycle.fee,
+            config.version
+          ) || "",
+          newVal: "",
+          amountUSD: calculateSplitAmount(split.percent, config.fundingCycle.target)
+        }
+      } else {
+        // keep it
+        diff.keep[key] = {
+          split,
+          proposalId: registeredPayout.proposalId || 0,
+          oldVal: formattedSplit(
+            split.percent || BIG_ZERO,
+            config.fundingCycle.currency,
+            config.fundingCycle.target,
+            config.fundingCycle.fee,
+            config.version
+          ) || "",
+          newVal: "",
+          amountUSD: calculateSplitAmount(split.percent, config.fundingCycle.target)
+        }
+      }
+    } else {
+      // keep it
+      diff.keep[key] = {
+        split,
+        proposalId: 0,
+        oldVal: formattedSplit(
+          split.percent || BIG_ZERO,
+          config.fundingCycle.currency,
+          config.fundingCycle.target,
+          config.fundingCycle.fee,
+          config.version
+        ) || "",
+        newVal: "",
+        amountUSD: calculateSplitAmount(split.percent, config.fundingCycle.target)
+      }
+    }
+
+    // Remove map entry so it won't get calculated twice later
+    actionPayoutMap.delete(key);
+  })
+
+  actionPayoutMap.forEach((action, key) => {
+    // New entry
+    const payout = action.action.payload as Payout;
+    const split: JBSplit = {
+      preferClaimed: false,
+      preferAddToBalance: false,
+      percent: BIG_ZERO,
+      lockedUntil: BIG_ZERO,
+      beneficiary: payout.address,
+      projectId: BigNumber.from(payout.project || 0),
+      allocator: ZERO_ADDRESS
+    }
+    diff.new[key] = {
+      split,
+      proposalId: action.pid,
+      oldVal: "",
+      newVal: "",
+      amountUSD: payout.amountUSD
+    }
+  })
+
+  // Calculate new distributionLimit and percentages for all payouts if there are changes.
+  // FIXME here we assume all project will use USD-based payout, otherwise we need to handle currency
+  const isInfiniteLimit = config.fundingCycle.target.gte(JBConstants.UintMax);
+  const oldLimit = parseInt(utils.formatEther(config.fundingCycle.target ?? 0));
+  let newLimit = oldLimit;
+  Object.entries(diff.new).forEach((v) => newLimit += v[1].amountUSD)
+  Object.entries(diff.expire).forEach((v) => newLimit -= v[1].amountUSD)
+  Object.entries(diff.change).forEach((v) => {
+    newLimit -= calculateSplitAmount(v[1].split.percent, config.fundingCycle.target);
+    newLimit += v[1].amountUSD;
+  })
+  const newLimitBG = utils.parseEther(newLimit.toFixed(0));
+  diff.newDistributionLimit = newLimitBG;
+
+  // FIXME: remining funds should be allocated to project owner
+
+  // Update percent in JBSplit struct, because we have new distributionLimit
+  function updatePercentAndNewVal(entry: SplitDiffEntry) {
+    const newPercent = splitAmount2Percent(newLimitBG, entry.amountUSD);
+    entry.split = {
+      ...entry.split,
+      percent: newPercent
+    };
+    entry.newVal = formattedSplit(
+      newPercent,
+      config.fundingCycle.currency,
+      newLimitBG,
+      config.fundingCycle.fee,
+      config.version
+    ) || "";
+  }
+
+  Object.values(diff.keep).forEach(updatePercentAndNewVal);
+  Object.values(diff.new).forEach(updatePercentAndNewVal);
+  Object.values(diff.change).forEach(updatePercentAndNewVal);
+
+  //console.debug("payoutsDiffOf.final", { diff, isInfiniteLimit, oldLimit, newLimit });
+  return diff;
+}
+
+export default function QueueExecutionModal({ open, setOpen, juiceboxProjectId, proposals, space, currentCycle }: {
     open: boolean, setOpen: (o: boolean) => void,
     juiceboxProjectId: number,
-    proposals: ProposalsPacket | undefined
+    proposals: ProposalsPacket | undefined,
+    space: string,
+    currentCycle: number | undefined
 }) {
   const cancelButtonRef = useRef(null);
 
@@ -68,6 +244,8 @@ export default function QueueExecutionModal({ open, setOpen, juiceboxProjectId, 
   const [target, currency] = _limit || [];
   const { value: payoutMods, loading: payoutModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.ETH, isV3);
   const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(projectId, fc?.configuration, JBConstants.SplitGroup.RESERVED_TOKEN, isV3);
+  // Get current registered payouts
+  const { data: nancePayouts, isLoading: nancePayoutsLoading } = useCurrentPayouts(space);
 
   // Prepare fundingCycle data
   const zero = BigNumber.from(0);
@@ -87,16 +265,73 @@ export default function QueueExecutionModal({ open, setOpen, juiceboxProjectId, 
   };
 
   // Gather all payout and reserve actions in current fundingCycle
-  const actionMap = proposals?.proposals?.map(p => {
-    return {
-        pid: p.proposalId,
-        actions: p.actions
-    }
+  const actionWithPIDArray = proposals?.proposals?.filter(p => p.actions.length > 0).flatMap(p => {
+    return p.actions?.map(action => {
+      return {
+        pid: p.proposalId || 0,
+        action
+      }
+    })
   })
 
-  const loading = fcIsLoading || feeIsLoading || targetIsLoading || payoutModsIsLoading || ticketModsIsLoading;
+  // Splits with changes
+  const diff = payoutsDiffOf(currentConfig, currentCycle, payoutMods || [], nancePayouts?.data || [], actionWithPIDArray?.filter((v) => v.action.type === "Payout") || []);
+
+  // Table data
+  const tableData: SectionTableData[] = [
+    {
+      section: "Overall",
+      entries: [
+        {
+          id: "distributionLimit",
+          title: "Distribution Limit",
+          proposal: 0,
+          oldVal: formatCurrency(currentConfig.fundingCycle.currency, currentConfig.fundingCycle.target),
+          newVal: formatCurrency(currentConfig.fundingCycle.currency, diff.newDistributionLimit),
+          status: diff.newDistributionLimit.eq(currentConfig.fundingCycle.target) ? "Keep" : "Edit"
+        }
+      ]
+    },
+    {
+      section: "Distribution",
+      entries: []
+    },
+    {
+      section: "Reserve Token",
+      entries: ticketMods?.map(mod => {
+        return {
+          id: keyOfSplit(mod),
+          title: <SplitEntry mod={mod} projectVersion={3} />,
+          oldVal: `${(mod.percent.toNumber() / JBConstants.TotalPercent.Splits[2] * 100).toFixed(2)}%`,
+          newVal: `${(mod.percent.toNumber() / JBConstants.TotalPercent.Splits[2] * 100).toFixed(2)}%`,
+          proposal: 0,
+          status: "Keep" as Status
+        }
+      }).sort(((a, b) => b.oldVal.localeCompare(a.oldVal))) || []
+    }
+  ];
+
+  function diff2TableEntry(status: Status) {
+    return (v: SplitDiffEntry) => {
+      tableData[1].entries.push({
+        id: keyOfSplit(v.split),
+        title: <SplitEntry mod={v.split} projectVersion={3} />,
+        proposal: v.proposalId,
+        oldVal: v.oldVal,
+        newVal: v.newVal,
+        status
+      })
+    }
+  }
+  Object.values(diff.new).forEach(diff2TableEntry("Add"));
+  Object.values(diff.change).forEach(diff2TableEntry("Edit"));
+  Object.values(diff.expire).forEach(diff2TableEntry("Remove"));
+  Object.values(diff.keep).forEach(diff2TableEntry("Keep"));
+  tableData[1].entries.sort((a, b) => b.newVal.localeCompare(a.newVal))
+
+  const loading = fcIsLoading || feeIsLoading || targetIsLoading || payoutModsIsLoading || ticketModsIsLoading || nancePayoutsLoading;
   if (!loading) {
-    console.debug("QueueExecutionModal.currentConfig", currentConfig, actionMap);
+    console.debug("QueueExecutionModal.currentConfig", currentConfig, actionWithPIDArray);
   }
 
   return (
@@ -131,76 +366,18 @@ export default function QueueExecutionModal({ open, setOpen, juiceboxProjectId, 
                     <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">
                       Queue Juicebox Cycle
                     </Dialog.Title>
-                    <div className="mt-2 ml-2 space-y-2">
-                        <p className="rounded-sm bg-gray-300 p-2">Overall</p>
-                        <p>
-                            <span className="mr-2">
-                                Distribution Limit
-                            </span>
-
-                            <span>
-                                {formatCurrency(currentConfig.fundingCycle.currency, currentConfig.fundingCycle.target)}
-                            </span>
-                        </p>
-
-                        {/* {!loading && configFormatter.map((config) => (
-                            <p key={config.name}>
-                                <span className="mr-2">
-                                    {config.name}
-                                </span>
-
-                                <span>
-                                    {config.getFunc(currentConfig)}
-                                </span>
-                            </p>
-                        ))}
-                        {loading && (
-                            <div className="animate-pulse w-full h-5">
-                            </div>
-                        )} */}
-                        
-                        <p className="rounded-sm bg-gray-300 p-2">Distribution</p>
-                        {!loading && payoutMods?.map((mod) => (
-                            <p key={keyOfSplit(mod)}>
-                                <span className="mr-2">
-                                    <SplitEntry mod={mod} projectVersion={3} />
-                                </span>
-
-                                <span>
-                                    {formattedSplit(
-                                        mod?.percent || BigNumber.from(0),
-                                        currentConfig.fundingCycle.currency,
-                                        currentConfig.fundingCycle.target,
-                                        currentConfig.fundingCycle.fee,
-                                        currentConfig.version
-                                    )}
-                                </span>
-                            </p>
-                        ))}
-
-                        <p className="rounded-sm bg-gray-300 p-2">Reserve Tokens</p>
-                        {!loading && ticketMods?.map((mod) => (
-                            <p key={keyOfSplit(mod)}>
-                                <span className="mr-2">
-                                    <SplitEntry mod={mod} projectVersion={3} />
-                                </span>
-
-                                <span>
-                                    {`${(mod.percent.toNumber() / 10000000 ?? 0 / JBConstants.TotalPercent.Splits[2] * 100).toFixed(2)}%`}
-                                </span>
-                            </p>
-                        ))}
-                    </div>
+                    
+                    <TableWithSection space={space} tableData={tableData} />
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                  <button
+                  {/* <button
                     type="button"
                     className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                     onClick={() => setOpen(false)}
                   >
                     Next
-                  </button>
+                  </button> */}
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"

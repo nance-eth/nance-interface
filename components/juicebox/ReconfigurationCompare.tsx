@@ -7,6 +7,9 @@ import unionBy from 'lodash.unionby';
 import { BigNumber, utils } from "ethers";
 import ResolvedProject from "../ResolvedProject";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
+import { Payout, SQLPayout } from "../../models/NanceTypes";
+import { ZERO_ADDRESS } from "../../constants/Contract";
+import { getAddress } from "viem";
 
 // 'projectId-beneficiary-allocator': mod
 const splits2map = (splits: JBSplit[]) => {
@@ -18,6 +21,8 @@ const splits2map = (splits: JBSplit[]) => {
   return map;
 };
 export const keyOfSplit = (mod: JBSplit) => `${mod.beneficiary}-${mod.projectId}-${mod.allocator}`;
+export const keyOfPayout2Split = (mod: Payout) => `${mod.address}-${mod.project}-${ZERO_ADDRESS}`;
+export const keyOfNancePayout2Split = (mod: SQLPayout) => `${getAddress(mod.payAddress || ZERO_ADDRESS)}-${mod.payProject ?? 0}-${ZERO_ADDRESS}`;
 function orderByPercent(a: JBSplit, b: JBSplit) {
   if (a.percent > b.percent) {
     return -1;
@@ -256,6 +261,14 @@ export default function ReconfigurationCompare({ currentFC, previewFC }: Reconfi
   );
 }
 
+export function calculateSplitAmount(percent: BigNumber, target: BigNumber) {
+  return parseInt(utils.formatEther(target.mul(percent).div(JBConstants.TotalPercent.Splits[2]) ?? 0));
+}
+
+export function splitAmount2Percent(target: BigNumber, amount: number) {
+  return utils.parseEther(amount.toFixed(0)).mul(JBConstants.TotalPercent.Splits[2]).div(target);
+}
+
 export function formattedSplit(percent: BigNumber, currency: BigNumber, target: BigNumber, fee: BigNumber, version: number) {
   if (!percent) return undefined;
 
@@ -266,8 +279,8 @@ export function formattedSplit(percent: BigNumber, currency: BigNumber, target: 
     return `${(_percent / _totalPercent * 100).toFixed(2)}%`;
   }
 
-  const _amount = target; //version == 1 ? amountSubFee(target, fee) : amountSubFeeV2(target, fee);
-  return `${(_percent / _totalPercent * 100).toFixed(2)}% (${formatCurrency(currency, _amount.mul(percent).div(_totalPercent))})`;
+  const finalAmount = target.mul(percent).div(_totalPercent);
+  return `${(_percent / _totalPercent * 100).toFixed(2)}% (${formatCurrency(currency, finalAmount)})`;
 }
 
 export function SplitEntry({ mod, projectVersion }: { mod: JBSplit, projectVersion: number }) {
@@ -275,7 +288,7 @@ export function SplitEntry({ mod, projectVersion }: { mod: JBSplit, projectVersi
   if (mod.allocator !== "0x0000000000000000000000000000000000000000") splitMode = "allocator";
   else if (mod.projectId.toNumber() !== 0) splitMode = "project";
 
-  const mainStyle = "text-sm font-semibold";
+  const mainStyle = "text-sm";
   const subStyle = "text-xs italic";
 
   return (
@@ -284,15 +297,15 @@ export function SplitEntry({ mod, projectVersion }: { mod: JBSplit, projectVersi
         <>
           <FormattedAddress address={mod.allocator} style={mainStyle} />
           <a href="https://info.juicebox.money/dev/learn/glossary/split-allocator/" target="_blank" rel="noreferrer">(Allocator)</a>
-          <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={subStyle} />
-          <FormattedAddress address={mod.beneficiary} style={subStyle} />
+          {/* <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={subStyle} />
+          <FormattedAddress address={mod.beneficiary} style={subStyle} /> */}
         </>
       )}
 
       {splitMode === "project" && (
         <>
           <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={mainStyle} />
-          <FormattedAddress address={mod.beneficiary} style={subStyle} />
+          {/* <FormattedAddress address={mod.beneficiary} style={subStyle} /> */}
         </>
       )}
 
