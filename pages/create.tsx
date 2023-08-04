@@ -122,7 +122,7 @@ function Form({ session }: { session: Session }) {
         <TextInput label="Nance space name" name="name" register={register} />
         <DiscordForm session={session}/>
         <SnapshotForm session={session} />
-        <TextInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} placeHolder="JBP"
+        <TextInput label="Proposal ID Prefix" name="propertyKeys.proposalIdPrefix" register={register} maxLength={3} placeHolder="JBP"
           className="w-16" tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
         />
 
