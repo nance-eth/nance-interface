@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import Notification from "../components/Notification";
-import { CreateFormValues, CreateFormKeys } from "../models/NanceTypes";
+import { CreateFormValues } from "../models/NanceTypes";
 import { useCreateSpace } from "../hooks/NanceHooks";
 import { discordAuthUrl, avatarBaseUrl } from "../libs/discordURL";
 import { useFetchDiscordUser, useLogoutDiscordUser } from "../hooks/discordHooks";
@@ -127,7 +127,7 @@ function Form({ session }: { session: Session }) {
         />
 
         <ToggleSwitch enabled={juiceboxProjectDisabled} setEnabled={setJuiceboxProjectDisabled} label="Link to a Juicebox Project?" />
-        <div className="mt-2 mb-3"><ProjectForm fieldName="project" showType={false} disabled={!juiceboxProjectDisabled} /></div>
+        <div className="mt-2 mb-3"><ProjectForm fieldName="juicebox.projectId" showType={false} disabled={!juiceboxProjectDisabled} /></div>
 
         <GnosisSafeForm />
 

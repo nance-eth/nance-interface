@@ -6,13 +6,16 @@ import { useIsValidAddress } from "../../hooks/SafeHooks";
 import { ExclamationCircleIcon, CheckCircleIcon,  } from '@heroicons/react/20/solid';
 
 export default function GnosisSafeForm() {
-  const { control, register, formState: { errors } } = useFormContext();
+  const { control, formState: { errors }, setValue } = useFormContext();
   const fieldName = 'juicebox.gnosisSafeAddress';
 
   const [gnosisSafeEnabled, setGnosisSafeEnabled] = useState(false);
   const [gnosisSafeAddress, setGnosisSafeAddress] = useState("");
   
-  const { data: addressIsSafe, isLoading } = useIsValidAddress(gnosisSafeAddress, gnosisSafeEnabled && gnosisSafeAddress.length === 42 && gnosisSafeAddress.startsWith("0x"));
+  const { data: addressIsSafe, isLoading } = useIsValidAddress(
+    gnosisSafeAddress,
+    gnosisSafeEnabled && gnosisSafeAddress.length === 42 && gnosisSafeAddress.startsWith("0x")
+  );
 
 
   useEffect(() => {
@@ -24,15 +27,11 @@ export default function GnosisSafeForm() {
       <Controller
         name={fieldName}
         control={control}
-        rules={{
-          required: "Can't be empty",
-        }}
-        render={({ field: { onChange, value } }) =>
+        render={() =>
           <>
             <ToggleSwitch enabled={gnosisSafeEnabled} setEnabled={setGnosisSafeEnabled} label="Link to a Gnosis Safe?" />
             <div className="flex relative flex-col mb-2 mt-2 w-80">
               <div className="pointer-events-none absolute inset-y-0 left-0 mt-1 flex items-center pl-3">
-                
                 {!addressIsSafe && !isLoading && gnosisSafeEnabled && (
                   <ExclamationCircleIcon className={`h-5 w-5 ${gnosisSafeAddress === "" ? "text-gray-400" : "text-red-400"} aria-hidden="true"`} />
                 )}
@@ -54,6 +53,7 @@ export default function GnosisSafeForm() {
                 value={gnosisSafeAddress}
                 onChange={(e) => {
                   setGnosisSafeAddress(e.target.value);
+                  setValue(fieldName, e.target.value);
                 }}
               />
             </div>
