@@ -2,15 +2,14 @@ import { useState, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { classNames } from '../libs/tailwind';
 import { Tooltip } from "flowbite-react";
+import { Controller, useFormContext } from 'react-hook-form';
 
 const hours = Array.from(Array(12).keys()).map((i) => i + 1);
 const minutes = ['00', '30'];
 const ampm = ['AM', 'PM'];
 
 export default function TimePicker() {
-  const [selectedHour, setSelectedHour] = useState(8);
-  const [selectedMinute, setSelectedMinute] = useState(minutes[0]);
-  const [selectedAMPM, setSelectedAMPM] = useState('PM');
+  const { control, formState: { errors } } = useFormContext();
 
   return (
     <>
@@ -23,10 +22,28 @@ export default function TimePicker() {
         </div>
       </div> 
       <div className="inline-flex">
-        <SmallListbox options={hours} selected={selectedHour} setSelected={setSelectedHour} /> 
+        <Controller
+          name="time.hour"
+          control={control}
+          defaultValue={8}
+          render={({ field }) => (
+            <SmallListbox options={hours} selected={field.value} setSelected={field.onChange}/>
+          )} />
         <div className="text-center mt-2 ml-2 font-semibold text-gray-900">:</div>
-        <SmallListbox options={minutes} selected={selectedMinute} setSelected={setSelectedMinute} addClass="ml-2"/>
-        <SmallListbox options={ampm} selected={selectedAMPM} setSelected={setSelectedAMPM} addClass="ml-2" />
+        <Controller
+          name="time.minute"
+          control={control}
+          defaultValue={minutes[0]}
+          render={({ field }) => (
+            <SmallListbox options={minutes} selected={field.value} setSelected={field.onChange} addClass="ml-2"/>
+          )} />
+        <Controller
+          name="time.ampm"
+          control={control}
+          defaultValue={ampm[1]}
+          render={({ field }) => (
+            <SmallListbox options={ampm} selected={field.value} setSelected={field.onChange} addClass="ml-2"/>
+          )} />
       </div>
     </>
   );

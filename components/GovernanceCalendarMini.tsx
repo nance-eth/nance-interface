@@ -14,15 +14,15 @@ import {
   startOfToday,
   endOfWeek,
 } from 'date-fns';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ');
 }
 
 export default function GovernanceCalendarMini(
-  { temperatureCheckLength, votingLength, executionLength, delayLength } :
-  { temperatureCheckLength: number, votingLength: number, executionLength: number, delayLength: number }
+  { temperatureCheckLength, votingLength, executionLength, delayLength, totalCycleLength } :
+  { temperatureCheckLength: number, votingLength: number, executionLength: number, delayLength: number, totalCycleLength: number }
 ) {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
@@ -45,7 +45,6 @@ export default function GovernanceCalendarMini(
   }
 
   const FORWARD_INTERVALS = 10;
-  const CYCLE_LENGTH = temperatureCheckLength + votingLength + executionLength + delayLength;
 
   const repeatDatesArray = (startDate: Date, lengthOfDates: number, repeatAfterNumberOfDays: number) => {
     let dates = [];
@@ -115,10 +114,10 @@ export default function GovernanceCalendarMini(
                   !isEqual(day, selectedDay) && 'hover:bg-gray-200',
                   (isEqual(day, selectedDay) || isToday(day)) && 'font-semibold',
                   isEqual(day, selectedDay) && 'ring-2 ring-indigo-500',
-                  dateInRange(day, repeatDatesArray(selectedDay, temperatureCheckLength, CYCLE_LENGTH)) && 'bg-red-200',
-                  dateInRange(day, repeatDatesArray(votingStartDate, votingLength, CYCLE_LENGTH)) && 'bg-orange-200',
-                  dateInRange(day, repeatDatesArray(executionStartDate, executionLength, CYCLE_LENGTH)) && 'bg-green-200',
-                  dateInRange(day, repeatDatesArray(delayStartDate, delayLength, CYCLE_LENGTH)) && 'bg-blue-200',
+                  dateInRange(day, repeatDatesArray(selectedDay, temperatureCheckLength, totalCycleLength)) && 'bg-red-200',
+                  dateInRange(day, repeatDatesArray(votingStartDate, votingLength, totalCycleLength)) && 'bg-orange-200',
+                  dateInRange(day, repeatDatesArray(executionStartDate, executionLength, totalCycleLength)) && 'bg-green-200',
+                  dateInRange(day, repeatDatesArray(delayStartDate, delayLength, totalCycleLength)) && 'bg-blue-200',
                   'mx-auto flex h-9 w-9 items-center justify-center rounded-full'
                 )}
               >

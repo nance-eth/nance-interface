@@ -1,4 +1,4 @@
-import { ErrorMessage } from "@hookform/error-message";
+import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Tooltip } from "flowbite-react";
 import GovernanceCalendarMini from '../GovernanceCalendarMini';
@@ -8,16 +8,54 @@ import TimePicker from "../TimePicker";
 export default function GovernanceCyleForm() {
   const { register, formState: { errors } } = useFormContext();
 
+  const [temperatureCheckLength, setTemperatureCheckLength] = useState(3);
+  const [voteLength, setVoteLength] = useState(4);
+  const [executionLength, setExecutionLength] = useState(4);
+  const [delayLength, setDelayLength] = useState(3);
+  const [totalCycleLength, setTotalCycleLength] = useState(14);
+
+  useEffect(() => {
+    setTotalCycleLength(Number(temperatureCheckLength) + Number(voteLength) + Number(executionLength) + Number(delayLength));
+  }, [temperatureCheckLength, voteLength, executionLength, delayLength]);
+
   return (
     <div>
-      <SmallNumberInput 
-        label="Governance Cycle Length"
-        name="governanceCycleLength"
-        defaultValue={14}
-        tooltipContent="This is the total length of time before a governance cycle repeats"
-        register={register}
-      />
       <TimePicker />
+      <SmallNumberInput
+        label="Temperature Check Length"
+        name="governanceCycle.temperatureCheckLength"
+        defaultValue={3}
+        tooltipContent="This is the length of time that a Discord Temperature Check is open for polling"
+        register={register}
+        onChange={setTemperatureCheckLength}
+      />
+      <SmallNumberInput
+        label="Vote Length"
+        name="governanceCycle.voteLength"
+        defaultValue={4}
+        tooltipContent="This is the length of time that a Snapshot vote is open"
+        register={register}
+        onChange={setVoteLength}
+      />
+      <SmallNumberInput
+        label="Execution Length"
+        name="governanceCycle.executionLength"
+        defaultValue={4}
+        tooltipContent="This is the length of time for the execution of proposals that pass Snapshot"
+        register={register}
+        onChange={setExecutionLength}
+      />
+      <SmallNumberInput
+        label="Delay Length"
+        name="governanceCycle.delayLength"
+        defaultValue={3}
+        tooltipContent="This is the length of time between the end of execution and the start of the next Temperature Check"
+        register={register}
+        onChange={setDelayLength}
+      />
+      <div className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-600 mt-2">
+        Total Days: {totalCycleLength}
+      </div>
       <div className="flex-col mb-1 w-80">
         <div className="inline-flex">
           <label className="block text-sm font-medium text-gray-700 mt-2">
@@ -26,10 +64,11 @@ export default function GovernanceCyleForm() {
           <GovernanceCalendarKey />
         </div>
         <GovernanceCalendarMini
-          temperatureCheckLength={3}
-          votingLength={4}
-          executionLength={4}
-          delayLength={3}
+          temperatureCheckLength={temperatureCheckLength}
+          votingLength={voteLength}
+          executionLength={executionLength}
+          delayLength={delayLength}
+          totalCycleLength={totalCycleLength}
         />
       </div>
     </div>
@@ -37,7 +76,8 @@ export default function GovernanceCyleForm() {
 }
 
 const SmallNumberInput = ({
-  label, name, register, defaultValue, tooltipContent, className, badgeContent='days' } : {label: string, name: string, register: any, defaultValue: number, tooltipContent?: string, className?: string, badgeContent?: string
+  label, name, register, defaultValue, tooltipContent, className, badgeContent='days', onChange } :
+  {label: string, name: string, register: any, defaultValue: number, tooltipContent?: string, className?: string, badgeContent?: string, onChange?: any
   }) => {
   return (
     <div>
@@ -58,13 +98,16 @@ const SmallNumberInput = ({
           <input
             {...register(name,
               { shouldUnregister: true })}
-            className="block w-16 rounded-md rounded-r-none border-gray-300 bg-white h-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+            className="block w-16 rounded-md rounded-r-none border-gray-300 bg-white h-7 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-xs"
             type="number"
             min={0}
             defaultValue={defaultValue}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
           >
           </input>
-          <span className="flex items-center px-3 text-sm text-gray-500 bg-gray-100 rounded-l-none rounded-r-md border border-l-0 border-gray-300">
+          <span className="flex items-center px-2 text-xs text-gray-500 bg-gray-100 rounded-l-none rounded-r-md border border-l-0 border-gray-300">
             {badgeContent}
           </span>
         </div>
