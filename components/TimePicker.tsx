@@ -23,7 +23,7 @@ export default function TimePicker() {
       </div> 
       <div className="inline-flex">
         <Controller
-          name="time.hour"
+          name="governanceCycleForm.time.hour"
           control={control}
           defaultValue={8}
           render={({ field }) => (
@@ -31,19 +31,27 @@ export default function TimePicker() {
           )} />
         <div className="text-center mt-2 ml-2 font-semibold text-gray-900">:</div>
         <Controller
-          name="time.minute"
+          name="governanceCycleForm.time.minute"
           control={control}
           defaultValue={minutes[0]}
           render={({ field }) => (
             <SmallListbox options={minutes} selected={field.value} setSelected={field.onChange} addClass="ml-2"/>
           )} />
         <Controller
-          name="time.ampm"
+          name="governanceCycleForm.time.ampm"
           control={control}
           defaultValue={ampm[1]}
           render={({ field }) => (
             <SmallListbox options={ampm} selected={field.value} setSelected={field.onChange} addClass="ml-2"/>
           )} />
+        <Controller
+          name="governanceCycleForm.time.timezoneOffset"
+          defaultValue = {new Date().getTimezoneOffset()}
+          control={control}
+          render={({ field }) => (
+            <input type="hidden" {...field} />
+          )} />
+
       </div>
     </>
   );

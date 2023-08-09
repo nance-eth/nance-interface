@@ -21,8 +21,8 @@ function classNames(...classes: any) {
 }
 
 export default function GovernanceCalendarMini(
-  { temperatureCheckLength, votingLength, executionLength, delayLength, totalCycleLength } :
-  { temperatureCheckLength: number, votingLength: number, executionLength: number, delayLength: number, totalCycleLength: number }
+  { setSelectedDate, temperatureCheckLength, votingLength, executionLength, delayLength, totalCycleLength } :
+  { setSelectedDate: any, temperatureCheckLength: number, votingLength: number, executionLength: number, delayLength: number, totalCycleLength: number }
 ) {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
@@ -63,6 +63,10 @@ export default function GovernanceCalendarMini(
   const dateInRange = (date: Date, range: Date[]) => {
     return range.some((rangeDate) => isSameDay(date, rangeDate));
   };
+
+  useEffect(() => {
+    setSelectedDate(selectedDay);
+  }, [selectedDay]);
 
   return (
     <div className="pt-4">

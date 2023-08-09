@@ -6,24 +6,26 @@ import GovernanceCalendarKey from "../GovernanceCalendarKey";
 import TimePicker from "../TimePicker";
 
 export default function GovernanceCyleForm() {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors }, setValue } = useFormContext();
 
   const [temperatureCheckLength, setTemperatureCheckLength] = useState(3);
   const [voteLength, setVoteLength] = useState(4);
   const [executionLength, setExecutionLength] = useState(4);
   const [delayLength, setDelayLength] = useState(3);
   const [totalCycleLength, setTotalCycleLength] = useState(14);
+  const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
     setTotalCycleLength(Number(temperatureCheckLength) + Number(voteLength) + Number(executionLength) + Number(delayLength));
-  }, [temperatureCheckLength, voteLength, executionLength, delayLength]);
+    setValue('governanceCycleForm.startDate', startDate);
+  }, [temperatureCheckLength, voteLength, executionLength, delayLength, startDate]);
 
   return (
     <div>
       <TimePicker />
       <SmallNumberInput
         label="Temperature Check Length"
-        name="governanceCycle.temperatureCheckLength"
+        name="governanceCycleForm.temperatureCheckLength"
         defaultValue={3}
         tooltipContent="This is the length of time that a Discord Temperature Check is open for polling"
         register={register}
@@ -31,7 +33,7 @@ export default function GovernanceCyleForm() {
       />
       <SmallNumberInput
         label="Vote Length"
-        name="governanceCycle.voteLength"
+        name="governanceCycleForm.voteLength"
         defaultValue={4}
         tooltipContent="This is the length of time that a Snapshot vote is open"
         register={register}
@@ -39,7 +41,7 @@ export default function GovernanceCyleForm() {
       />
       <SmallNumberInput
         label="Execution Length"
-        name="governanceCycle.executionLength"
+        name="governanceCycleForm.executionLength"
         defaultValue={4}
         tooltipContent="This is the length of time for the execution of proposals that pass Snapshot"
         register={register}
@@ -47,7 +49,7 @@ export default function GovernanceCyleForm() {
       />
       <SmallNumberInput
         label="Delay Length"
-        name="governanceCycle.delayLength"
+        name="governanceCycleForm.delayLength"
         defaultValue={3}
         tooltipContent="This is the length of time between the end of execution and the start of the next Temperature Check"
         register={register}
@@ -63,7 +65,13 @@ export default function GovernanceCyleForm() {
           </label>
           <GovernanceCalendarKey />
         </div>
+        <input
+          type="hidden"
+          {...register('governanceCycleForm.startDate')}
+          value={startDate.toISOString()}
+        />
         <GovernanceCalendarMini
+          setSelectedDate={setStartDate}
           temperatureCheckLength={temperatureCheckLength}
           votingLength={voteLength}
           executionLength={executionLength}

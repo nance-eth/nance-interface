@@ -109,14 +109,18 @@ function Form({ session }: { session: Session }) {
       config: formData
     };
     console.debug("📗 Nance.createSpace.submit ->", req);
-    // return trigger(req);
+    return trigger(req).then(() => router.push(`/s/${formData.name}`));
   };
 
   return (
     <FormProvider {...methods} >
-      <Notification title="Success" description="Created" show={data !== undefined} close={() => {}} checked={true} />
+      <Notification title="Success" description="Created" show={data !== undefined} close={() => {
+        reset();
+      }} checked={true} />
       {( uploadError) &&
-          <Notification title="Error" description={'error'} show={true} close={() => {}} checked={false} />
+          <Notification title="Error" description={'error'} show={true} close={() => {
+            reset();
+          }} checked={false} />
       }
       <form className="lg:m-6 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         <TextInput label="Nance space name" name="name" register={register} />
