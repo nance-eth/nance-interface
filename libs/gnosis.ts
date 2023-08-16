@@ -2,6 +2,10 @@ import { ethers, Contract} from "ethers";
 import { SafeTransactionPartial, QueueSafeTransaction } from "../models/SafeTypes";
 import { gnosisSafeInterface } from "./abi/GnosisSafe";
 
+export function getSafeTxUrl(address: string, hash: string) {
+  return `https://app.safe.global/transactions/tx?safe=eth:${address}&id=multisig_${address}_${hash}`;
+}
+
 export class GnosisHandler {
   provider;
   baseUrl: string;
@@ -33,23 +37,28 @@ export class GnosisHandler {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
         to: txn.to,
-        value: 0,
+        value: txn.value,
         data: txn.data,
         operation: 0 // 0 CALL, 1 DELEGATE_CALL
       }),
       method: "POST"
     };
-    return fetch(this.baseUrl + endpoint, data).then((res) => {
-      return res.json().then((json) => {
-        return json; 
-      });
-    }).catch((e) => console.error(e));
+    const res = await fetch(this.baseUrl + endpoint, data);
+    if (res.status === 400) throw new Error("Data not valid");
+    else if (res.status === 404) throw new Error("Safe not found");
+    else if (res.status === 422) throw new Error("Transaction not valid");
+
+    const estimateResponse: {
+      safeTxGas: string;
+    } = await res.json();
+
+    return estimateResponse;
   };
 
-  getGnosisMessageToSign = async (safeGas: number, txn: SafeTransactionPartial) => {
+  getGnosisMessageToSign = async (safeGas: string, txn: SafeTransactionPartial) => {
     const transactionHash = await this.safe.getTransactionHash(
       txn.to,                         // to: string
-      0,                              // value: BigNumberish
+      txn.value,                      // value: BigNumberish
       txn.data,                       // data: BytesLike
       0,                              // operation: BigNumberish, 0 = CALL, 1 = DELEGATE
       safeGas,                        // safeTxGas: BigNumberish
@@ -70,7 +79,7 @@ export class GnosisHandler {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
         to: txn.to,
-        value: 0,
+        value: txn.value,
         data: txn.data,
         operation: 0,
         safeTxGas: txn.safeTxGas,
@@ -87,9 +96,12 @@ export class GnosisHandler {
       method: "POST"
     };
     const res = await fetch(this.baseUrl + `api/v1/safes/${this.safeAddress}/multisig-transactions/`, data);
-    if (res.status === 201) return { success: true, data: '' };
+
+    if (res.status === 400) throw new Error("Data not valid");
+    else if (res.status === 201) return { success: true, data: "Created or signature updated" };
+
     const json = await res.json();
-    return { success: false, data: json.nonFieldErrors[0] };
+    throw new Error(json.nonFieldErrors[0]);
   };
 }
 

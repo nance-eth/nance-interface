@@ -27,6 +27,7 @@ export interface SafeMultisigTransaction {
 
 export interface SafeMultisigTransactionResponse {
   count: number;
+  countUniqueNonce: number;
   next?: string;
   previous?: string;
   results: SafeMultisigTransaction[];
@@ -67,4 +68,28 @@ export interface SafeBalanceUsdResponse {
   fiatBalance: string;
   fiatConversion: string;
   fiatCode: string;
+}
+
+export interface SafeInfoResponse {
+  address: string;
+  nonce: number;
+  threshold: number;
+  owners: string[];
+  masterCopy: string;
+  modules: string[];
+  fallbackHandler: string;
+  version: string;
+  guard: string;
+}
+
+export interface SafeDelegatesResponse {
+  count: number;
+  results: SafeDelegateResponse[];
+}
+
+export interface SafeDelegateResponse {
+  delegate: string;
+  delegator: string;
+  safe: string;
+  label: string;
 }

@@ -4,7 +4,6 @@ import { useForm, FormProvider, useFormContext, Controller, SubmitHandler, useFi
 import { useQueryParams, StringParam } from "next-query-params";
 import React from "react";
 import { useRouter } from "next/router";
-import Notification from "../../../components/Notification";
 import GenericButton from "../../../components/GenericButton";
 import { useProposalUpload, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { imageUpload } from "../../../hooks/ImageUpload";
@@ -43,6 +42,7 @@ import { utils } from "ethers";
 import useProjectInfo from "../../../hooks/juicebox/ProjectInfo";
 import MiddleStepModal from "../../../components/MiddleStepModal";
 import { Tooltip } from "flowbite-react";
+import ResultModal from "../../../components/modal/ResultModal";
 
 const ProposalMetadataContext = React.createContext({
   loadedProposal: null as Proposal | null,
@@ -173,7 +173,7 @@ function Form({ space }: { space: string }) {
     };
     console.debug("📗 Nance.editProposal.submit ->", req);
     trigger(req)
-      .then(res => router.push(space === NANCE_DEFAULT_SPACE ? `/p/${res?.data.hash}` : `/s/${space}/${res?.data.hash}`))
+      //.then(res => router.push(space === NANCE_DEFAULT_SPACE ? `/p/${res?.data.hash}` : `/s/${space}/${res?.data.hash}`))
       .catch((err) => {
         console.warn("📗 Nance.editProposal.onSignError ->", err);
       });
@@ -198,12 +198,28 @@ function Form({ space }: { space: string }) {
     }
   }, [formState]);
 
+  function getButtonLabel(selected: {title: string, description: string, value: string, display: string}) {
+    //{status === "loading" ? 
+    //(isMutating ? "Submitting..." : "Connecting...") : 
+    //(formErrors.length > 0 ? "Error in form" : selected.display)}
+
+    if (formErrors.length > 0) {
+      return "Error in form";
+    } else if (status === "loading") {
+      return "Connecting...";
+    } else if (isMutating) {
+      return "Submitting...";
+    } else {
+      return selected.display;
+    }
+  }
+
   return (
     <FormProvider {...methods} >
-      <Notification title="Success" description={`${isNew ? "Created" : "Updated"} proposal ${data?.data?.hash}`} show={data !== undefined} close={reset} checked={true} />
-      {error &&
-        <Notification title="Error" description={error.error_description || error.message || error} show={true} close={reset} checked={false} />
-      }
+
+      {!error && <ResultModal title="Success" description={`Proposal "${getValues("proposal.title")}" ${isNew ? "created" : "updated"} by ${session?.user?.name || "unknown"}`} buttonText="Go to proposal page" onClick={() => router.push(space === NANCE_DEFAULT_SPACE ? `/p/${data?.data.hash}` : `/s/${space}/${data?.data.hash}`)} isSuccessful={true} shouldOpen={data !== undefined} close={reset} />}
+      {error && <ResultModal title="Error" description={error.error_description || error.message || error} buttonText="Close" onClick={reset} isSuccessful={false} shouldOpen={true} close={reset} />}
+
       <MiddleStepModal open={txnsMayFail} setOpen={setTxnsMayFail} 
         title="SimulationCheck" description="You have some transactions may failed based on simulations, do you wish to continue?" 
         payload={formDataPayload}
@@ -310,11 +326,10 @@ function Form({ space }: { space: string }) {
                           isSubmitting || formErrors.length > 0
                           //|| (!isNew && hasVoting)
                         }
-                        className="ml-3 inline-flex justify-center rounded-none rounded-l-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+                        className="ml-3 inline-flex justify-center rounded-none rounded-l-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
                       >
-                        {status === "loading" ? 
-                          (isMutating ? "Submitting..." : "Connecting...") : 
-                          (formErrors.length > 0 ? "Error in form" : selected.display)}
+                        {(status === "loading" || isMutating) && <ArrowPathIcon className="animate-spin mr-1 h-5 w-5 text-white" aria-hidden="true" />}
+                        {getButtonLabel(selected)}
                       </button>
                       <Listbox.Button className="inline-flex items-center rounded-l-none rounded-r-md bg-blue-600 p-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 focus:ring-offset-gray-50">
                         <span className="sr-only">Change proposal status</span>
