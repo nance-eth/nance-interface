@@ -1,17 +1,33 @@
 import useSWR, { Fetcher } from 'swr';
-import { SafeBalanceUsdResponse, SafeDelegatesResponse, SafeInfoResponse, SafeMultisigTransactionResponse } from '../models/SafeTypes';
-import { useEffect, useState } from 'react';
+import { RevisedSafeMultisigTransactionResponse, SafeBalanceUsdResponse, SafeDelegatesResponse, SafeInfoResponse } from '../models/SafeTypes';
+import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
-import SafeApiKit from '@safe-global/api-kit';
+import SafeApiKit, { SafeMultisigTransactionListResponse } from '@safe-global/api-kit';
 import { useEthersSigner } from './ViemAdapter';
 import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
 import { ethers } from 'ethers';
 import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types';
 
-const SAFE_API_V1_ROOT = "https://safe-transaction-mainnet.safe.global/api/v1/";
+const SAFE_SERVICE_API = "https://safe-transaction-mainnet.safe.global";
+const SAFE_API_V1_ROOT = SAFE_SERVICE_API + "/api/v1/";
 const SAFE_API = SAFE_API_V1_ROOT + "safes/";
 
-function jsonFetcher(): Fetcher<SafeMultisigTransactionResponse, string> {
+export function useHistoryTransactions(address: string, shouldFetch: boolean = true) {
+  return useSafeAPIFunction(async (safeApiKit) => await safeApiKit.getAllTransactions(address, {
+    executed: true,
+    trusted: true
+  }), shouldFetch);
+}
+
+export function useQueuedTransactions(address: string, nonceGte?: number | undefined, shouldFetch: boolean = true) {
+  return useSafeAPIFunction(async (safeApiKit) => await safeApiKit.getPendingTransactions(address, nonceGte), shouldFetch);
+}
+
+export function useMultisigTransactionOf(safeTxHash: string, shouldFetch: boolean = true) {
+  return useSafeAPIFunction(async (safeApiKit) => (await safeApiKit.getTransaction(safeTxHash)) as any as RevisedSafeMultisigTransactionResponse, shouldFetch);
+}
+
+function jsonFetcher(): Fetcher<SafeMultisigTransactionListResponse, string> {
   return async (url) => {
     const res = await fetch(url);
     if (res.status == 400) {
@@ -32,25 +48,43 @@ export function useMultisigTransactions(address: string, limit: number = 10, sho
   );
 }
 
-export function useHistoryTransactions(address: string, limit: number = 10, shouldFetch: boolean = true) {
-  return useSWR(
-    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?executed=true&trusted=true&limit=${limit}` : null,
-    jsonFetcher(),
-  );
-}
+// react hook wrapper for safe api kit
+// FIXME this will trigger infinite re-rendering
+export function useSafeAPIFunction<T>(functionWrapper: (safeApiKit: SafeApiKit) => Promise<T>, shouldFetch: boolean = true) {
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<T>();
 
-export function useQueuedTransactions(address: string, nonceGte: number, limit: number = 10, shouldFetch: boolean = true) {
-  return useSWR(
-    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?nonce__gte=${nonceGte}&trusted=true&limit=${limit}` : null,
-    jsonFetcher(),
-  );
-}
+  const { value: safeApiKit } = useSafeAPIKit();
 
-export function useMultisigTransactionOf(address: string, safeTxHash: string, shouldFetch: boolean = true) {
-  return useSWR(
-    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?safe_tx_hash=${safeTxHash}` : null,
-    jsonFetcher(),
-  );
+  const _functionWrapper = useCallback(
+    (safeApiKit: SafeApiKit) => functionWrapper(safeApiKit), [functionWrapper]
+  )
+
+  const refetch = async () => {
+    if (!safeApiKit || !shouldFetch) {
+      setError("Not connected to wallet or safe not found.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const val = await _functionWrapper(safeApiKit);
+      setValue(val);
+    } catch(e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() =>{
+    refetch()
+  }, [safeApiKit, shouldFetch, functionWrapper])
+
+  return {
+    value, error, loading, refetch
+  }
 }
 
 function balanceJsonFetcher(): Fetcher<SafeBalanceUsdResponse[], string> {
@@ -128,7 +162,7 @@ export function useSafeAPIKit() {
       signerOrProvider: signer!
     });
     const safeApiKit = new SafeApiKit({
-      txServiceUrl: 'https://safe-transaction-mainnet.safe.global',
+      txServiceUrl: SAFE_SERVICE_API,
       ethAdapter
     });
     setValue(safeApiKit);

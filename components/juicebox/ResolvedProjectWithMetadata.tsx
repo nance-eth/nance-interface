@@ -1,5 +1,6 @@
-import useProjectMetadata from "../hooks/juicebox/ProjectMetadata";
-import { classNames } from '../libs/tailwind';
+import Image from "next/image";
+import useProjectMetadata from "../../hooks/juicebox/ProjectMetadata";
+import { classNames } from '../../libs/tailwind';
 
 export interface Props {
     projectId: string;
@@ -20,10 +21,12 @@ export default function ResolvedProject({ version, projectId, handle, metadataUr
   return (
     <>
       {data?.logoUri && (
-        <img
+        <Image
           className="h-6 w-6 rounded-full inline mx-1"
           src={data?.logoUri}
-          alt=""
+          alt={`Logo of project ${projectId}`}
+          height={24}
+          width={24}
         />
       )}
       {!data?.logoUri && (

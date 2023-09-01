@@ -11,6 +11,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'cdn.stamp.fyi'
+      },
+      {
+        protocol: 'https',
+        hostname: 'jbm.infura-ipfs.io'
+      },
+      {
+        protocol: 'https',
         hostname: 'cdn.discordapp.com'
       },
       {
@@ -46,8 +54,8 @@ const nextConfig = {
         destination: '/s/juicebox/edit',
         permanent: true,
       },
-    ]
+    ];
   }
-}
+};
 
-module.exports = removeImports(nextConfig)
+module.exports = removeImports(nextConfig);

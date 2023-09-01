@@ -1,17 +1,13 @@
 import { JBConstants, JBSplit } from "../../models/JuiceboxTypes";
-import FormattedAddress from "../FormattedAddress";
+import FormattedAddress from "../ethereum/FormattedAddress";
 // unionBy([2.1], [1.2, 2.3], Math.floor);
 // => [2.1, 1.2]
 // @ts-ignore
 import unionBy from 'lodash.unionby';
 import { BigNumber, utils } from "ethers";
-import ResolvedProject from "../ResolvedProject";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
-import { JBSplitNanceStruct, Payout, SQLPayout } from "../../models/NanceTypes";
-import { ZERO_ADDRESS } from "../../constants/Contract";
-import { getAddress } from "viem";
-import { SplitDiffEntry } from "../../libs/juicebox";
-import { Status, SectionTableData } from "../form/TableWithSection";
+import JBSplitEntry from "./JBSplitEntry";
+import { formatCurrency, keyOfSplit } from "../../libs/juicebox";
 
 // 'projectId-beneficiary-allocator': mod
 const splits2map = (splits: JBSplit[]) => {
@@ -22,10 +18,7 @@ const splits2map = (splits: JBSplit[]) => {
   }
   return map;
 };
-export const keyOfSplit = (mod: JBSplit) => `${mod.beneficiary}-${mod.projectId}-${mod.allocator}`;
-export const keyOfPayout2Split = (mod: Payout) => `${mod.address}-${mod.project}-${ZERO_ADDRESS}`;
-export const keyOfNanceSplit2Split = (mod: JBSplitNanceStruct) => `${mod.beneficiary}-${mod.projectId}-${mod.allocator}`;
-export const keyOfNancePayout2Split = (mod: SQLPayout) => `${getAddress(mod.payAddress || ZERO_ADDRESS)}-${mod.payProject ?? 0}-${mod.payAllocator || ZERO_ADDRESS}`;
+
 function orderByPercent(a: JBSplit, b: JBSplit) {
   if (a.percent > b.percent) {
     return -1;
@@ -36,16 +29,8 @@ function orderByPercent(a: JBSplit, b: JBSplit) {
   // a must be equal to b
   return 0;
 }
-const formatter = new Intl.NumberFormat('en-GB', { style: "decimal" });
-const formatNumber = (num: number) => formatter.format(num);
-// In v1, ETH = 0, USD = 1
-// In v2, ETH = 1, USD = 2, we subtract 1 to get the same value
-export const formatCurrency = (currency: BigNumber, amount: BigNumber) => {
-  const symbol = currency.toNumber() == 0 ? "Ξ" : "$";
-  const formatted = amount.gte(JBConstants.UintMax) ? "∞" : formatNumber(parseInt(utils.formatEther(amount ?? 0)));
-  return symbol + formatted;
-};
 
+// FIXME shouldn't use magic value 100 here
 const almostEqual = (a: BigNumber, b: BigNumber) => {
   return a.sub(b).abs().lte(a.div(100));
 };
@@ -57,7 +42,8 @@ export interface FundingCycleArgs {
   currency: BigNumber,
   target: BigNumber,
   duration: BigNumber,
-  fee: BigNumber
+  fee: BigNumber,
+  weight: BigNumber
 }
 
 export interface MetadataArgs {
@@ -207,7 +193,7 @@ export default function ReconfigurationCompare({ currentFC, previewFC }: Reconfi
                   <tr key={keyOfSplit(mod)}>
                     <th className="py-5 px-6 text-left text-sm font-normal text-gray-500" scope="row">
                       <div className="flex flex-col">
-                        <SplitEntry mod={mod} projectVersion={currentPayoutMaps.has(keyOfSplit(mod)) ? currentFC.version : previewFC.version} />
+                        <JBSplitEntry mod={mod} projectVersion={currentPayoutMaps.has(keyOfSplit(mod)) ? currentFC.version : previewFC.version} />
                       </div>
                     </th>
 
@@ -246,7 +232,7 @@ export default function ReconfigurationCompare({ currentFC, previewFC }: Reconfi
                     <th className="py-5 px-6 text-left text-sm font-normal text-gray-500" scope="row">
                       {/* {mod.projectId.toNumber() != 0 && <ResolvedProject version={currentTicketMaps.has(keyOfSplit(mod)) ? currentFC.version : previewFC.version} projectId={mod.projectId.toNumber()} />}
                                     <FormattedAddress address={mod.beneficiary} />:&nbsp; */}
-                      <SplitEntry mod={mod} projectVersion={currentTicketMaps.has(keyOfSplit(mod)) ? currentFC.version : previewFC.version} />
+                      <JBSplitEntry mod={mod} projectVersion={currentTicketMaps.has(keyOfSplit(mod)) ? currentFC.version : previewFC.version} />
                     </th>
                     <CompareCell
                       oldVal={currentTicketMaps.has(keyOfSplit(mod)) ? `${(currentTicketMaps.get(keyOfSplit(mod))!.percent.toNumber() / 10000000 ?? 0 / JBConstants.TotalPercent.Splits[currentFC.version - 1] * 100).toFixed(2)}%` : undefined}
@@ -285,56 +271,6 @@ export function formattedSplit(percent: BigNumber, currency: BigNumber, target: 
 
   const finalAmount = target.mul(percent).div(_totalPercent);
   return `${(_percent / _totalPercent * 100).toFixed(2)}% (${formatCurrency(currency, finalAmount)})`;
-}
-
-export function diff2TableEntry(index: number, status: Status, tableData: SectionTableData[]) {
-  return (v: SplitDiffEntry) => {
-    tableData[index].entries.push({
-      id: keyOfSplit(v.split),
-      proposal: v.proposalId,
-      oldVal: v.oldVal,
-      newVal: v.newVal,
-      valueToBeSorted: parseFloat(v.oldVal.split("%")[0]) || 0,
-      status,
-      title: (<SplitEntry mod={v.split} projectVersion={3} />)
-    });
-  }
-}
-
-export function SplitEntry({ mod, projectVersion }: { mod: JBSplit, projectVersion: number }) {
-  let splitMode = "address";
-  if (mod.allocator !== "0x0000000000000000000000000000000000000000") splitMode = "allocator";
-  else if (mod.projectId.toNumber() !== 0) splitMode = "project";
-
-  const mainStyle = "text-sm";
-  const subStyle = "text-xs italic";
-
-  return (
-    <>
-      {splitMode === "allocator" && (
-        <>
-          <FormattedAddress address={mod.allocator} style={mainStyle} />
-          <a href="https://info.juicebox.money/dev/learn/glossary/split-allocator/" target="_blank" rel="noreferrer">(Allocator)</a>
-          {/* <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={subStyle} />
-          <FormattedAddress address={mod.beneficiary} style={subStyle} /> */}
-        </>
-      )}
-
-      {splitMode === "project" && (
-        <>
-          <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={mainStyle} />
-          {/* <FormattedAddress address={mod.beneficiary} style={subStyle} /> */}
-        </>
-      )}
-
-      {/* Address mode */}
-      {splitMode === "address" && (
-        <>
-          <FormattedAddress address={mod.beneficiary} style={mainStyle} />
-        </>
-      )}
-    </>
-  );
 }
 
 function CompareCell({ oldVal, newVal, isSame = false }: { oldVal: any, newVal: any, isSame?: boolean }) {

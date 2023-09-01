@@ -13,14 +13,26 @@ export default function SafeTransactionCreator(
   const [nonce, setNonce] = useState<string>("");
 
   const { value: queueRes, loading, error, trigger } = useQueueTransaction(safeAddress, toContract, data, value, nonce);
-  const { data: historyTxs, isLoading: historyTxsLoading } = useHistoryTransactions(safeAddress, 1, safeAddress !== "");
+  const { value: historyTxs, loading: historyTxsLoading } = useHistoryTransactions(safeAddress, safeAddress !== "");
   const { data: walletClient } = useWalletClient();
 
   const queueNotReady = !walletClient || !data || !nonce || !safeAddress || !toContract || loading;
+  
+  let tooltip = "Queue with nonce";
+  if (!walletClient) {
+    tooltip = "Wallet not connected";
+  } else if (!data || !safeAddress || !toContract) {
+    tooltip = "Transaction not ready";
+  } else if (!nonce) {
+    tooltip = "Nonce is required";
+  } else if (loading) {
+    tooltip = "Loading...";
+  }
 
   useEffect(() => {
-    if (nonce === "" && historyTxs?.countUniqueNonce) {
-      setNonce(historyTxs.countUniqueNonce.toString());
+    const _historyTxs = historyTxs as any;
+    if (nonce === "" && _historyTxs?.countUniqueNonce) {
+      setNonce(_historyTxs.countUniqueNonce.toString());
     }
   }, [historyTxs])
 
@@ -33,8 +45,9 @@ export default function SafeTransactionCreator(
         className="relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
       >      
         {loading && <ArrowPathIcon className="animate-spin -ml-0.5 h-5 w-5 text-gray-400" aria-hidden="true" />}
-        Queue with nonce
+        {tooltip}
       </button>
+
       <input
         type="number"
         step={1}

@@ -5,6 +5,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NANCE_DEFAULT_SPACE } from "../constants/Nance";
+import Image from 'next/image';
 
 interface SiteNavProps {
   pageTitle: string,
@@ -21,7 +22,6 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Reconfiguration', href: `/s/${space ?? NANCE_DEFAULT_SPACE}/reconfigure` },
     { name: 'Analytics', href: 'https://app.flipsidecrypto.com/dashboard/snapshot-plus-data-ueqrnb' },
     { name: 'Support us', href: 'https://juicebox.money/v2/p/477' },
     { name: 'Other spaces', href: '/s' }
@@ -69,14 +69,14 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
                 <div className="flex justify-between h-16">
                   <div className="flex">
                     <div className="flex-shrink-0 flex items-center">
-                      <Link href="/" legacyBehavior>
-                        <a>
-                          <img
-                            className="block h-8 w-auto"
-                            src="/images/logo-min.svg"
-                            alt="nance logo"
-                          />
-                        </a>
+                      <Link href="/">
+                        <Image
+                          className="block h-8 w-auto"
+                          src="/images/logo-min.svg"
+                          alt="nance logo"
+                          width={32}
+                          height={32}
+                        />
                       </Link>
                     </div>
                     <div className="hidden xl:-my-px xl:ml-6 xl:flex xl:space-x-8">

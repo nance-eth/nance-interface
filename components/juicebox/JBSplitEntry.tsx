@@ -1,47 +1,64 @@
-import { JBConstants } from "../../models/JuiceboxTypes";
-import FormattedAddress from "../FormattedAddress";
-import ResolvedProject from "../ResolvedProject";
+import { SplitDiffEntry, keyOfSplit } from "../../libs/juicebox";
+import { classNames } from "../../libs/tailwind";
+import { JBSplit } from "../../models/JuiceboxTypes";
+import FormattedAddress from "../ethereum/FormattedAddress";
+import { Status, SectionTableData } from "../form/DiffTableWithSection";
+import ResolvedProject from "./ResolvedProject";
 
-export default function SplitEntry({ beneficiary, projectId, allocator, percent, preferAddToBalance, preferClaimed, style = "flex space-x-6" }: 
-    { beneficiary: string, projectId: string, allocator: string, percent: string, preferAddToBalance: boolean, preferClaimed: boolean, style?: string }) {
-  
-  const project = parseInt(projectId);
+export default function JBSplitEntry({ mod, projectVersion = 3 }: { mod: JBSplit, projectVersion?: number }) {
   let splitMode = "address";
-  if (allocator !== "0x0000000000000000000000000000000000000000") splitMode = "allocator";
-  else if (project !== 0) splitMode = "project";
-  
-  const mainStyle = "text-sm font-semibold";
-  const subStyle = "text-xs italic";
-  
+  if (mod.allocator !== "0x0000000000000000000000000000000000000000") splitMode = "allocator";
+  else if (mod.projectId.toNumber() !== 0) splitMode = "project";
+
+  const mainStyle = "text-sm";
+  const subStyle = "text-xs text-gray-500";
+
   return (
-    <div className={style}>
+    <>
       {splitMode === "allocator" && (
-        <>
-          <FormattedAddress address={allocator} style={mainStyle} />
+        <div className="inline-block mx-1">
+          <FormattedAddress address={mod.allocator} style={mainStyle} />
           <a href="https://info.juicebox.money/dev/learn/glossary/split-allocator/" target="_blank" rel="noreferrer">(Allocator)</a>
-          <ResolvedProject version={3} projectId={project} style={subStyle} />
-          <FormattedAddress address={beneficiary} style={subStyle} noLink />
-        </>
+          {/* <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={subStyle} />
+          <FormattedAddress address={mod.beneficiary} style={subStyle} /> */}
+        </div>
       )}
-  
+
       {splitMode === "project" && (
-        <>
-          <ResolvedProject version={3} projectId={project} style={mainStyle} />
-          <FormattedAddress address={beneficiary} style={subStyle} noLink />
-        </>
+        <div className="inline-block mx-1">
+          <div className="flex flex-col">
+            <ResolvedProject version={projectVersion} projectId={mod.projectId.toNumber()} style={mainStyle} />
+            <div>
+              <span className={classNames(
+                subStyle,
+                "ml-1"
+              )}>Token: </span>
+              <FormattedAddress address={mod.beneficiary} style={subStyle} />
+            </div>
+          </div>
+        </div>
       )}
-  
+
       {/* Address mode */}
       {splitMode === "address" && (
-        <>
-          <FormattedAddress address={beneficiary} style={mainStyle} noLink />
-        </>
+        <div className="inline-block mx-1">
+          <FormattedAddress address={mod.beneficiary} style={mainStyle} />
+        </div>
       )}
-  
-      <span>{(parseInt(percent) / JBConstants.TotalPercent.Splits[2] * 100).toFixed(2)}%</span>
-  
-      {preferAddToBalance && <span>preferAddToBalance</span>}
-      {preferClaimed && <span>preferClaimed</span>}
-    </div>
+    </>
   );
+}
+
+export function diff2TableEntry(index: number, status: Status, tableData: SectionTableData[]) {
+  return (v: SplitDiffEntry) => {
+    tableData[index].entries.push({
+      id: keyOfSplit(v.split),
+      proposal: v.proposalId,
+      oldVal: v.oldVal,
+      newVal: v.newVal,
+      valueToBeSorted: parseFloat(v.oldVal.split("%")[0]) || 0,
+      status,
+      title: (<JBSplitEntry mod={v.split} projectVersion={3} />)
+    });
+  }
 }
