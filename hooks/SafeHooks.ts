@@ -4,28 +4,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import SafeApiKit, { SafeMultisigTransactionListResponse } from '@safe-global/api-kit';
 import { useEthersSigner } from './ViemAdapter';
-import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
+import Safe, { EthersAdapter, SafeTransactionOptionalProps } from '@safe-global/protocol-kit';
 import { ethers } from 'ethers';
-import { SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types';
+import { MetaTransactionData, SafeTransaction, SafeTransactionDataPartial } from '@safe-global/safe-core-sdk-types';
 
 const SAFE_SERVICE_API = "https://safe-transaction-mainnet.safe.global";
 const SAFE_API_V1_ROOT = SAFE_SERVICE_API + "/api/v1/";
 const SAFE_API = SAFE_API_V1_ROOT + "safes/";
-
-export function useHistoryTransactions(address: string, shouldFetch: boolean = true) {
-  return useSafeAPIFunction(async (safeApiKit) => await safeApiKit.getAllTransactions(address, {
-    executed: true,
-    trusted: true
-  }), shouldFetch);
-}
-
-export function useQueuedTransactions(address: string, nonceGte?: number | undefined, shouldFetch: boolean = true) {
-  return useSafeAPIFunction(async (safeApiKit) => await safeApiKit.getPendingTransactions(address, nonceGte), shouldFetch);
-}
-
-export function useMultisigTransactionOf(safeTxHash: string, shouldFetch: boolean = true) {
-  return useSafeAPIFunction(async (safeApiKit) => (await safeApiKit.getTransaction(safeTxHash)) as any as RevisedSafeMultisigTransactionResponse, shouldFetch);
-}
 
 function jsonFetcher(): Fetcher<SafeMultisigTransactionListResponse, string> {
   return async (url) => {
@@ -39,6 +24,27 @@ function jsonFetcher(): Fetcher<SafeMultisigTransactionListResponse, string> {
 
     return json;
   };
+}
+
+export function useMultisigTransactionOf(address: string, safeTxHash: string, shouldFetch: boolean = true) {
+  return useSWR(
+    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?safe_tx_hash=${safeTxHash}` : null,
+    jsonFetcher(),
+  );
+}
+
+export function useHistoryTransactions(address: string, limit: number = 10, shouldFetch: boolean = true) {
+  return useSWR(
+    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?executed=true&trusted=true&limit=${limit}` : null,
+    jsonFetcher(),
+  );
+}
+
+export function useQueuedTransactions(address: string, nonceGte: number, limit: number = 10, shouldFetch: boolean = true) {
+  return useSWR(
+    shouldFetch ? `${SAFE_API}${address}/multisig-transactions/?nonce__gte=${nonceGte}&trusted=true&limit=${limit}` : null,
+    jsonFetcher(),
+  );
 }
 
 export function useMultisigTransactions(address: string, limit: number = 10, shouldFetch: boolean = true) {
@@ -195,7 +201,32 @@ export function useSafe(safeAddress: string) {
   return { value, loading: !value, error };
 }
 
-export function useQueueTransaction(safeAddress: string, toContract: string, data: string, txValue: number, nonce: string) {
+export function useCreateTransaction(safeAddress: string, safeTransactionData: SafeTransactionDataPartial | MetaTransactionData[]) {
+  const [error, setError] = useState<string>();
+  const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<SafeTransaction>();
+
+  const { value: safe } = useSafe(safeAddress);
+
+  useEffect(() => {
+    if (!safe) {
+      setError("Not connected to wallet or safe not found.");
+      return;
+    }
+
+    setLoading(true);
+
+    safe.createTransaction({ safeTransactionData, onlyCalls: true })
+      .then(safeTransaction => setValue(safeTransaction))
+      .catch(err => setError(err)).finally(() => setLoading(false));
+  }, [safe, safeTransactionData]);
+
+  return {
+    value, error, loading
+  }
+}
+
+export function useQueueTransaction(safeAddress: string, safeTransactionData: SafeTransactionDataPartial | MetaTransactionData[], nonce?: number) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState<{safeTxHash: string, nonce: string}>();
@@ -205,20 +236,20 @@ export function useQueueTransaction(safeAddress: string, toContract: string, dat
   const { value: safeApiKit } = useSafeAPIKit();
   const { value: safe } = useSafe(safeAddress);
 
-  //const gnosis = new GnosisHandler(safeAddress, 'mainnet');
-  
-  const safeTransactionData: SafeTransactionDataPartial = { to: toContract, value: txValue.toString(), data, nonce: parseInt(nonce || "0") };
-
   const trigger = async () => {
     if (!safe || !walletClient || !safeApiKit || !address) {
       setError("Not connected to wallet or safe not found.");
       return;
     }
 
+    const options: SafeTransactionOptionalProps = {
+      nonce // Optional
+    }
+
     setLoading(true);
 
     try {
-      const safeTransaction = await safe.createTransaction({ safeTransactionData });
+      const safeTransaction = await safe.createTransaction({ safeTransactionData, options, onlyCalls: true });
       const senderAddress = address;
       const safeTxHash = await safe.getTransactionHash(safeTransaction);
       const signature = await safe.signTransactionHash(safeTxHash);
@@ -234,7 +265,7 @@ export function useQueueTransaction(safeAddress: string, toContract: string, dat
 
       setValue({
         safeTxHash: safeTxHash,
-        nonce
+        nonce: safeTransaction.data.nonce.toString()
       });
     } catch(e: any) {
       setError(e.message);

@@ -1,4 +1,3 @@
-import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { formatDistanceToNowStrict, parseISO, format } from "date-fns";
 import { useQueryParams, StringParam, withDefault, BooleanParam, NumberParam } from "next-query-params";
 import { useRouter } from "next/router";
@@ -12,48 +11,53 @@ import Pagination from "../../Pagination";
 import { Tooltip } from "flowbite-react";
 import { Switch } from "@headlessui/react";
 import { classNames } from "../../../libs/tailwind";
-import { DocumentTextIcon, ShieldCheckIcon, Square3Stack3DIcon } from "@heroicons/react/24/solid";
+import { BanknotesIcon, BoltIcon, DocumentMagnifyingGlassIcon, DocumentTextIcon, ShieldCheckIcon, Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import LoadingArrowSpiner from "../../LoadingArrowSpiner";
+import SearchableComboBoxMultiple from "../../SearchableComboBoxMultiple";
 
-const QueueExecutionModal = dynamic(() => import("./QueueExecutionModal"), {
+const QueueExecutionModal = dynamic(() => import("./QueueReconfigurationModal"), {
+  loading: () => <LoadingArrowSpiner />,
+})
+const QueueTransactionsModal = dynamic(() => import("./QueueTransactionsModal"), {
   loading: () => <LoadingArrowSpiner />,
 })
 
 export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space: string, proposalUrlPrefix?: string }) {
   // State
-  const [cycleOption, setCycleOption] = useState<Option>();
+  const [cycleOptions, setCycleOptions] = useState<Option[]>();
   const [options, setOptions] = useState<Option[]>([{ id: "Loading", label: `Loading...`, status: true }]);
   const [keywordInput, setKeywordInput] = useState<string>();
   const [showDrafts, setShowDrafts] = useState(true);
-  const [showQueueModal, setShowQueueModal] = useState(false);
+  const [showQueueReconfigurationModal, setShowQueueReconfigurationModal] = useState(false);
+  const [showQueueTransactionsModal, setShowQueueTransactionsModal] = useState(false);
 
   // QueryParams
   const router = useRouter();
   const [query, setQuery] = useQueryParams({
     keyword: StringParam,
-    limit: withDefault(NumberParam, 15),
+    limit: withDefault(NumberParam, 20),
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(StringParam, ''),
     sortDesc: withDefault(BooleanParam, true),
-    cycle: NumberParam
+    cycle: StringParam
   });
   const { keyword, cycle, limit, page } = query;
-  
+
   // External Hooks
   const { data: infoData, isLoading: infoLoading, error: infoError } = useSpaceInfo({ space }, router.isReady);
   const { data: proposalData, isLoading: proposalsLoading, error: proposalError } = useProposals({ space, cycle, keyword, page, limit }, router.isReady);
-  const { data: currentProposalData } = useProposals({ space, cycle: infoData?.data?.currentCycle }, router.isReady);
-  const currentCycle = cycle || infoData?.data?.currentCycle;
+  //const currentCycle = cycle || infoData?.data?.currentCycle;
+  const isCurrentCycle = cycle && infoData?.data?.currentCycle && cycle === infoData?.data?.currentCycle.toString();
   const allCycle = { id: "All", label: `All`, status: true };
 
   const projectId = parseInt(infoData?.data?.juiceboxProjectId || "1");
 
   // Flag
   const hasDrafts = (proposalData?.data?.privateProposals?.length ?? 0) > 0;
-    
+
   // Data process
   let remainingTime = "-";
   let endTime;
@@ -65,7 +69,7 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
   } catch (error) {
     //console.warn("🔴 Nance.formatDistanceToNowStrict ->", error);
   }
-  
+
   // Effects to sync UI
   useEffect(() => {
     // if we can retrieve the current cycle from infoData, then we can populate the options
@@ -80,30 +84,50 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
       for (let i = _currentCycle - 1; i >= 1; i--) {
         newOptions.push({ id: `${i}`, label: `GC-${i}`, status: false });
       }
-  
+
       setOptions(newOptions);
     }
   }, [infoData]);
+
   // sync cycle option with the query params
   useEffect(() => {
-    if (keyword && !cycle) {
-      // if there is a keyword but no cycle, then we should set the cycle to "All"
-      setCycleOption(allCycle);
+    if (!cycle) {
+      if (keyword) {
+        // if there is a keyword but no cycle specified by user, then we should set the cycle to "All"
+        setQuery({ cycle: allCycle.id })
+      } else {
+        // otherwise, we should set the cycle to current cycle and nexy cycle
+        const _currentCycle = infoData?.data?.currentCycle;
+        if (_currentCycle) {
+          setQuery({ cycle: _currentCycle.toString() + "+" + (_currentCycle + 1).toString() })
+        }
+      }
     } else {
-      setCycleOption(options.find(o => o.id === `${currentCycle}`));
+      // cycle is 123 + 32 format
+      const _cycles = cycle.split("+");
+      const _cycleOptions = _cycles.map(c => {
+        const _cycleOption = options.find(o => o.id === c);
+        if (_cycleOption) {
+          return _cycleOption;
+        } else {
+          return { id: c, label: `GC-${c}`, status: false };
+        }
+      });
+      setCycleOptions(_cycleOptions);
     }
-  }, [keyword, cycle, options]);
+  }, [keyword, cycle, options, infoData, setQuery, allCycle.id]);
+
   // sync keyword input with the query params
   useEffect(() => {
     if (keyword != keywordInput) {
       setKeywordInput(keyword ?? "");
     }
   }, [keyword]);
-  
+
   return (
     <div className="m-4 lg:m-6 flex justify-center lg:px-20">
       <div className="flex flex-col max-w-7xl w-full">
-  
+
         {/* Page header */}
         <div className="max-w-7xl md:flex md:space-x-5 bg-white p-6 shadow rounded-md">
           <div className="flex flex-col space-x-0 space-y-6 items-center md:flex-row md:justify-between md:space-x-6 md:space-y-0 w-full">
@@ -114,13 +138,13 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
                 alt={`${space} Logo`}
                 height={64} width={64}
               />
-  
+
               <div>
                 <h1 className="text-4xl font-bold text-gray-900">{space}</h1>
                 <p className="text-sm font-medium text-gray-500 text-right">powered by Nance</p>
               </div>
             </div>
-  
+
             <div className="break-words p-2 md:w-2/12 text-center rounded-md border-2 border-blue-600 bg-indigo-100">
               <Tooltip content={formattedEndTime}>
                 <span className="tooltip-trigger">
@@ -146,12 +170,29 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
 
           <button
             type="button"
-            onClick={() => setShowQueueModal(true)}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            onClick={() => {
+              setQuery({ cycle: infoData?.data?.currentCycle.toString() });
+              setShowQueueReconfigurationModal(true);
+            }}
+            className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Square3Stack3DIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-            Queue Execution
+            <BanknotesIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+            Queue Reconfiguration
           </button>
+          {showQueueReconfigurationModal && <QueueExecutionModal open={showQueueReconfigurationModal} setOpen={setShowQueueReconfigurationModal} juiceboxProjectId={projectId} proposals={proposalData?.data} space={space} currentCycle={infoData?.data?.currentCycle} />}
+
+          <button
+            type="button"
+            onClick={() => {
+              setQuery({ cycle: infoData?.data?.currentCycle.toString() });
+              setShowQueueTransactionsModal(true);
+            }}
+            className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <BoltIcon className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+            Queue Transactions
+          </button>
+          {showQueueTransactionsModal && <QueueTransactionsModal open={showQueueTransactionsModal} setOpen={setShowQueueTransactionsModal} juiceboxProjectId={projectId} proposals={proposalData?.data} space={space} />}
 
           <Link
             href={`/review?project=${projectId}`}
@@ -161,9 +202,8 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
             Review Reconfiguration
           </Link>
 
-          {showQueueModal && <QueueExecutionModal open={showQueueModal} setOpen={setShowQueueModal} juiceboxProjectId={projectId} proposals={currentProposalData?.data} space={space} currentCycle={infoData?.data?.currentCycle} />}
         </div>
-  
+
         <div className="flex mt-6 flex-col space-y-2 md:justify-between md:flex-row md:space-x-4 md:space-y-0">
           {hasDrafts && (
             <div className="md:w-1/12">
@@ -190,23 +230,22 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
               </Switch.Group>
             </div>
           )}
-              
+
 
           <div className={hasDrafts ? "md:w-2/12" : "md:w-3/12"}>
-            <SearchableComboBox val={cycleOption} setVal={(o) => {
-              let opt = o as Option;
-              setCycleOption(opt);
+            <SearchableComboBoxMultiple val={cycleOptions} setVal={(options) => {
+              setCycleOptions(options);
               // sync with cycle parameter
               setQuery({
-                cycle: parseInt(opt.id)
+                cycle: options.map((option) => option.id).join("+")
               });
             }} options={options} label="Select cycle" />
           </div>
-  
+
           {/* Search bar and limit */}
           <div className="md:w-9/12">
             <label htmlFor="keyword" className="block text-sm font-medium text-gray-700">
-                  Search proposals
+              Search proposals
             </label>
             <div className="mt-1 flex rounded-md shadow-sm">
               <div className="relative flex flex-grow items-stretch focus-within:z-10">
@@ -232,23 +271,23 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
               </div>
             </div>
           </div>
-  
-        </div>
-  
-        <div className="">
-          <ProposalCards proposalUrlPrefix={proposalUrlPrefix} loading={infoLoading || proposalsLoading} proposalsPacket={proposalData?.data} query={query as any} setQuery={setQuery} maxCycle={(infoData?.data?.currentCycle ?? 0) + 1} showDrafts={showDrafts} />
+
         </div>
 
-        <Pagination page={page} setPage={(p) => setQuery({page: p})} limit={limit} total={0} infinite />
+        <div className="">
+          <ProposalCards proposalUrlPrefix={proposalUrlPrefix} loading={infoLoading || proposalsLoading} proposalsPacket={proposalData?.data} maxCycle={(infoData?.data?.currentCycle ?? 0) + 1} showDrafts={showDrafts} />
+        </div>
+
+        <Pagination page={page} setPage={(p) => setQuery({ page: p })} limit={limit} total={0} infinite />
 
         <div className="mt-2 text-center">
           {infoData?.data?.dolthubLink && (
             <p className="text-center text-xs text-gray-500">
-                  ∴ dolt commit <a href={infoData?.data?.dolthubLink} target="_blank" rel="noopener noreferrer">{getLastSlash(infoData?.data?.dolthubLink)?.slice(0, 7)}</a>
+              ∴ dolt commit <a href={infoData?.data?.dolthubLink} target="_blank" rel="noopener noreferrer">{getLastSlash(infoData?.data?.dolthubLink)?.slice(0, 7)}</a>
             </p>
           )}
         </div>
-  
+
         <ScrollToBottom />
       </div>
     </div>

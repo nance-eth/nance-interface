@@ -59,7 +59,7 @@ export function useCurrentPayouts(space: string, cycle: string | undefined, shou
 export function useProposals(args: ProposalsRequest, shouldFetch: boolean = true) {
   const urlParams = new URLSearchParams();
   if (args.cycle) {
-    urlParams.set('cycle', args.cycle.toString());
+    urlParams.set('cycle', args.cycle);
   }
   if (args.keyword) {
     urlParams.set('keyword', args.keyword);
@@ -126,7 +126,7 @@ async function creator(url: RequestInfo | URL, { arg }: { arg: ConfigSpaceReques
 export function useProposalUpload(space: string, proposalId: string | undefined, shouldFetch: boolean = true) {
   let url = `${NANCE_PROXY_API_URL}/${space}/proposals`;
   let fetcher = uploader;
-  if(proposalId) {
+  if (proposalId) {
     url = `${NANCE_PROXY_API_URL}/${space}/proposal/${proposalId}`;
     fetcher = editor;
   }
@@ -191,7 +191,7 @@ export function getPath(space: string, command: string) {
 }
 
 export async function fetchCreatedProposals(space: string | undefined, author: string | undefined, prefix: string = "") {
-  if(!space || !author) {
+  if (!space || !author) {
     return {
       success: true,
       data: {
@@ -212,6 +212,6 @@ export async function fetchCreatedProposals(space: string | undefined, author: s
   if (json.success === false) {
     console.warn("fetchCreatedProposals errors occurred: ", json.error);
   }
-    
+
   return json;
 }
