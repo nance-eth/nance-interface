@@ -3,8 +3,6 @@ import useSWRMutation from 'swr/mutation';
 import { DiscordGuild, DiscordUser, DiscordChannel } from '../models/DiscordTypes';
 import { DISCORD_PROXY_USER_URL, DISCORD_PROXY_BOT_URL, DISCORD_PROXY_LOGOUT_URL, DISCORD_CLIENT_ID } from "../libs/discordURL";
 
-// const DISCORD_CLIENT_ID = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
-
 const USER_COMMANDS = {
   user: "users/@me",
   guilds: "users/@me/guilds",

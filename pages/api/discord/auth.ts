@@ -4,8 +4,6 @@ import { redis } from "../../../libs/redis";
 import { decode } from "next-auth/jwt";
 import { DISCORD_OAUTH_URL, discordRedirectBaseUrl, discordScope, DISCORD_CLIENT_ID } from "../../../libs/discordURL";
 
-// const DISCORD_CLIENT_ID = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID
-
 const params = {
   client_id: DISCORD_CLIENT_ID as string,
   client_secret: process.env.DISCORD_CLIENT_SECRET!,

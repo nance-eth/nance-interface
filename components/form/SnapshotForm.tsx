@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { Controller, useFormContext } from "react-hook-form";
-import Snapshotsearch from "../SnapshotSearch";
+import SnapshotSearch from "../SnapshotSearch";
 import { Session } from "next-auth";
 
 export default function SnapshotForm(
@@ -17,7 +17,7 @@ export default function SnapshotForm(
           required: "Can't be empty",
         }}
         render={({ field: { onChange, value } }) =>
-          <Snapshotsearch session={session} val={value} setVal={onChange} />
+          <SnapshotSearch session={session} val={value} setVal={onChange} />
         }
         shouldUnregister
       />
