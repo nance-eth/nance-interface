@@ -1,4 +1,3 @@
-import snapshot from '@snapshot-labs/snapshot.js';
 import { Signer, Wallet } from 'ethers';
 import { useCallback, useState } from 'react';
 import { useAccount } from "wagmi";
@@ -7,7 +6,6 @@ import useSnapshotSpaceSettings from './SpaceSettings';
 import { NANCE_PUBLIC_ADDRESS } from '../../constants/Nance';
 
 const hub = 'https://hub.snapshot.org';
-const client = new snapshot.Client712(hub);
 
 function clearNull(input: any) {
   let output = {} as Record<string, any>;
@@ -34,6 +32,7 @@ export default function useSetSpace(
 
   const trigger = useCallback(async () => {
     try {
+      const client = await import('@snapshot-labs/snapshot.js').then((snapshot) => new snapshot.default.Client712(hub));
       if (!currentSettings) {
         setError("No settings found for this space");
         return;

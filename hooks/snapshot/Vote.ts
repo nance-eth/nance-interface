@@ -1,4 +1,3 @@
-import snapshot from '@snapshot-labs/snapshot.js';
 import { ProposalType } from '@snapshot-labs/snapshot.js/dist/sign/types';
 import { Signer, Wallet } from 'ethers';
 import { useCallback, useState } from 'react';
@@ -6,7 +5,6 @@ import { useAccount } from "wagmi";
 import { useEthersSigner } from '../ViemAdapter';
 
 const hub = 'https://hub.snapshot.org'; // or https://testnet.snapshot.org for testnet
-const client = new snapshot.Client712(hub);
 
 export default function useVote(
   space: string, 
@@ -27,6 +25,7 @@ export default function useVote(
 
   const trigger = useCallback(async () => {
     try {
+      const client = await import('@snapshot-labs/snapshot.js').then((snapshot) => new snapshot.default.Client712(hub));
       setError(undefined);
       setLoading(true);
       const receipt = await client.vote(
