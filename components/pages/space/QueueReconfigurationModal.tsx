@@ -1,6 +1,6 @@
 import { Fragment, useRef } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { ProposalsPacket, Reserve } from '../../../models/NanceTypes';
 import { useCurrentPayouts } from '../../../hooks/NanceHooks';
 import DiffTableWithSection, { } from '../../form/DiffTableWithSection';
@@ -10,6 +10,7 @@ import useControllerOfProject from '../../../hooks/juicebox/ControllerOfProject'
 import useTerminalOfProject from '../../../hooks/juicebox/TerminalOfProject';
 import useProjectInfo from '../../../hooks/juicebox/ProjectInfo';
 import { useReconfigurationOfProject } from '../../../hooks/juicebox/ReconfigurationOfProject';
+import parseSafeJuiceboxTx from '../../../libs/SafeJuiceboxParser';
 
 export default function QueueReconfigurationModal({ open, setOpen, juiceboxProjectId, proposals, space, currentCycle }: {
   open: boolean, setOpen: (o: boolean) => void,
@@ -50,12 +51,16 @@ export default function QueueReconfigurationModal({ open, setOpen, juiceboxProje
   const actionReserve = actionWithPIDArray?.find(v => v.action.type === "Reserve");
   const reservesDiff = compareReserves(currentConfig.ticketMods ?? [], (actionReserve?.action.payload as Reserve)?.splits.map(splitStruct => splitStruct2JBSplit(splitStruct)) || (currentConfig.ticketMods ?? []), actionReserve?.pid ?? 0)
 
-  const tableData = calcDiffTableData(currentConfig, payoutsDiff, reservesDiff);
+
 
   const loading = infoIsLoading || configIsLoading || nancePayoutsLoading;
 
   // Construct reconfiguration function data
   const encodeReconfiguration = !loading ? encodedReconfigureFundingCyclesOf(currentConfig, payoutsDiff, reservesDiff, projectId, controller, terminal) || "" : "";
+
+  const tableData = calcDiffTableData(currentConfig,
+    parseSafeJuiceboxTx(encodeReconfiguration, "", currentConfig.fundingCycle.fee, BigNumber.from(Math.floor(Date.now() / 1000))),
+    payoutsDiff, reservesDiff);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -83,7 +88,7 @@ export default function QueueReconfigurationModal({ open, setOpen, juiceboxProje
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:p-6">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">

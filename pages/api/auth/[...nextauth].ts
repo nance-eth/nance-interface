@@ -6,6 +6,7 @@ import { SiweMessage } from "siwe";
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default async function auth(req: any, res: any) {
+  console.log(req.body);
   const providers = [
     CredentialsProvider({
       name: "Ethereum",
@@ -29,12 +30,12 @@ export default async function auth(req: any, res: any) {
           const domain = JSON.parse(credentials?.message || "")?.domain;
 
           if (!nextAuthDomains.includes(domain)) {
-            console.warn("❌ NextAuth.authorize.error", "Invalid domain", domain);
+            console.log("❌ NextAuth.authorize.error", "Invalid domain", domain);
             // FIXME to return meaningful error message
             return null;
           }
 
-          console.debug("📚 NextAuth.authorize", credentials, domain, csrf);
+          console.log("📚 NextAuth.authorize", credentials, domain, csrf);
           const result = await siwe.verify({
             signature: credentials?.signature || "",
             domain,
@@ -48,7 +49,7 @@ export default async function auth(req: any, res: any) {
           }
           return null;
         } catch (e) {
-          console.warn("❌ NextAuth.authorize.error", e);
+          console.log("❌ NextAuth.authorize.error", e);
           return null;
         }
       },
