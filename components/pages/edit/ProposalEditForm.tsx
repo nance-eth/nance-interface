@@ -1,16 +1,13 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckCircleIcon, ArrowPathIcon, ChevronDownIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { Editor } from "@tinymce/tinymce-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useState, useEffect, Fragment } from "react";
 import { useForm, SubmitHandler, FormProvider, Controller } from "react-hook-form";
-import { fileDrop } from "../../../hooks/FileDrop";
 import { imageUpload } from "../../../hooks/ImageUpload";
 import { useProposalUpload } from "../../../hooks/NanceHooks";
-import { htmlToMarkdown } from "../../../libs/markdown";
 import { classNames } from "../../../libs/tailwind";
 import { CustomTransaction, ProposalUploadRequest } from "../../../models/NanceTypes";
 import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
@@ -21,6 +18,10 @@ import { DriveStep } from "driver.js";
 import UIGuide from "../../modal/UIGuide";
 import useLocalStorage from "../../../hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
+import dynamic from "next/dynamic";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+import rehypeSanitize from "rehype-sanitize";
 
 type ProposalFormValues = Omit<ProposalUploadRequest, "signature">
 
@@ -30,7 +31,29 @@ const ProposalStatus = [
   { title: "Private Draft", description: "Save your proposal as private, you can publish it later for discussion.", value: "Private", display: "Save as Private" },
 ];
 
-const TEMPLATE = `<h2>Synopsis</h2><p><em>State what the proposal does in one sentence.</em></p><p></p><h2>Motivation</h2><p><em>What problem does this solve? Why now?</em></p><p></p><h2>Specification</h2><p><em>How exactly will this be executed? Be specific and leave no ambiguity.</em></p><p></p><h2>Rationale</h2><p><em>Why is this specification appropriate?</em></p><p></p><h2>Risks</h2><p><em>What might go wrong?</em></p><p></p><h2>Timeline</h2><p><em>When exactly should this proposal take effect? When exactly should this proposal end?</em></p>`;
+const TEMPLATE = `## Synopsis
+
+*State what the proposal does in one sentence.*
+
+## Motivation
+
+*What problem does this solve? Why now?*
+
+## Specification
+
+*How exactly will this be executed? Be specific and leave no ambiguity.*
+
+## Rationale
+
+*Why is this specification appropriate?*
+
+## Risks
+
+*What might go wrong?*
+
+## Timeline
+
+*When exactly should this proposal take effect? When exactly should this proposal end?*`;
 
 const driverSteps: DriveStep[] = [
   {
@@ -75,6 +98,11 @@ interface ProposalCache {
 }
 
 const CACHE_VERSION = 1;
+
+const MDEditor = dynamic(
+  () => import("@uiw/react-md-editor"),
+  { ssr: false }
+);
 
 export default function ProposalEditForm({ space }: { space: string }) {
   // query and context
@@ -122,7 +150,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
     const payload = {
       ...formData.proposal,
       status: (metadata.loadedProposal?.status === 'Temperature Check' && !isNew) ? 'Temperature Check' : selected.value,
-      body: await htmlToMarkdown(formData.proposal.body ?? ""),
+      body: formData.proposal.body ?? "",
       hash
     };
     console.debug("📚 Nance.editProposal.onSubmit ->", { formData, payload });
@@ -225,40 +253,27 @@ export default function ProposalEditForm({ space }: { space: string }) {
                   <Controller
                     name="proposal.body"
                     control={control}
+                    defaultValue={metadata.loadedProposal?.body || TEMPLATE}
                     render={({ field: { onChange, onBlur, value, ref } }) =>
-                      <Editor
-                        apiKey={process.env.NEXT_PUBLIC_TINY_KEY || 'no-api-key'}
-                        onInit={(evt, editor) => editor.setContent(metadata.loadedProposal?.body || TEMPLATE)}
-                        initialValue={metadata.loadedProposal?.body || TEMPLATE}
+                      <MDEditor
                         value={value}
-                        onEditorChange={(newValue, editor) => {
-                          if (!cacheModalIsOpen) {
+                        onChange={(newValue) => {
+                          if (newValue && !cacheModalIsOpen) {
                             setProposalCache({ version: CACHE_VERSION, title: getValues("proposal.title") || "", body: newValue, timestamp: getUnixTime(new Date()) });
                           }
                           onChange(newValue);
                         }}
-                        init={{
-                          height: 500,
-                          plugins: [
-                            'advlist', 'autolink', 'lists', 'link', 'image', 'preview',
-                            'anchor', 'searchreplace', 'code', 'fullscreen',
-                            'insertdatetime', 'table', 'code', 'help', 'wordcount',
-                            'image', 'autosave', 'template'
-                          ],
-                          toolbar: 'restoredraft undo redo | template blocks | ' +
-                            'image link table | bold italic forecolor | bullist numlist outdent indent | ' +
-                            'preview removeformat | help',
-                          menubar: false,
-                          block_unsupported_drop: false,
-                          images_upload_handler: imageUpload,
-                          init_instance_callback: fileDrop,
-                          content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                          autosave_restore_when_empty: true,
-                          templates: [
-                            { title: 'Proposal template', description: 'Default for most proposal', content: TEMPLATE }
-                          ],
-                          relative_urls: false,
-                          browser_spellcheck: true,
+                        height={500}
+                        previewOptions={{
+                          rehypePlugins: [[rehypeSanitize]],
+                        }}
+                        onPaste={async (event) => {
+                          await onImagePasted(event.clipboardData, (m) => setValue("proposal.body", m));
+                        }}
+                        onDrop={async (event) => {
+                          // Avoid to open the dropped file within browser.
+                          event.preventDefault();
+                          await onImagePasted(event.dataTransfer, (m) => setValue("proposal.body", m));
                         }}
                       />
                     }
@@ -370,3 +385,57 @@ export default function ProposalEditForm({ space }: { space: string }) {
     </FormProvider>
   );
 }
+
+// https://github.com/uiwjs/react-md-editor/issues/83#issuecomment-1185471844
+async function onImagePasted(dataTransfer: DataTransfer, setMarkdown: (value: string) => void) {
+  const files: File[] = [];
+  for (let index = 0; index < dataTransfer.items.length; index += 1) {
+    const file = dataTransfer.files.item(index);
+
+    if (file) {
+      console.debug("file", file);
+      files.push(file);
+    }
+  }
+
+  await Promise.all(
+    files.map(async (file) => {
+      let str = ""
+      // Append markdown content
+      // Upload image to ipfs and write its url
+      if (file.name.endsWith(".md")) {
+        str = await file.text();
+      } else {
+        const url = await imageUpload(file);
+        str = `![](${url})`;
+      }
+      const insertedMarkdown = insertToTextArea(str);
+      if (!insertedMarkdown) {
+        return;
+      }
+      setMarkdown(insertedMarkdown);
+    }),
+  );
+};
+
+function insertToTextArea(intsertString: string) {
+  const textarea = document.querySelector('textarea');
+  if (!textarea) {
+    return null;
+  }
+
+  let sentence = textarea.value;
+  const len = sentence.length;
+  const pos = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  const front = sentence.slice(0, pos);
+  const back = sentence.slice(pos, len);
+
+  sentence = front + intsertString + back;
+
+  textarea.value = sentence;
+  textarea.selectionEnd = end + intsertString.length;
+
+  return sentence;
+};
