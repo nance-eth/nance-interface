@@ -268,12 +268,12 @@ export default function ProposalEditForm({ space }: { space: string }) {
                           rehypePlugins: [[rehypeSanitize]],
                         }}
                         onPaste={async (event) => {
-                          await onImagePasted(event.clipboardData, (m) => setValue("proposal.body", m));
+                          await onImagePasted(event.clipboardData, (m) => setValue("proposal.body", m), () => getValues("proposal.body") || "");
                         }}
                         onDrop={async (event) => {
                           // Avoid to open the dropped file within browser.
                           event.preventDefault();
-                          await onImagePasted(event.dataTransfer, (m) => setValue("proposal.body", m));
+                          await onImagePasted(event.dataTransfer, (m) => setValue("proposal.body", m), () => getValues("proposal.body") || "");
                         }}
                       />
                     }
@@ -386,8 +386,8 @@ export default function ProposalEditForm({ space }: { space: string }) {
   );
 }
 
-// https://github.com/uiwjs/react-md-editor/issues/83#issuecomment-1185471844
-async function onImagePasted(dataTransfer: DataTransfer, setMarkdown: (value: string) => void) {
+// Modified with https://github.com/uiwjs/react-md-editor/issues/83#issuecomment-1185471844
+async function onImagePasted(dataTransfer: DataTransfer, setMarkdown: (value: string) => void, getMarkdown: () => string) {
   const files: File[] = [];
   for (let index = 0; index < dataTransfer.items.length; index += 1) {
     const file = dataTransfer.files.item(index);
@@ -400,6 +400,12 @@ async function onImagePasted(dataTransfer: DataTransfer, setMarkdown: (value: st
 
   await Promise.all(
     files.map(async (file) => {
+      const uploadingLabel = `[Uploading ${file.name}...]()`;
+      const withUploadingLabel = insertToTextArea(uploadingLabel);
+      if (withUploadingLabel) {
+        setMarkdown(withUploadingLabel);
+      }
+
       let str = ""
       // Append markdown content
       // Upload image to ipfs and write its url
@@ -409,11 +415,7 @@ async function onImagePasted(dataTransfer: DataTransfer, setMarkdown: (value: st
         const url = await imageUpload(file);
         str = `![](${url})`;
       }
-      const insertedMarkdown = insertToTextArea(str);
-      if (!insertedMarkdown) {
-        return;
-      }
-      setMarkdown(insertedMarkdown);
+      setMarkdown(getMarkdown().replace(uploadingLabel, str));
     }),
   );
 };
