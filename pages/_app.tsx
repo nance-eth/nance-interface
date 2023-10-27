@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import '../styles/editor.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import { GraphQLClient, ClientContext } from 'graphql-hooks';
 import memCache from 'graphql-hooks-memcache';
@@ -104,7 +105,7 @@ function WagmiWrappedApp({ Component, pageProps }: any) {
 
       <Analytics />
     </>
-  )
+  );
 }
 
 export default WagmiWrappedApp;

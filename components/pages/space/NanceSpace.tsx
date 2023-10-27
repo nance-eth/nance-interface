@@ -73,7 +73,7 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
   useEffect(() => {
     console.debug("session change", sessionData);
     mutate();
-  }, [sessionData?.user?.name, mutate])
+  }, [sessionData?.user?.name, mutate]);
 
   return (
     <div className="m-4 lg:m-6 flex justify-center lg:px-20">
@@ -91,7 +91,7 @@ export default function NanceSpace({ space, proposalUrlPrefix = "/p/" }: { space
         <ProposalCards proposalUrlPrefix={proposalUrlPrefix} loading={loading} space={space} privateProposals={privateProposals?.data} maxCycle={(infoData?.data?.currentCycle ?? 0) + 1} showDrafts={showDrafts} />
         {infoData?.data?.dolthubLink && <DoltCommitInfo dolthubLink={infoData.data.dolthubLink} />}
 
-        <UIGuide name="SpacePage" steps={driverSteps} />
+        {/* <UIGuide name="SpacePage" steps={driverSteps} /> */}
         <ScrollToBottom />
       </div>
     </div>

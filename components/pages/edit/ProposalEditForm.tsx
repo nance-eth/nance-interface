@@ -21,7 +21,7 @@ import UIGuide from "../../modal/UIGuide";
 import useLocalStorage from "../../../hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
 
-const TextEditor = dynamic(() => import('./Editor'), { ssr: false });
+const TextEditor = dynamic(() => import('./editor/Editor'), { ssr: false });
 
 type ProposalFormValues = Omit<ProposalUploadRequest, "signature">
 
@@ -194,7 +194,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
         }}
         shouldOpen={cacheModalIsOpen} />
 
-      <UIGuide name="EditPage" steps={driverSteps} />
+      {/* <UIGuide name="EditPage" steps={driverSteps} /> */}
       <MiddleStepModal open={txnsMayFail} setOpen={setTxnsMayFail}
         title="SimulationCheck" description="You have some transactions may failed based on simulations, do you wish to continue?"
         payload={formDataPayload}

@@ -1,8 +1,6 @@
 import { useRef } from 'react';
-import '@toast-ui/editor/dist/toastui-editor.css';
 import { Editor } from '@toast-ui/react-editor';
-import { fileDrop } from "../../../hooks/FileDrop";
-import { imageUpload } from "../../../hooks/ImageUpload";
+import { imageUpload } from '../../../../hooks/ImageUpload';
 
 function TextEditor({ onChange, initialValue }: { onChange: (value: string) => void, initialValue?: string }) {
   const editorRef = useRef<Editor>(null);
