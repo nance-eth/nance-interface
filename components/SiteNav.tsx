@@ -20,8 +20,9 @@ interface SiteNavProps {
 export default function SiteNav({ pageTitle, description, image, withWallet, space, proposalId, withProposalButton = true, withSiteSuffixInTitle = true }: SiteNavProps) {
   const router = useRouter();
 
+  const homePath = space ? `/s/${space}` : "/";
   const navigation = [
-    { name: 'Home', href: `/s/${space}` },
+    { name: 'Home', href: homePath },
     { name: 'Spaces', href: '/s' },
     { name: 'Docs', href: 'https://docs.nance.app' }
   ];
@@ -30,7 +31,7 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
     title: withSiteSuffixInTitle ? `${pageTitle} | Nance` : pageTitle,
     description: description || "Nance platform for automatic governance.",
     url: `https://nance.app${router.asPath}`,
-    image: image || "/images/unsplash_application.jpeg",
+    image: image || "/images/opengraph/OG_splash.png",
   };
 
   const canForkProposal = !!proposalId;
