@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { SnapshotProposal, useProposalsByID } from "../../../hooks/snapshot/Proposals";
 import SiteNav from "../../../components/SiteNav";
 import { createContext } from "react";
-import { getLastSlash } from "../../../libs/nance";
+import { canEditProposal, getLastSlash } from "../../../libs/nance";
 import { Proposal, Action } from "../../../models/NanceTypes";
 import Custom404 from "../../404";
 import ScrollToBottom from "../../../components/ScrollToBottom";
@@ -14,7 +14,7 @@ import ProposalContent from "../../../components/pages/proposal/ProposalContent"
 import ProposalOptions from "../../../components/pages/proposal/ProposalOptions";
 import ProposalLoading from '../../../components/pages/proposal/ProposalLoading';
 import { getFirstParagraphOfMarkdown } from "../../../libs/markdown";
-import { usePrivateProposals, useSpaceInfo } from "../../../hooks/NanceHooks";
+import { useSpaceInfo } from "../../../hooks/NanceHooks";
 import { ZERO_ADDRESS } from "../../../constants/Contract";
 
 export async function getServerSideProps({ req, params, res }: any) {
@@ -33,10 +33,11 @@ export async function getServerSideProps({ req, params, res }: any) {
   const proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, { headers }).then(res => res.json());
   proposal = proposalResponse.data;
 
-  res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=3600, stale-while-revalidate=59'
-  );
+  if (!canEditProposal(proposal.status))
+    res.setHeader(
+      'Cache-Control',
+      'public, s-maxage=3600, stale-while-revalidate=59'
+    );
 
   // Pass data to the page via props
   return {
