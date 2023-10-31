@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Editor } from '@toast-ui/react-editor';
 import { imageUpload } from '../../../../hooks/ImageUpload';
+import { handleDrop } from '../../../../hooks/FileDrop';
 import '@nance/nance-editor/lib/editor.css';
 
 function TextEditor({
@@ -11,6 +12,17 @@ function TextEditor({
   initialValue?: string,
 }) {
   const editorRef = useRef<Editor>(null);
+
+  useEffect(() => {
+    const editor = editorRef.current?.getInstance();
+    const initDropHandler = async () => {
+      const md = await handleDrop();
+      if (editor && md) editor.setMarkdown(md);
+    };
+    initDropHandler();
+
+  }, []);
+
   return (
     <Editor
       ref={editorRef}

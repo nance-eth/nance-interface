@@ -16,12 +16,13 @@ import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
 import MiddleStepModal from "../../modal/MiddleStepModal";
 import ResultModal from "../../modal/ResultModal";
 import Actions from "./Actions";
-import { DriveStep } from "driver.js";
-import UIGuide from "../../modal/UIGuide";
+import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "../../../hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
 
 const TextEditor = dynamic(() => import('./editor/Editor'), { ssr: false });
+const UIGuide = dynamic(() => import('../../modal/UIGuide'), { ssr: false });
+
 
 type ProposalFormValues = Omit<ProposalUploadRequest, "signature">
 
@@ -32,41 +33,6 @@ const ProposalStatus = [
 ];
 
 const TEMPLATE = "## Synopsis\n*State what the proposal does in one sentence.*\n\n## Motivation\n*What problem does this solve? Why now?*\n\n## Specification\n*How exactly will this be executed? Be specific and leave no ambiguity.*\n\n## Rationale\n*Why is this specification appropriate?*\n\n## Risks\n*What might go wrong?*\n\n## Timeline\n*When exactly should this proposal take effect? When exactly should this proposal end?*";
-
-const driverSteps: DriveStep[] = [
-  {
-    element: "#add-action-button",
-    popover: {
-      title: "Add an action",
-      description: "Specify this proposal's onchain actions.",
-      side: "bottom", align: 'start'
-    },
-  },
-  {
-    element: "#proposal-title",
-    popover: {
-      title: "Input proposal title",
-      description: "Keep it short and simple.",
-      side: "bottom", align: 'start'
-    },
-  },
-  {
-    element: "#proposal-body",
-    popover: {
-      title: "Input proposal body",
-      description: "You can write more details here. You can also drag and drop markdown file or image to attach content (images are pinned to IPFS).",
-      side: "bottom", align: 'start'
-    },
-  },
-  {
-    element: "#submit-button-div",
-    popover: {
-      title: "Submit the proposal",
-      description: "After you connected wallet, you can either submit the proposal or save it as private draft.",
-      side: "top", align: 'start'
-    },
-  },
-];
 
 interface ProposalCache {
   version: number;
@@ -194,7 +160,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
         }}
         shouldOpen={cacheModalIsOpen} />
 
-      {/* <UIGuide name="EditPage" steps={driverSteps} /> */}
+      <UIGuide name="EditPage" steps={driverSteps} />
       <MiddleStepModal open={txnsMayFail} setOpen={setTxnsMayFail}
         title="SimulationCheck" description="You have some transactions may failed based on simulations, do you wish to continue?"
         payload={formDataPayload}

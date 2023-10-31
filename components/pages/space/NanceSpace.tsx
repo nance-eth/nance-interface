@@ -42,7 +42,7 @@ export default function NanceSpace({ spaceInfo, proposalUrlPrefix = "/p/" }: { s
         <ProposalCards proposalUrlPrefix={proposalUrlPrefix} loading={isLoading} space={spaceInfo.name} privateProposals={privateProposals?.data} maxCycle={(spaceInfo.currentCycle ?? 0) + 1} showDrafts={showDrafts} />
         {spaceInfo?.dolthubLink && <DoltCommitInfo dolthubLink={spaceInfo.dolthubLink} />}
 
-        {/* <UIGuide name="SpacePage" steps={driverSteps} /> */}
+        <UIGuide name="SpacePage" steps={driverSteps} />
         <ScrollToBottom />
       </div>
     </div>
