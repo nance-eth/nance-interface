@@ -36,7 +36,7 @@ export async function getServerSideProps({ req, params, res }: any) {
   if (!canEditProposal(proposal.status))
     res.setHeader(
       'Cache-Control',
-      'public, s-maxage=3600, stale-while-revalidate=59'
+      'public, s-maxage=86400, stale-while-revalidate=59'
     );
 
   // Pass data to the page via props
