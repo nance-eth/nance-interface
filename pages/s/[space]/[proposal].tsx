@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { SnapshotProposal, useProposalsByID } from "../../../hooks/snapshot/Proposals";
 import SiteNav from "../../../components/SiteNav";
 import { createContext } from "react";
-import { getLastSlash, getNanceStaticPaths } from "../../../libs/nance";
-import { Proposal, Action, SpaceInfo, ProposalsPacket, APIResponse } from "../../../models/NanceTypes";
+import { getLastSlash } from "../../../libs/nance";
+import { Proposal, Action } from "../../../models/NanceTypes";
 import Custom404 from "../../404";
 import ScrollToBottom from "../../../components/ScrollToBottom";
 import { NANCE_API_URL } from "../../../constants/Nance";
 import Footer from "../../../components/Footer";
+import { getToken } from "next-auth/jwt";
 import ProposalSidebar from "../../../components/pages/proposal/ProposalSidebar";
 import ProposalContent from "../../../components/pages/proposal/ProposalContent";
 import ProposalOptions from "../../../components/pages/proposal/ProposalOptions";
@@ -16,57 +17,33 @@ import { getFirstParagraphOfMarkdown } from "../../../libs/markdown";
 import { usePrivateProposals, useSpaceInfo } from "../../../hooks/NanceHooks";
 import { ZERO_ADDRESS } from "../../../constants/Contract";
 
-// export async function getServerSideProps({ req, params, res }: any) {
-//   let proposal: Proposal;
+export async function getServerSideProps({ req, params, res }: any) {
+  let proposal: Proposal;
 
-//   // check proposal parameter type
-//   const proposalParam: string = params.proposal;
-//   const spaceParam: string = params.space;
-
-//   // Attach the JWT token to the request headers
-//   const token = await getToken({ req, raw: true });
-//   const headers = {
-//     Authorization: `Bearer ${token}`,
-//   };
-
-//   const proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, { headers }).then(res => res.json());
-//   proposal = proposalResponse.data;
-
-//   res.setHeader(
-//     'Cache-Control',
-//     'public, s-maxage=3600, stale-while-revalidate=59'
-//   );
-
-//   // Pass data to the page via props
-//   return {
-//     props: {
-//       space: spaceParam,
-//       proposal: proposal || null
-//     }
-//   };
-// }
-
-export async function getStaticProps({ params }: any) {
+  // check proposal parameter type
   const proposalParam: string = params.proposal;
   const spaceParam: string = params.space;
 
-  const proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`).then(res => res.json());
-  const proposal = proposalResponse.data;
+  // Attach the JWT token to the request headers
+  const token = await getToken({ req, raw: true });
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
 
+  const proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, { headers }).then(res => res.json());
+  proposal = proposalResponse.data;
+
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=3600, stale-while-revalidate=59'
+  );
+
+  // Pass data to the page via props
   return {
     props: {
       space: spaceParam,
-      _proposal: proposal || proposalParam,
-    },
-    revalidate: 3600
-  };
-}
-
-export async function getStaticPaths() {
-  const paths = await getNanceStaticPaths();
-  return {
-    paths,
-    fallback: "blocking"
+      proposal: proposal || null
+    }
   };
 }
 
@@ -113,8 +90,7 @@ export const ProposalContext = createContext<{ commonProps: ProposalCommonProps,
   proposalInfo: undefined
 });
 
-export default function NanceProposalPage({ space, _proposal }: { space: string, _proposal: Proposal | string | undefined }) {
-  let proposal = _proposal as Proposal;
+export default function NanceProposalPage({ space, proposal }: { space: string, proposal: Proposal | undefined }) {
   // state
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -122,29 +98,20 @@ export default function NanceProposalPage({ space, _proposal }: { space: string,
 
   const { data: spaceInfo } = useSpaceInfo({ space });
   const { data: { proposalsData } } = useProposalsByID([proposalHash], "", proposalHash === undefined);
-  const { data: privateProposals, mutate, isLoading } = usePrivateProposals(space);
 
   const snapshotProposal = proposalsData?.[0];
   const snapshotSpace = spaceInfo?.data?.snapshotSpace;
 
 
   useEffect(() => {
-    if (spaceInfo && proposalsData && (typeof _proposal === 'string' && !isLoading)) {
+    if (spaceInfo && proposalsData) {
       setLoading(false);
     }
-  }, [spaceInfo, proposalsData, isLoading]);
+  }, [spaceInfo, proposalsData]);
 
   // this page need proposal to work
-  if (typeof proposal === 'string') {
-    // maybe it is a private proposal
-    mutate();
-    if (privateProposals?.data && privateProposals?.data.length > 0) {
-      const findProposal = privateProposals.data.find(p => p.hash === _proposal as unknown as string);
-      if (findProposal) proposal = findProposal;
-      else {
-        return <Custom404 errMsg="Proposal not found on Nance platform, you can reach out in Discord or explore on the home page." />;
-      }
-    }
+  if (!proposal) {
+    return <Custom404 errMsg="Proposal not found on Nance platform, you can reach out in Discord or explore on the home page." />;
   }
 
   const commonProps: ProposalCommonProps = {

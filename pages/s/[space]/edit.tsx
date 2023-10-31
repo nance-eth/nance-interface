@@ -29,7 +29,6 @@ export async function getServerSideProps({ req, query, params}: any) {
   let proposalResponse = null;
   if (proposalParam) {
     proposalResponse = await fetch(`${NANCE_API_URL}/${spaceParam}/proposal/${proposalParam}`, {headers}).then(res => res.json());
-    console.debug("proposalResponse", proposalResponse);
   }
 
   // Pass data to the page via props

@@ -1,5 +1,3 @@
-`use client`;
-
 import Image from "next/image";
 import Footer from "../../components/Footer";
 import ResolvedProject from "../../components/juicebox/ResolvedProject";
