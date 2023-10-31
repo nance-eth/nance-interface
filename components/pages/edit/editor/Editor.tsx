@@ -16,7 +16,7 @@ function TextEditor({
   const [imageUploading, setImageUploading] = useState(0);
 
   const simulateLoading = (setLoading: (progress: number) => void, fileSize: number) => {
-    const time = Math.round(fileSize / 10 * 1000) * 10;
+    const time = Math.round(fileSize / (10 * 1000)) * 10;
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
@@ -25,7 +25,7 @@ function TextEditor({
       } else {
         setLoading(progress);
       }
-    }, 50);
+    }, time);
     return interval;
   };
 
