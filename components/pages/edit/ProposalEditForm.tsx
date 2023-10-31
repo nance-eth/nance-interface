@@ -98,10 +98,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
       proposal: payload as any
     };
     console.debug("📗 Nance.editProposal.submit ->", req);
-    trigger(req)
-      .catch((err) => {
-        console.warn("📗 Nance.editProposal.onSignError ->", err);
-      });
+    trigger(req).then(async (res) => {
+      console.log("💽 Cache refresh ->", await fetch(
+        `/api/revalidate?path=s/${space}/${metadata?.loadedProposal?.proposalId}`
+      ));
+      console.debug("📗 Nance.editProposal.onSignSuccess ->", res);
+    }).catch((err) => {
+      console.warn("📗 Nance.editProposal.onSignError ->", err);
+    });
   };
 
   // shortcut
