@@ -7,19 +7,21 @@ import { useSession } from "next-auth/react";
 import dynamic from 'next/dynamic';
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContext, useState, useEffect, Fragment } from "react";
+import { useContext, useState, useEffect, Fragment, useRef } from "react";
 import { useForm, SubmitHandler, FormProvider, Controller } from "react-hook-form";
 import { useProposalUpload } from "../../../hooks/NanceHooks";
 import { classNames } from "../../../libs/tailwind";
 import { CustomTransaction, ProposalUploadRequest } from "../../../models/NanceTypes";
 import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
 import MiddleStepModal from "../../modal/MiddleStepModal";
-import ResultModal from "../../modal/ResultModal";
 import Actions from "./Actions";
 import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "../../../hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
+import { Editor } from '@toast-ui/react-editor';
+import { getMarkdown, setMarkdown } from './editor/helpers';
 
+const ResultModal = dynamic(() => import('../../modal/ResultModal'), { ssr: false });
 const TextEditor = dynamic(() => import('./editor/Editor'), { ssr: false });
 const UIGuide = dynamic(() => import('../../modal/UIGuide'), { ssr: false });
 
@@ -47,6 +49,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   // query and context
   const router = useRouter();
   const metadata = useContext(ProposalMetadataContext);
+  const editorRef = useRef<Editor>(null);
 
   // state
   const [formErrors, setFormErrors] = useState<string>("");
@@ -99,9 +102,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
     };
     console.debug("📗 Nance.editProposal.submit ->", req);
     trigger(req).then(async (res) => {
-      console.log("💽 Cache refresh ->", await fetch(
-        `/api/revalidate?path=s/${space}/${metadata?.loadedProposal?.proposalId}`
-      ));
       console.debug("📗 Nance.editProposal.onSignSuccess ->", res);
     }).catch((err) => {
       console.warn("📗 Nance.editProposal.onSignError ->", err);
@@ -155,7 +155,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
         description={`Saved ${formatDistance(fromUnixTime(proposalCache.timestamp), new Date(), { addSuffix: true })}. Title: ${proposalCache.title}, Content: ${proposalCache.body.slice(0, 140)}...`}
         buttonText="Restore" onClick={() => {
           setValue("proposal.title", proposalCache.title);
-          setValue("proposal.body", proposalCache.body);
+          setMarkdown(editorRef, proposalCache.body);
           setCacheModalIsOpen(false);
         }}
         cancelButtonText="Delete" close={() => {
@@ -183,7 +183,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
                       value: metadata.loadedProposal?.title || "Proposal Title",
                       onChange: (e) => {
                         if (!cacheModalIsOpen) {
-                          setProposalCache({ version: CACHE_VERSION, title: e.target.value, body: getValues("proposal.body") || "", timestamp: getUnixTime(new Date()) });
+                          setProposalCache({ version: CACHE_VERSION, title: e.target.value, body: getMarkdown(editorRef) || "", timestamp: getUnixTime(new Date()) });
                         }
                       }
                     })}
@@ -197,9 +197,13 @@ export default function ProposalEditForm({ space }: { space: string }) {
                   <Controller
                     name="proposal.body"
                     control={control}
-                    defaultValue={metadata.loadedProposal?.body || TEMPLATE}
                     render={({ field: { onChange } }) =>
-                      <TextEditor onChange={onChange} initialValue={metadata.loadedProposal?.body || TEMPLATE}/>
+                      <TextEditor parentRef={editorRef} onEditorChange={(value) => {
+                        if (!cacheModalIsOpen) {
+                          setProposalCache({ version: CACHE_VERSION, title: getValues("proposal.title"), body: value || "", timestamp: getUnixTime(new Date()) });
+                        }
+                        onChange(value);
+                      }} initialValue={metadata.loadedProposal?.body || TEMPLATE}/>
                     }
                   />
                 </div>
