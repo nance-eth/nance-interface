@@ -1,5 +1,5 @@
 import { classNames } from "@/utils/functions/tailwind";
-import LoadingArrowSpiner from "../../../LoadingArrowSpiner";
+import LoadingArrowSpiner from "@/components/common/LoadingArrowSpiner";
 
 export default function LoadMoreButton({
   dataLength,

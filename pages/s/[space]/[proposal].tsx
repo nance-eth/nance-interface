@@ -3,14 +3,12 @@ import {
   SnapshotProposal,
   useProposalsByID,
 } from "@/utils/hooks/snapshot/Proposals";
-import SiteNav from "@/components/SiteNav";
 import { createContext } from "react";
 import { canEditProposal, getLastSlash } from "@/utils/functions/nance";
 import { Proposal, Action } from "@/models/NanceTypes";
 import Custom404 from "../../404";
-import ScrollToBottom from "@/components/ScrollToBottom";
+import { ScrollToBottom } from "@/components/Page";
 import { NANCE_API_URL } from "@/constants/Nance";
-import Footer from "@/components/Footer";
 import { getToken } from "next-auth/jwt";
 import ProposalSidebar from "@/components/pages/proposal/ProposalSidebar";
 import ProposalContent from "@/components/pages/proposal/ProposalContent";
@@ -19,6 +17,7 @@ import ProposalLoading from "@/components/pages/proposal/ProposalLoading";
 import { getFirstParagraphOfMarkdown } from "@/utils/functions/markdown";
 import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { ZERO_ADDRESS } from "@/constants/Contract";
+import { Footer, SiteNav } from "@/components/Site";
 
 export async function getServerSideProps({ req, params, res }: any) {
   let proposal: Proposal;

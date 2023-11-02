@@ -1,5 +1,5 @@
-import React, {Component, PropsWithChildren} from "react";
-import Custom500 from "../pages/500";
+import React, { Component, PropsWithChildren } from "react";
+import Custom500 from "../../pages/500";
 
 interface State {
   hasError: boolean;

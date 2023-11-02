@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-no-undef */
 import Image from "next/image";
-import SiteNav from "../components/SiteNav";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -28,6 +27,7 @@ import {
   SnapshotForm,
   TextForm,
 } from "@/components/CreateSpace";
+import { SiteNav } from "@/components/Site";
 
 export default function CreateSpacePage() {
   // state

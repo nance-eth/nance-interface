@@ -1,6 +1,5 @@
 import Image from "next/image";
-import Footer from "../../components/Footer";
-import SiteNav from "../../components/SiteNav";
+import { Footer, SiteNav } from "@/components/Site";
 import { useAllSpaceInfo } from "../../utils/hooks/NanceHooks";
 import ResolvedProject from "@/components/Address/ResolvedProject";
 

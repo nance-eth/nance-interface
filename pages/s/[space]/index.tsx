@@ -1,5 +1,4 @@
-import SiteNav from "@/components/SiteNav";
-import Footer from "@/components/Footer";
+import { Footer, SiteNav } from "@/components/Site";
 import { Space, SpaceNotFound } from "@/components/Space";
 
 import { NANCE_API_URL } from "@/constants/Nance";

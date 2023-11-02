@@ -1,6 +1,6 @@
 import { BigNumber, utils } from "ethers";
 import { useState } from "react";
-import SiteNav from "../components/SiteNav";
+import { Footer, SiteNav } from "@/components/Site";
 import {
   NumberParam,
   StringParam,
@@ -10,7 +10,6 @@ import {
 import useProjectInfo from "../utils/hooks/juicebox/ProjectInfo";
 import { RevisedSafeMultisigTransactionResponse } from "../models/SafeTypes";
 import parseSafeJuiceboxTx from "../utils/functions/SafeJuiceboxParser";
-import Footer from "../components/Footer";
 import { useReconfigurationOfProject } from "../utils/hooks/juicebox/ReconfigurationOfProject";
 import JBProjectInfo from "../components/pages/review/JBProjectInfo";
 import DiffTableWithSection from "../components/form/DiffTableWithSection";
@@ -19,7 +18,7 @@ import {
   comparePayouts,
   compareReserves,
 } from "../utils/functions/juicebox";
-import LoadingArrowSpiner from "../components/LoadingArrowSpiner";
+import LoadingArrowSpiner from "@/components/common/LoadingArrowSpiner";
 import {
   AddressMap,
   SafeTransactionSelector,

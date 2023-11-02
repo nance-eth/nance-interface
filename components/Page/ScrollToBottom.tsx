@@ -1,7 +1,7 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 
-export default function JumpToTopOrBottom() {
+export default function ScrollToBottom() {
   const [showTopButton, setShowTopButton] = useState(false);
   const [showBottomButton, setShowBottomButton] = useState(false);
 
@@ -22,10 +22,10 @@ export default function JumpToTopOrBottom() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -33,7 +33,7 @@ export default function JumpToTopOrBottom() {
   const handleTopClick = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
@@ -41,19 +41,25 @@ export default function JumpToTopOrBottom() {
   const handleBottomClick = () => {
     window.scrollTo({
       top: document.body.scrollHeight,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   };
 
   return (
-    <div className="z-50 fixed bottom-0 opacity-50">
+    <div className="fixed bottom-0 z-50 opacity-50">
       {showTopButton && (
-        <button className="fixed bottom-2 left-2 h-10 w-10 md:bottom-6 md:left-6 md:h-15 md:w-15 rounded-full bg-white border" onClick={handleTopClick}>
+        <button
+          className="md:h-15 md:w-15 fixed bottom-2 left-2 h-10 w-10 rounded-full border bg-white md:bottom-6 md:left-6"
+          onClick={handleTopClick}
+        >
           <ChevronUpIcon />
         </button>
       )}
       {showBottomButton && (
-        <button className="fixed bottom-2 right-2 h-10 w-10 md:bottom-6 md:right-6 md:h-15 md:w-15 rounded-full bg-white border" onClick={handleBottomClick}>
+        <button
+          className="md:h-15 md:w-15 fixed bottom-2 right-2 h-10 w-10 rounded-full border bg-white md:bottom-6 md:right-6"
+          onClick={handleBottomClick}
+        >
           <ChevronDownIcon />
         </button>
       )}

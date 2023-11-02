@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/24/solid";
 
 import { StringParam, useQueryParams } from "next-query-params";
-import LoadingArrowSpiner from "@/components/LoadingArrowSpiner";
+import LoadingArrowSpiner from "@/components/common/LoadingArrowSpiner";
 import { SpaceInfo } from "@/models/NanceTypes";
 import { SpaceContext } from "@/context/SpaceContext";
 

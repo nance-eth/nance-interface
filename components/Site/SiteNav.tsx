@@ -1,15 +1,15 @@
-import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import Head from 'next/head';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import Image from 'next/image';
+import { Disclosure } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import Head from "next/head";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import Image from "next/image";
 
 interface SiteNavProps {
-  pageTitle: string,
-  description?: string,
-  image?: string
+  pageTitle: string;
+  description?: string;
+  image?: string;
   withWallet?: boolean;
   space?: string;
   proposalId?: string;
@@ -17,14 +17,23 @@ interface SiteNavProps {
   withSiteSuffixInTitle?: boolean;
 }
 
-export default function SiteNav({ pageTitle, description, image, withWallet, space, proposalId, withProposalButton = true, withSiteSuffixInTitle = true }: SiteNavProps) {
+export default function SiteNav({
+  pageTitle,
+  description,
+  image,
+  withWallet,
+  space,
+  proposalId,
+  withProposalButton = true,
+  withSiteSuffixInTitle = true,
+}: SiteNavProps) {
   const router = useRouter();
 
   const homePath = space ? `/s/${space}` : "/";
   const navigation = [
-    { name: 'Home', href: homePath },
-    { name: 'Spaces', href: '/s' },
-    { name: 'Docs', href: 'https://docs.nance.app' }
+    { name: "Home", href: homePath },
+    { name: "Spaces", href: "/s" },
+    { name: "Docs", href: "https://docs.nance.app" },
   ];
 
   const meta = {
@@ -62,13 +71,13 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
         <meta name="twitter:image" content={meta.image} />
       </Head>
       <header className="min-h-full w-full">
-        <Disclosure as="nav" className="bg-white border-b border-gray-200">
+        <Disclosure as="nav" className="border-b border-gray-200 bg-white">
           {({ open }) => (
             <>
               <div className="mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+                <div className="flex h-16 justify-between">
                   <div className="flex">
-                    <div className="flex-shrink-0 flex items-center">
+                    <div className="flex flex-shrink-0 items-center">
                       <Link href="/">
                         <Image
                           className="block h-8 w-auto"
@@ -84,7 +93,7 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
                         <a
                           key={item.name}
                           href={item.href}
-                          className='border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                          className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
                         >
                           {item.name}
                         </a>
@@ -96,8 +105,9 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
                     {withProposalButton && (
                       <button
                         type="button"
-                        className="w-fit inline-flex items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 text-md font-bold disabled:text-black text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
-                        onClick={() => router.push(editProposalUrl)}>
+                        className="text-md inline-flex w-fit items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 font-bold text-white shadow-sm hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-black disabled:opacity-50"
+                        onClick={() => router.push(editProposalUrl)}
+                      >
                         {canForkProposal ? "Fork Proposal" : "New Proposal"}
                       </button>
                     )}
@@ -107,12 +117,18 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
 
                   <div className="-mr-2 flex items-center xl:hidden">
                     {/* Mobile menu button */}
-                    <Disclosure.Button className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                       <span className="sr-only">Open main menu</span>
                       {open ? (
-                        <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                        <XMarkIcon
+                          className="block h-6 w-6"
+                          aria-hidden="true"
+                        />
                       ) : (
-                        <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                        <Bars3Icon
+                          className="block h-6 w-6"
+                          aria-hidden="true"
+                        />
                       )}
                     </Disclosure.Button>
                   </div>
@@ -120,32 +136,32 @@ export default function SiteNav({ pageTitle, description, image, withWallet, spa
               </div>
 
               <Disclosure.Panel className="xl:hidden">
-                <div className="py-2 space-y-1">
+                <div className="space-y-1 py-2">
                   {navigation.map((item) => (
                     <Disclosure.Button
                       key={item.name}
                       as="a"
                       href={item.href}
-                      className='border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                      className="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
                     >
                       {item.name}
                     </Disclosure.Button>
                   ))}
                 </div>
 
-                <div className="py-2 mx-2 border-t border-gray-200 space-y-3">
+                <div className="mx-2 space-y-3 border-t border-gray-200 py-2">
                   {withProposalButton && (
                     <button
                       type="button"
-                      className="w-fit inline-flex items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 text-md font-bold disabled:text-black text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
-                      onClick={() => router.push(editProposalUrl)}>
+                      className="text-md inline-flex w-fit items-center justify-center rounded-xl border border-transparent bg-[#0E76FD] px-3 py-2 font-bold text-white shadow-sm hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-black disabled:opacity-50"
+                      onClick={() => router.push(editProposalUrl)}
+                    >
                       {canForkProposal ? "Fork Proposal" : "New Proposal"}
                     </button>
                   )}
 
                   {withWallet && <ConnectButton />}
                 </div>
-
               </Disclosure.Panel>
             </>
           )}

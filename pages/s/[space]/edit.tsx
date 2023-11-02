@@ -1,12 +1,11 @@
-import SiteNav from "@/components/SiteNav";
 import { useQueryParams, StringParam } from "next-query-params";
 import React from "react";
 import { useRouter } from "next/router";
 import { Proposal } from "@/models/NanceTypes";
 import { NANCE_API_URL } from "@/constants/Nance";
-import Footer from "@/components/Footer";
 import { getToken } from "next-auth/jwt";
 import ProposalEditForm from "@/components/pages/edit/ProposalEditForm";
+import { Footer, SiteNav } from "@/components/Site";
 
 export const ProposalMetadataContext = React.createContext({
   loadedProposal: null as Proposal | null,

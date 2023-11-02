@@ -1,5 +1,4 @@
 import { useVotesOfAddress } from "@/utils/hooks/snapshot/Proposals";
-import SiteNav from "@/components/SiteNav";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import {
   withDefault,
@@ -8,10 +7,9 @@ import {
   StringParam,
 } from "next-query-params";
 import { processChoices } from "@/utils/functions/snapshotUtil";
-import ScrollToBottom from "@/components/ScrollToBottom";
-import Footer from "@/components/Footer";
+import { ScrollToBottom } from "@/components/Page";
 import Link from "next/link";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/Page/Pagination";
 import { shortenAddress } from "@/utils/functions/address";
 import { classNames } from "@/utils/functions/tailwind";
 import { useAllSpaceInfo } from "@/utils/hooks/NanceHooks";
@@ -28,6 +26,7 @@ import {
 import Image from "next/image";
 import { NetworkContext } from "@/context/NetworkContext";
 import { getAddressLink } from "@/utils/functions/EtherscanURL";
+import { Footer, SiteNav } from "@/components/Site";
 
 const getColorOfChoice = (choice: string) => {
   if (choice == "For") {
