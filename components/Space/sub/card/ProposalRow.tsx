@@ -5,7 +5,7 @@ import NewVoteButton from "../../../NewVoteButton";
 import getVotedIcon from "./VoteIcon";
 import ProposalBadgeLabel from "./ProposalBadgeLabel";
 import { Proposal } from "@/models/NanceTypes";
-import ColorBar from "../../../ColorBar";
+import ColorBar from "@/components/common/ColorBar";
 import FormattedAddress from "@/components/Address/FormattedAddress";
 
 export default function ProposalRow({

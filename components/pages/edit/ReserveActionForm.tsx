@@ -8,13 +8,13 @@ import { useCurrentFundingCycle } from "../../../utils/hooks/juicebox/CurrentFun
 import { useCurrentSplits } from "../../../utils/hooks/juicebox/CurrentSplits";
 import { JBConstants } from "../../../models/JuiceboxTypes";
 import { JBSplitNanceStruct } from "../../../models/NanceTypes";
-import GenericButton from "../../GenericButton";
 import AddressForm from "../../form/AddressForm";
 import BooleanForm from "../../form/BooleanForm";
 import NumberForm from "../../form/NumberForm";
 import ProjectForm from "../../form/ProjectForm";
 import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
 import JBSplitEntryDetailed from "@/components/Address/JBSplitEntryDetailed";
+import GenericButton from "@/components/common/GenericButton";
 
 export default function ReserveActionForm({
   genFieldName,

@@ -1,5 +1,5 @@
 import { formatDistanceToNowStrict, toDate } from "date-fns";
-import ColorBar, { JB_THRESHOLD } from "../../../ColorBar";
+import ColorBar, { JB_THRESHOLD } from "@/components/common/ColorBar";
 import { SnapshotProposal } from "@/utils/hooks/snapshot/Proposals";
 import { Proposal } from "@/models/NanceTypes";
 import { ClockIcon, PencilSquareIcon } from "@heroicons/react/24/solid";

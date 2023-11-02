@@ -10,9 +10,8 @@ import Link from "next/link";
 import { Fragment, useContext, useState } from "react";
 import { canEditProposal } from "@/utils/functions/nance";
 import { classNames } from "@/utils/functions/tailwind";
-import ColorBar from "../../ColorBar";
+import ColorBar from "@/components/common/ColorBar";
 import { SnapshotProposal } from "@/utils/hooks/snapshot/Proposals";
-import Notification from "../../Notification";
 import {
   Proposal,
   ProposalDeleteRequest,
@@ -25,6 +24,7 @@ import { useSession } from "next-auth/react";
 import ProposalVotes from "./ProposalVotes";
 import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
 import ResultModal from "../../modal/ResultModal";
+import Notification from "@/components/common/Notification";
 
 const ProposalStatus = [
   {

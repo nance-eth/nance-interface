@@ -12,7 +12,7 @@ import {
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import { processChoices } from "@/utils/functions/snapshotUtil";
 import { classNames } from "@/utils/functions/tailwind";
-import ColorBar from "../../ColorBar";
+import ColorBar from "@/components/common/ColorBar";
 import NewVoteButton from "../../NewVoteButton";
 import VoterProfile from "../../VoterProfile";
 import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
