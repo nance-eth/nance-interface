@@ -5,15 +5,15 @@ import {
   DiscordChannel,
   DiscordGuild,
   DiscordRole,
-} from "../models/DiscordTypes";
-import { addBotUrl, guildIconBaseUrl } from "../utils/functions/discordURL";
+} from "@/models/DiscordTypes";
+import { addBotUrl, guildIconBaseUrl } from "@/utils/functions/discordURL";
 import {
   useFetchDiscordGuilds,
   useFetchDiscordChannels,
   useIsBotMemberOfGuild,
   useFetchDiscordGuildRoles,
-} from "../utils/hooks/DiscordHooks";
-import { DiscordConfig } from "../models/NanceTypes";
+} from "@/utils/hooks/DiscordHooks";
+import { DiscordConfig } from "@/models/NanceTypes";
 import GenericListbox from "@/components/common/GenericListbox";
 
 const TEXT_CHANNEL = 0;

@@ -18,17 +18,18 @@ import {
 } from "../utils/hooks/DiscordHooks";
 import { Session } from "next-auth";
 import { useEffect, useState } from "react";
-import ProjectForm from "../components/form/ProjectForm";
-import SnapshotForm from "../components/form/SnapshotForm";
-import DiscordForm from "../components/form/DiscordForm";
-import GovernanceCyleForm from "../components/form/GovernanceCycleForm";
-import ToggleSwitch from "../components/ToggleSwitch";
-import { TextInput } from "../components/form/TextForm";
-import GnosisSafeForm from "../components/form/GnosisSafeForm";
-import { discordAuthWindow } from "../utils/functions/discord";
+import ProjectForm from "@/components/form/ProjectForm";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
+import { discordAuthWindow } from "@/utils/functions/discord";
+import {
+  DiscordForm,
+  GnosisSafeForm,
+  GovernanceCyleForm,
+  SnapshotForm,
+  TextForm,
+} from "@/components/CreateSpace";
 
 export default function CreateSpacePage() {
-  const router = useRouter();
   // state
   const [shouldFetchDiscordUser, setShouldFetchDiscordUser] = useState(false);
   // hooks
@@ -164,8 +165,7 @@ function Form({ session }: { session: Session }) {
   const {
     register,
     handleSubmit,
-    control,
-    formState: { errors, isValid },
+    formState: { isValid },
     watch,
   } = methods;
   const onSubmit: SubmitHandler<CreateFormValues> = async (formData) => {
@@ -205,14 +205,14 @@ function Form({ session }: { session: Session }) {
         />
       )}
       <form className="flex flex-col lg:m-6" onSubmit={handleSubmit(onSubmit)}>
-        <TextInput
+        <TextForm
           label="Nance space name"
           name="config.name"
           register={register}
         />
         <DiscordForm session={session} />
         <SnapshotForm session={session} />
-        <TextInput
+        <TextForm
           label="Proposal ID Prefix"
           name="config.proposalIdPrefix"
           register={register}

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Tooltip } from "flowbite-react";
-import GovernanceCalendarMini from '../GovernanceCalendarMini';
-import GovernanceCalendarKey from "../GovernanceCalendarKey";
-import TimePicker from "../TimePicker";
+import TimePicker from "./sub/TimePicker";
+import GovernanceCalendarKey from "./sub/GovernanceCalendarKey";
+import GovernanceCalendarMini from "./sub/GovernanceCalendarMini";
 
 export default function GovernanceCyleForm() {
-  const { register, formState: { errors }, setValue } = useFormContext();
+  const { register, setValue } = useFormContext();
 
   const [temperatureCheckLength, setTemperatureCheckLength] = useState(3);
   const [voteLength, setVoteLength] = useState(4);
@@ -16,9 +16,20 @@ export default function GovernanceCyleForm() {
   const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
-    setTotalCycleLength(Number(temperatureCheckLength) + Number(voteLength) + Number(executionLength) + Number(delayLength));
-    setValue('governanceCycleForm.startDate', startDate);
-  }, [temperatureCheckLength, voteLength, executionLength, delayLength, startDate]);
+    setTotalCycleLength(
+      Number(temperatureCheckLength) +
+        Number(voteLength) +
+        Number(executionLength) +
+        Number(delayLength),
+    );
+    setValue("governanceCycleForm.startDate", startDate);
+  }, [
+    temperatureCheckLength,
+    voteLength,
+    executionLength,
+    delayLength,
+    startDate,
+  ]);
 
   return (
     <div>
@@ -55,19 +66,19 @@ export default function GovernanceCyleForm() {
         register={register}
         onChange={setDelayLength}
       />
-      <div className="inline-flex items-center rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-600 mt-2">
+      <div className="mt-2 inline-flex items-center rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-600">
         Total Days: {totalCycleLength}
       </div>
-      <div className="flex-col mb-1 w-80">
+      <div className="mb-1 w-80 flex-col">
         <div className="inline-flex">
-          <label className="block text-sm font-medium text-gray-700 mt-2">
+          <label className="mt-2 block text-sm font-medium text-gray-700">
             Select Start Date
           </label>
           <GovernanceCalendarKey />
         </div>
         <input
           type="hidden"
-          {...register('governanceCycleForm.startDate')}
+          {...register("governanceCycleForm.startDate")}
           value={startDate.toUTCString()}
         />
         <GovernanceCalendarMini
@@ -84,19 +95,36 @@ export default function GovernanceCyleForm() {
 }
 
 const SmallNumberInput = ({
-  label, name, register, defaultValue, tooltipContent, className, badgeContent='days', onChange } :
-  {label: string, name: string, register: any, defaultValue: number, tooltipContent?: string, className?: string, badgeContent?: string, onChange?: any
-  }) => {
+  label,
+  name,
+  register,
+  defaultValue,
+  tooltipContent,
+  className,
+  badgeContent = "days",
+  onChange,
+}: {
+  label: string;
+  name: string;
+  register: any;
+  defaultValue: number;
+  tooltipContent?: string;
+  className?: string;
+  badgeContent?: string;
+  onChange?: any;
+}) => {
   return (
     <div>
-      <div className="flex mb-2 mt-2 w-80">
-        <label className="block text-sm font-medium text-gray-700 mt-2">
+      <div className="mb-2 mt-2 flex w-80">
+        <label className="mt-2 block text-sm font-medium text-gray-700">
           {label}
         </label>
         {tooltipContent && (
           <div className="ml-1 mt-1">
             <Tooltip content={tooltipContent}>
-              <span className="inline-flex items-center justify-center h-4 w-4 text-xs rounded-full bg-gray-400 text-white">?</span>
+              <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-400 text-xs text-white">
+                ?
+              </span>
             </Tooltip>
           </div>
         )}
@@ -104,18 +132,16 @@ const SmallNumberInput = ({
       <div className="mt-1 flex">
         <div className="flex rounded-md border-gray-300 bg-white shadow-sm focus-within:border-indigo-500 focus-within:ring-indigo-500 sm:text-sm">
           <input
-            {...register(name,
-              { shouldUnregister: true })}
-            className="block w-16 rounded-md rounded-r-none border-gray-300 bg-white h-7 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 text-xs"
+            {...register(name, { shouldUnregister: true })}
+            className="block h-7 w-16 rounded-md rounded-r-none border-gray-300 bg-white text-xs shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
             type="number"
             min={0}
             defaultValue={defaultValue}
             onChange={(e) => {
               onChange(e.target.value);
             }}
-          >
-          </input>
-          <span className="flex items-center px-2 text-xs text-gray-500 bg-gray-100 rounded-l-none rounded-r-md border border-l-0 border-gray-300">
+          ></input>
+          <span className="flex items-center rounded-l-none rounded-r-md border border-l-0 border-gray-300 bg-gray-100 px-2 text-xs text-gray-500">
             {badgeContent}
           </span>
         </div>
