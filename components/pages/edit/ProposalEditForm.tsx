@@ -19,8 +19,8 @@ import {
   FormProvider,
   Controller,
 } from "react-hook-form";
-import { useProposalUpload } from "../../../utils/hooks/NanceHooks";
-import { classNames } from "../../../utils/functions/tailwind";
+import { useProposalUpload } from "@/utils/hooks/NanceHooks";
+import { classNames } from "@/utils/functions/tailwind";
 import {
   CustomTransaction,
   ProposalUploadRequest,
@@ -29,15 +29,18 @@ import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
 import MiddleStepModal from "../../modal/MiddleStepModal";
 import Actions from "./Actions";
 import { driverSteps } from "./GuideSteps";
-import useLocalStorage from "../../../utils/hooks/LocalStorage";
+import useLocalStorage from "@/utils/hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
 import { Editor } from "@toast-ui/react-editor";
-import { getMarkdown, setMarkdown } from "./editor/helpers";
+import { getMarkdown, setMarkdown } from "@/components/Markdown/utils";
 
 const ResultModal = dynamic(() => import("../../modal/ResultModal"), {
   ssr: false,
 });
-const TextEditor = dynamic(() => import("./editor/Editor"), { ssr: false });
+const MarkdownEditor = dynamic(
+  () => import("@/components/Markdown/MarkdownEditor"),
+  { ssr: false },
+);
 const UIGuide = dynamic(() => import("@/components/common/UIGuide"), {
   ssr: false,
 });
@@ -335,7 +338,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
                     control={control}
                     defaultValue={metadata.loadedProposal?.body || TEMPLATE}
                     render={({ field: { onChange } }) => (
-                      <TextEditor
+                      <MarkdownEditor
                         parentRef={editorRef}
                         onEditorChange={(value) => {
                           if (!cacheModalIsOpen) {
