@@ -11,7 +11,7 @@ import { infuraProvider } from "wagmi/providers/infura";
 import { NextQueryParamProvider } from "next-query-params";
 
 import { Flowbite } from "flowbite-react";
-import ErrorBoundary from "@/components/Site/ErrorBoundary";
+import { ErrorBoundary } from "@/components/Site";
 import { Analytics } from "@vercel/analytics/react";
 
 import { SessionProvider } from "next-auth/react";
