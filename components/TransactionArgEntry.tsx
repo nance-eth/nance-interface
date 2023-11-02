@@ -1,10 +1,10 @@
 import { BigNumber, utils } from "ethers";
 import { useState } from "react";
 import { ArgEntry } from "../utils/functions/TransactionArgFormatter";
-import FormattedAddress from "./ethereum/FormattedAddress";
+import FormattedAddress from "./Address/FormattedAddress";
 
 export default function renderArgEntry(entryStr: string) {
-  if(!entryStr) return <p></p>;
+  if (!entryStr) return <p></p>;
 
   try {
     const entry: ArgEntry = JSON.parse(entryStr);
@@ -20,48 +20,48 @@ export default function renderArgEntry(entryStr: string) {
 
     return (
       <div className="hover:bg-gray-300">
-        {' '.repeat(entry.level)}
-        <span className="font-semibold mr-1">{entry.key}</span>
+        {" ".repeat(entry.level)}
+        <span className="mr-1 font-semibold">{entry.key}</span>
         {component}
       </div>
     );
-  } catch(e) {
+  } catch (e) {
     console.warn("Error parsing entryStr", entryStr);
     return <pre>{entryStr}</pre>;
   }
 }
 
-function BigNumberEntry({value}: {value: BigNumber}) {
+function BigNumberEntry({ value }: { value: BigNumber }) {
   const [unit, setUnit] = useState(0);
 
   return (
     <div className="inline-flex">
       <p className="italic">{utils.formatUnits(value, unit)}</p>
 
-      <span className="ml-1 isolate inline-flex rounded-md shadow-sm">
+      <span className="isolate ml-1 inline-flex rounded-md shadow-sm">
         <button
           onClick={() => setUnit(18)}
           disabled={unit === 18}
           type="button"
-          className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-200 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-200"
         >
-                    18
+          18
         </button>
         <button
           onClick={() => setUnit(6)}
           disabled={unit === 6}
           type="button"
-          className="relative -ml-px inline-flex items-center border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-200 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-200"
         >
-                    6
+          6
         </button>
         <button
           onClick={() => setUnit(0)}
           disabled={unit === 0}
           type="button"
-          className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:bg-gray-200 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="relative -ml-px inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:bg-gray-200"
         >
-                    0
+          0
         </button>
       </span>
     </div>
