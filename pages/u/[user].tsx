@@ -7,9 +7,8 @@ import {
   StringParam,
 } from "next-query-params";
 import { processChoices } from "@/utils/functions/snapshotUtil";
-import { ScrollToBottom } from "@/components/Page";
+import { Pagination, ScrollToBottom } from "@/components/PageButton";
 import Link from "next/link";
-import Pagination from "@/components/Page/Pagination";
 import { shortenAddress } from "@/utils/functions/address";
 import { classNames } from "@/utils/functions/tailwind";
 import { useAllSpaceInfo } from "@/utils/hooks/NanceHooks";

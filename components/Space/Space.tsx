@@ -9,7 +9,7 @@ import SpaceAction from "./sub/SpaceAction";
 import CycleSelectorAndSearchBar from "./sub/CycleSelectorAndSearchBar";
 import ProposalCards from "./sub/ProposalCards";
 import DoltCommitInfo from "./sub/DoltCommitInfo";
-import { ScrollToBottom } from "@/components/Page";
+import { ScrollToBottom } from "@/components/PageButton";
 import { driverSteps } from "./constants/DriverSteps";
 
 const UIGuide = dynamic(() => import("@/components/common/UIGuide"), {

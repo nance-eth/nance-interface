@@ -7,7 +7,7 @@ import { createContext } from "react";
 import { canEditProposal, getLastSlash } from "@/utils/functions/nance";
 import { Proposal, Action } from "@/models/NanceTypes";
 import Custom404 from "../../404";
-import { ScrollToBottom } from "@/components/Page";
+import { ScrollToBottom } from "@/components/PageButton";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getToken } from "next-auth/jwt";
 import ProposalSidebar from "@/components/pages/proposal/ProposalSidebar";
