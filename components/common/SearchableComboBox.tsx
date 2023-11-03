@@ -1,28 +1,40 @@
-import { useState } from 'react';
-import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
-import { Combobox } from '@headlessui/react';
-import { classNames } from '../utils/functions/tailwind';
+import { useState } from "react";
+import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
+import { Combobox } from "@headlessui/react";
+import { classNames } from "@/utils/functions/tailwind";
 
 export interface Option {
-    id: string
-    label: string
-    status: boolean
-    extraLabel?: string
+  id: string;
+  label: string;
+  status: boolean;
+  extraLabel?: string;
 }
 
-export default function SearchableComboBox<T extends Option>({val, setVal, options, label}: {val: T | undefined, setVal: (v: T) => void, options: T[], label: string}) {
-  const [query, setQuery] = useState('');
+export default function SearchableComboBox<T extends Option>({
+  val,
+  setVal,
+  options,
+  label,
+}: {
+  val: T | undefined;
+  setVal: (v: T) => void;
+  options: T[];
+  label: string;
+}) {
+  const [query, setQuery] = useState("");
 
   const filteredOption =
-    query === ''
+    query === ""
       ? options
       : options.filter((option) => {
-        return option.label.toLowerCase().includes(query.toLowerCase());
-      });
+          return option.label.toLowerCase().includes(query.toLowerCase());
+        });
 
   return (
     <Combobox as="div" value={val} onChange={setVal}>
-      <Combobox.Label className="block text-sm font-medium text-gray-700">{label}</Combobox.Label>
+      <Combobox.Label className="block text-sm font-medium text-gray-700">
+        {label}
+      </Combobox.Label>
       <div className="relative mt-1">
         <Combobox.Input
           className="w-full rounded-md border border-gray-300 bg-white py-2 pl-3 pr-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
@@ -31,7 +43,10 @@ export default function SearchableComboBox<T extends Option>({val, setVal, optio
           placeholder={label}
         />
         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-          <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+          <ChevronDownIcon
+            className="h-5 w-5 text-gray-400"
+            aria-hidden="true"
+          />
         </Combobox.Button>
 
         {filteredOption.length > 0 && (
@@ -42,8 +57,8 @@ export default function SearchableComboBox<T extends Option>({val, setVal, optio
                 value={option}
                 className={({ active }) =>
                   classNames(
-                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                    active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                    "relative cursor-default select-none py-2 pl-3 pr-9",
+                    active ? "bg-indigo-600 text-white" : "text-gray-900",
                   )
                 }
               >
@@ -52,23 +67,35 @@ export default function SearchableComboBox<T extends Option>({val, setVal, optio
                     <div className="flex items-center">
                       <span
                         className={classNames(
-                          'inline-block h-2 w-2 flex-shrink-0 rounded-full',
-                          option.status ? 'bg-green-400' : 'bg-gray-200'
+                          "inline-block h-2 w-2 flex-shrink-0 rounded-full",
+                          option.status ? "bg-green-400" : "bg-gray-200",
                         )}
                         aria-hidden="true"
                       />
-                      <span className={classNames('ml-3 truncate', selected && 'font-semibold')}>
+                      <span
+                        className={classNames(
+                          "ml-3 truncate",
+                          selected && "font-semibold",
+                        )}
+                      >
                         {option.label}
-                        <span className="sr-only"> is {option.status ? 'online' : 'offline'}</span>
+                        <span className="sr-only">
+                          {" "}
+                          is {option.status ? "online" : "offline"}
+                        </span>
                       </span>
-                      {option.extraLabel && (<span className="ml-3 text-gray-500">{option.extraLabel}</span>)}
+                      {option.extraLabel && (
+                        <span className="ml-3 text-gray-500">
+                          {option.extraLabel}
+                        </span>
+                      )}
                     </div>
 
                     {selected && (
                       <span
                         className={classNames(
-                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                          active ? 'text-white' : 'text-indigo-600'
+                          "absolute inset-y-0 right-0 flex items-center pr-4",
+                          active ? "text-white" : "text-indigo-600",
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />

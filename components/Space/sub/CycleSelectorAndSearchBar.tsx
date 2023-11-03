@@ -1,7 +1,7 @@
 import { Switch } from "@headlessui/react";
-import SearchableComboBoxMultiple from "../../SearchableComboBoxMultiple";
+import SearchableComboBoxMultiple from "@/components/common/SearchableComboBoxMultiple";
 import { useState } from "react";
-import { Option } from "../../SearchableComboBox";
+import { Option } from "@/components/common/SearchableComboBox";
 
 import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { classNames } from "@/utils/functions/tailwind";

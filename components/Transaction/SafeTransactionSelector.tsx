@@ -1,6 +1,8 @@
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { useMultisigTransactions } from "@/utils/hooks/SafeHooks";
-import SearchableComboBox, { Option } from "../SearchableComboBox";
+import SearchableComboBox, {
+  Option,
+} from "@/components/common/SearchableComboBox";
 import { SafeMultisigTransactionListResponse } from "@safe-global/api-kit";
 import { RevisedSafeMultisigTransactionResponse } from "@/models/SafeTypes";
 import { useQueryParams, withDefault, StringParam } from "next-query-params";
