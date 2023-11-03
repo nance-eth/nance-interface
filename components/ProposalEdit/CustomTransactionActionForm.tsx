@@ -6,12 +6,12 @@ import {
   TenderlySimulationAPIResponse,
   encodeTransactionInput,
 } from "@/utils/hooks/TenderlyHooks";
-import AddressForm from "../../form/AddressForm";
-import BooleanForm from "../../form/BooleanForm";
-import NumberForm from "../../form/NumberForm";
-import StringForm from "../../form/StringForm";
 import FunctionSelector from "./FunctionSelector";
 import TenderlySimulationButton from "@/components/TenderlySimulation/TenderlySimulationButton";
+import AddressForm from "../form/AddressForm";
+import NumberForm from "../form/NumberForm";
+import StringForm from "../form/StringForm";
+import BooleanForm from "../form/BooleanForm";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -29,7 +29,6 @@ export default function CustomTransactionActionForm({
     formState: { errors },
     getValues,
     getFieldState,
-    formState: { isDirty },
     setValue,
   } = useFormContext();
   const { replace } = useFieldArray<{

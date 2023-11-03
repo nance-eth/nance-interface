@@ -4,14 +4,9 @@ import { useRouter } from "next/router";
 import { Proposal } from "@/models/NanceTypes";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getToken } from "next-auth/jwt";
-import ProposalEditForm from "@/components/pages/edit/ProposalEditForm";
 import { Footer, SiteNav } from "@/components/Site";
-
-export const ProposalMetadataContext = React.createContext({
-  loadedProposal: null as Proposal | null,
-  fork: false as boolean,
-  space: "" as string,
-});
+import { ProposalMetadataContext } from "@/components/ProposalEdit/context/ProposalMetadataContext";
+import ProposalEditForm from "@/components/ProposalEdit/ProposalEditForm";
 
 export async function getServerSideProps({ req, query, params }: any) {
   // check proposal parameter type

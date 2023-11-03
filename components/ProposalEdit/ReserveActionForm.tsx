@@ -2,19 +2,19 @@ import { Disclosure } from "@headlessui/react";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useContext, useEffect } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
-import { ZERO_ADDRESS } from "../../../constants/Contract";
-import { useSpaceInfo } from "../../../utils/hooks/NanceHooks";
-import { useCurrentFundingCycle } from "../../../utils/hooks/juicebox/CurrentFundingCycle";
-import { useCurrentSplits } from "../../../utils/hooks/juicebox/CurrentSplits";
-import { JBConstants } from "../../../models/JuiceboxTypes";
-import { JBSplitNanceStruct } from "../../../models/NanceTypes";
-import AddressForm from "../../form/AddressForm";
-import BooleanForm from "../../form/BooleanForm";
-import NumberForm from "../../form/NumberForm";
-import ProjectForm from "../../form/ProjectForm";
-import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
+import { ZERO_ADDRESS } from "@/constants/Contract";
+import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
+import { useCurrentFundingCycle } from "@/utils/hooks/juicebox/CurrentFundingCycle";
+import { useCurrentSplits } from "@/utils/hooks/juicebox/CurrentSplits";
+import { JBConstants } from "@/models/JuiceboxTypes";
+import { JBSplitNanceStruct } from "@/models/NanceTypes";
+import AddressForm from "../form/AddressForm";
+import BooleanForm from "../form/BooleanForm";
+import NumberForm from "../form/NumberForm";
+import ProjectForm from "../form/ProjectForm";
 import JBSplitEntryDetailed from "@/components/JuiceboxCard/JBSplitEntryDetailed";
 import GenericButton from "@/components/common/GenericButton";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
 export default function ReserveActionForm({
   genFieldName,

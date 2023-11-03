@@ -21,20 +21,17 @@ import {
 } from "react-hook-form";
 import { useProposalUpload } from "@/utils/hooks/NanceHooks";
 import { classNames } from "@/utils/functions/tailwind";
-import {
-  CustomTransaction,
-  ProposalUploadRequest,
-} from "../../../models/NanceTypes";
-import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
-import MiddleStepModal from "../../modal/MiddleStepModal";
+import { CustomTransaction, ProposalUploadRequest } from "@/models/NanceTypes";
+import MiddleStepModal from "../modal/MiddleStepModal";
 import Actions from "./Actions";
 import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "@/utils/hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
 import { Editor } from "@toast-ui/react-editor";
 import { getMarkdown, setMarkdown } from "@/components/Markdown/utils";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
-const ResultModal = dynamic(() => import("../../modal/ResultModal"), {
+const ResultModal = dynamic(() => import("../modal/ResultModal"), {
   ssr: false,
 });
 const MarkdownEditor = dynamic(
