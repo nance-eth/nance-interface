@@ -1,5 +1,5 @@
 import { Reserve } from "../../models/NanceTypes";
-import JBSplitEntryDetailed from "@/components/Address/JBSplitEntryDetailed";
+import JBSplitEntryDetailed from "@/components/JuiceboxCard/JBSplitEntryDetailed";
 
 export function ReserveActionLabel({ reserve }: { reserve: Reserve }) {
   return (

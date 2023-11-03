@@ -23,7 +23,7 @@ import {
 } from "../../models/NanceTypes";
 import { getAddress } from "viem";
 import { SectionTableData } from "../../components/form/DiffTableWithSection";
-import { diff2TableEntry } from "@/components/Address/JBSplitEntry";
+import { diff2TableEntry } from "@/components/JuiceboxCard/JBSplitEntry";
 
 function mulDiv(a: BigNumber, b: BigNumber, denominator: BigNumberish) {
   return a.mul(b).div(denominator);

@@ -6,7 +6,7 @@ import {
   extractFunctionName,
   parseFunctionAbiWithNamedArgs,
 } from "@/models/NanceTypes";
-import ResolvedContract from "@/components/Address/ResolvedContract";
+import ResolvedContract from "../AddressCard/ResolvedContract";
 
 export default function CustomTransactionActionLabel({
   customTransaction,

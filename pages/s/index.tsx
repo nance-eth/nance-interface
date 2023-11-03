@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Footer, SiteNav } from "@/components/Site";
 import { useAllSpaceInfo } from "../../utils/hooks/NanceHooks";
-import ResolvedProject from "@/components/Address/ResolvedProject";
+import ResolvedProject from "@/components/JuiceboxCard/ResolvedProject";
 
 export default function NanceAllSpacePage() {
   return (

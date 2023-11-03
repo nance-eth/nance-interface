@@ -1,6 +1,6 @@
 import { JBConstants } from "@/models/JuiceboxTypes";
-import FormattedAddress from "./FormattedAddress";
 import ResolvedProject from "./ResolvedProject";
+import FormattedAddress from "../AddressCard/FormattedAddress";
 
 export default function JBSplitEntryDetailed({
   beneficiary,

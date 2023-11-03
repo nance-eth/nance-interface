@@ -13,7 +13,7 @@ import BooleanForm from "../../form/BooleanForm";
 import NumberForm from "../../form/NumberForm";
 import ProjectForm from "../../form/ProjectForm";
 import { ProposalMetadataContext } from "../../../pages/s/[space]/edit";
-import JBSplitEntryDetailed from "@/components/Address/JBSplitEntryDetailed";
+import JBSplitEntryDetailed from "@/components/JuiceboxCard/JBSplitEntryDetailed";
 import GenericButton from "@/components/common/GenericButton";
 
 export default function ReserveActionForm({

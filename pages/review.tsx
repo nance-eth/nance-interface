@@ -11,7 +11,6 @@ import useProjectInfo from "../utils/hooks/juicebox/ProjectInfo";
 import { RevisedSafeMultisigTransactionResponse } from "../models/SafeTypes";
 import parseSafeJuiceboxTx from "../utils/functions/SafeJuiceboxParser";
 import { useReconfigurationOfProject } from "../utils/hooks/juicebox/ReconfigurationOfProject";
-import JBProjectInfo from "../components/pages/review/JBProjectInfo";
 import DiffTableWithSection from "../components/form/DiffTableWithSection";
 import {
   calcDiffTableData,
@@ -25,6 +24,7 @@ import {
   TxOption,
 } from "@/components/Transaction/SafeTransactionSelector";
 import ProjectSearch from "@/components/ProjectSearch";
+import JBProjectInfo from "@/components/JuiceboxCard/JBProjectInfo";
 
 const CONTRACT_MAP: AddressMap = {
   "0xFFdD70C318915879d5192e8a0dcbFcB0285b3C98": "JBController_V3",

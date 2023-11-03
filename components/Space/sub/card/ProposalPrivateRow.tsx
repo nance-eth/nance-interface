@@ -1,4 +1,4 @@
-import FormattedAddress from "@/components/Address/FormattedAddress";
+import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { classNames } from "@/utils/functions/tailwind";
 import ProposalBadgeLabel from "./ProposalBadgeLabel";
 

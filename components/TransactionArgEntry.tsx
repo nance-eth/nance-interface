@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
 import { useState } from "react";
 import { ArgEntry } from "../utils/functions/TransactionArgFormatter";
-import FormattedAddress from "./Address/FormattedAddress";
+import FormattedAddress from "./AddressCard/FormattedAddress";
 
 export default function renderArgEntry(entryStr: string) {
   if (!entryStr) return <p></p>;

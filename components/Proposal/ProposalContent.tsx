@@ -4,7 +4,7 @@ import { useContext, Fragment } from "react";
 import { canEditProposal } from "@/utils/functions/nance";
 import ProposalNavigator from "./ProposalNavigator";
 import ProposalMetadata from "./ProposalMetadata";
-import FormattedAddress from "@/components/Address/FormattedAddress";
+import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import MarkdownWithTOC from "@/components/Markdown/MarkdownWithTOC";
 import { ProposalContext } from "./context/ProposalContext";
 

@@ -6,7 +6,7 @@ import getVotedIcon from "./VoteIcon";
 import ProposalBadgeLabel from "./ProposalBadgeLabel";
 import { Proposal } from "@/models/NanceTypes";
 import ColorBar from "@/components/common/ColorBar";
-import FormattedAddress from "@/components/Address/FormattedAddress";
+import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 
 export default function ProposalRow({
   proposal,

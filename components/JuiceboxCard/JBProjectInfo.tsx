@@ -6,7 +6,7 @@ import {
 } from "next-query-params";
 import Image from "next/image";
 import useProjectMetadata from "@/utils/hooks/juicebox/ProjectMetadata";
-import ResolvedProject from "@/components/Address/ResolvedProject";
+import ResolvedProject from "./ResolvedProject";
 
 export default function JBProjectInfo({
   metadataUri,

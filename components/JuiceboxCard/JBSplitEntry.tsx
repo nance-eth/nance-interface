@@ -2,8 +2,8 @@ import { SplitDiffEntry, keyOfSplit } from "@/utils/functions/juicebox";
 import { classNames } from "@/utils/functions/tailwind";
 import { JBSplit } from "@/models/JuiceboxTypes";
 import { Status, SectionTableData } from "../form/DiffTableWithSection";
-import FormattedAddress from "./FormattedAddress";
 import ResolvedProject from "./ResolvedProject";
+import FormattedAddress from "../AddressCard/FormattedAddress";
 
 export default function JBSplitEntry({
   mod,

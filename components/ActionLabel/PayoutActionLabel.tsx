@@ -1,6 +1,6 @@
 import { payout2JBSplit } from "@/utils/functions/juicebox";
 import { Payout } from "@/models/NanceTypes";
-import JBSplitEntry from "@/components/Address/JBSplitEntry";
+import JBSplitEntry from "@/components/JuiceboxCard/JBSplitEntry";
 
 export default function PayoutActionLabel({ payout }: { payout: Payout }) {
   return (
