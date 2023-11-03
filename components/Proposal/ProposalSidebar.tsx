@@ -22,9 +22,9 @@ import { openInDiscord } from "@/utils/functions/discord";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import ProposalVotes from "./ProposalVotes";
-import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
-import ResultModal from "../../modal/ResultModal";
 import Notification from "@/components/common/Notification";
+import { ProposalContext } from "./context/ProposalContext";
+import ResultModal from "../modal/ResultModal";
 
 const ProposalStatus = [
   {
@@ -67,10 +67,8 @@ export default function ProposalSidebar({
   const { commonProps } = useContext(ProposalContext);
 
   const {
-    isMutating,
     error: uploadError,
     trigger,
-    data,
     reset,
   } = useProposalUpload(space, proposal?.hash, router.isReady);
   const {

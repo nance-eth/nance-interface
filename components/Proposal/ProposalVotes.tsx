@@ -15,8 +15,8 @@ import { classNames } from "@/utils/functions/tailwind";
 import ColorBar from "@/components/common/ColorBar";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
 import VoterProfile from "@/components/Vote/VoterProfile";
-import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
 import FormattedAddress from "@/components/Address/FormattedAddress";
+import { ProposalContext } from "./context/ProposalContext";
 
 const getColorOfChoice = (choice: string) => {
   if (choice == "For") {

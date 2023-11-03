@@ -2,11 +2,11 @@ import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useContext, Fragment } from "react";
 import { canEditProposal } from "@/utils/functions/nance";
-import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
 import ProposalNavigator from "./ProposalNavigator";
 import ProposalMetadata from "./ProposalMetadata";
 import FormattedAddress from "@/components/Address/FormattedAddress";
 import MarkdownWithTOC from "@/components/Markdown/MarkdownWithTOC";
+import { ProposalContext } from "./context/ProposalContext";
 
 export default function ProposalContent({ body }: { body: string }) {
   const { commonProps } = useContext(ProposalContext);

@@ -4,15 +4,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import { useProposal } from "@/utils/hooks/NanceHooks";
-import {
-  ProposalCommonProps,
-  ProposalContext,
-} from "../../../pages/s/[space]/[proposal]";
+import { ProposalContext } from "./context/ProposalContext";
 
 export default function ProposalNavigator() {
   // pre load prev and next proposal
   let { commonProps } = useContext(ProposalContext);
-  commonProps = commonProps as ProposalCommonProps;
 
   const proposalId = commonProps.proposalId;
 

@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
-import {
-  SnapshotProposal,
-  useProposalsByID,
-} from "@/utils/hooks/snapshot/Proposals";
-import { createContext } from "react";
+import { useProposalsByID } from "@/utils/hooks/snapshot/Proposals";
 import { canEditProposal, getLastSlash } from "@/utils/functions/nance";
-import { Proposal, Action } from "@/models/NanceTypes";
+import { Proposal } from "@/models/NanceTypes";
 import Custom404 from "../../404";
 import { ScrollToBottom } from "@/components/PageButton";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getToken } from "next-auth/jwt";
-import ProposalSidebar from "@/components/pages/proposal/ProposalSidebar";
-import ProposalContent from "@/components/pages/proposal/ProposalContent";
-import ProposalOptions from "@/components/pages/proposal/ProposalOptions";
-import ProposalLoading from "@/components/pages/proposal/ProposalLoading";
+import ProposalSidebar from "@/components/Proposal/ProposalSidebar";
+import ProposalContent from "@/components/Proposal/ProposalContent";
+import ProposalOptions from "@/components/Proposal/ProposalOptions";
+import ProposalLoading from "@/components/Proposal/ProposalLoading";
 import { getFirstParagraphOfMarkdown } from "@/utils/functions/markdown";
 import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { ZERO_ADDRESS } from "@/constants/Contract";
 import { Footer, SiteNav } from "@/components/Site";
+import {
+  ProposalCommonProps,
+  ProposalContext,
+} from "@/components/Proposal/context/ProposalContext";
 
 export async function getServerSideProps({ req, params, res }: any) {
   let proposal: Proposal;
@@ -52,52 +52,6 @@ export async function getServerSideProps({ req, params, res }: any) {
     },
   };
 }
-
-export interface ProposalCommonProps {
-  space: string;
-  snapshotSpace: string;
-  status: string;
-  title: string;
-  author: string;
-  coauthors: string[];
-  body: string;
-  created: number;
-  end: number;
-  snapshot: string;
-  snapshotHash: string;
-  ipfs: string;
-  discussion: string;
-  governanceCycle: number;
-  uuid: string;
-  actions: Action[];
-  proposalId: number;
-}
-
-export const ProposalContext = createContext<{
-  commonProps: ProposalCommonProps;
-  proposalInfo: SnapshotProposal | undefined;
-}>({
-  commonProps: {
-    space: "",
-    snapshotSpace: "",
-    status: "",
-    title: "",
-    author: "",
-    coauthors: [],
-    body: "",
-    created: 0,
-    end: 0,
-    snapshot: "",
-    snapshotHash: "",
-    ipfs: "",
-    discussion: "",
-    governanceCycle: 0,
-    uuid: "",
-    actions: [],
-    proposalId: 0,
-  },
-  proposalInfo: undefined,
-});
 
 export default function NanceProposalPage({
   space,

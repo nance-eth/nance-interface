@@ -1,11 +1,11 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { format, toDate } from "date-fns";
-import { NANCE_API_URL } from "../../../constants/Nance";
-import { openInDiscord } from "../../../utils/functions/discord";
+import { NANCE_API_URL } from "@/constants/Nance";
+import { openInDiscord } from "@/utils/functions/discord";
 import { useContext } from "react";
-import { ProposalContext } from "../../../pages/s/[space]/[proposal]";
 import Link from "next/link";
 import ActionLabel from "@/components/ActionLabel/ActionLabel";
+import { ProposalContext } from "./context/ProposalContext";
 
 export default function ProposalMetadata() {
   const { commonProps } = useContext(ProposalContext);
