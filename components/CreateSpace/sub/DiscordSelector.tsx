@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Session } from "next-auth";
-import { DiscordChannel, DiscordGuild, DiscordRole } from "@/models/DiscordTypes";
+import {
+  DiscordChannel,
+  DiscordGuild,
+  DiscordRole,
+} from "@/models/DiscordTypes";
 import { addBotUrl, getGuildIconUrl } from "@/utils/functions/discordURL";
-import { formatGuilds, formatChannels, formatRoles, fetchDiscordInitialValues } from '@/utils/functions/discord';
+import {
+  managedGuildsOf,
+  formatChannels,
+  formatRoles,
+  fetchDiscordInitialValues,
+} from "@/utils/functions/discord";
 import {
   useFetchDiscordGuilds,
   useFetchDiscordChannels,
@@ -27,17 +36,34 @@ export default function DiscordSelector({
   const router = useRouter();
 
   // state
-  const [selectedGuild, setSelectedGuild] = useState<DiscordGuild | undefined>();
-  const [selectedProposalChannel, setSelectedProposalChannel] = useState<DiscordChannel | undefined>();
-  const [selectedAlertChannel, setSelectedAlertChannel] = useState<DiscordChannel | undefined>();
-  const [selectedAlertRole, setSelectedAlertRole] = useState<DiscordRole | undefined>();
+  const [selectedGuild, setSelectedGuild] = useState<
+    DiscordGuild | undefined
+  >();
+  const [selectedProposalChannel, setSelectedProposalChannel] = useState<
+    DiscordChannel | undefined
+  >();
+  const [selectedAlertChannel, setSelectedAlertChannel] = useState<
+    DiscordChannel | undefined
+  >();
+  const [selectedAlertRole, setSelectedAlertRole] = useState<
+    DiscordRole | undefined
+  >();
   const [configLoaded, setConfigLoaded] = useState<boolean>(false);
 
   // hooks
-  const { data: guilds } = useFetchDiscordGuilds({ address: session.user?.name });
-  const { data: channels, trigger: channelsTrigger } = useFetchDiscordChannels({ guildId: selectedGuild?.id });
-  const { data: botIsMember, trigger: memberTrigger } = useIsBotMemberOfGuild({ guildId: selectedGuild?.id }, router.isReady);
-  const { data: roles, trigger: rolesTrigger } = useFetchDiscordGuildRoles({ guildId: selectedGuild?.id });
+  const { data: guilds } = useFetchDiscordGuilds({
+    address: session.user?.name,
+  });
+  const { data: channels, trigger: channelsTrigger } = useFetchDiscordChannels({
+    guildId: selectedGuild?.id,
+  });
+  const { data: botIsMember, trigger: memberTrigger } = useIsBotMemberOfGuild(
+    { guildId: selectedGuild?.id },
+    router.isReady,
+  );
+  const { data: roles, trigger: rolesTrigger } = useFetchDiscordGuildRoles({
+    guildId: selectedGuild?.id,
+  });
 
   const resetRolesAndChannels = () => {
     setSelectedProposalChannel(undefined);
@@ -55,7 +81,12 @@ export default function DiscordSelector({
     }
     if (discordConfig && !configLoaded && guilds) {
       (async () => {
-        const { guild, proposalChannel, alertChannel, role } = await fetchDiscordInitialValues({ address: session.user?.name, discordConfig: discordConfig!, guilds });
+        const { guild, proposalChannel, alertChannel, role } =
+          await fetchDiscordInitialValues({
+            address: session.user?.name,
+            discordConfig: discordConfig!,
+            guilds,
+          });
         setSelectedGuild(guild);
         setSelectedProposalChannel(proposalChannel);
         setSelectedAlertChannel(alertChannel);
@@ -76,7 +107,7 @@ export default function DiscordSelector({
         }}
         label="Select a Discord Server"
         disabled={!guilds || !!discordConfig}
-        items={formatGuilds(guilds)}
+        items={managedGuildsOf(guilds)}
       />
 
       {/* add bot to server button */}
@@ -86,7 +117,11 @@ export default function DiscordSelector({
             <button
               type="button"
               onClick={() => {
-                window.open(addBotUrl(selectedGuild.id), "_blank", "width=400,height=700,noopener,noreferrer");
+                window.open(
+                  addBotUrl(selectedGuild.id),
+                  "_blank",
+                  "width=400,height=700,noopener,noreferrer",
+                );
                 if (selectedGuild && !botIsMember) {
                   const interval = setInterval(memberTrigger, 1000);
                   if (botIsMember) {
@@ -112,7 +147,9 @@ export default function DiscordSelector({
           setVal({ ...val, channelIds: { proposals: channel.id } });
         }}
         label="Select a channel to post proposals"
-        disabled={!selectedGuild || !botIsMember || !channels || !!discordConfig}
+        disabled={
+          !selectedGuild || !botIsMember || !channels || !!discordConfig
+        }
         items={formatChannels(channels)}
       />
 
@@ -126,7 +163,9 @@ export default function DiscordSelector({
           setVal({ ...val, reminder: { channelIds: [channel.id] } });
         }}
         label="Select a channel to send daily alerts"
-        disabled={!selectedGuild || !botIsMember || !channels || !!discordConfig}
+        disabled={
+          !selectedGuild || !botIsMember || !channels || !!discordConfig
+        }
         items={formatChannels(channels)}
       />
 
