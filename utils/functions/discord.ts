@@ -105,6 +105,7 @@ export const formatChannels = (
     .sort((a, b) => a.name.localeCompare(b.name)); // sort alphabetically
 };
 
+// TODO: what can this be used?
 export async function fetchDiscordInitialValues(args: {
   address?: string | null;
   discordConfig: DiscordConfig;

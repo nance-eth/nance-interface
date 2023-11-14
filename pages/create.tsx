@@ -18,8 +18,8 @@ import {
   TextForm,
 } from "@/components/CreateSpace";
 import { SiteNav } from "@/components/Site";
-import ConnectWalletButton from '@/components/common/ConnectWalletButton';
-import DiscordUser from '@/components/CreateSpace/sub/DiscordUser';
+import ConnectWalletButton from "@/components/common/ConnectWalletButton";
+import DiscordUser from "@/components/CreateSpace/sub/DiscordUser";
 
 export default function CreateSpacePage() {
   // hooks
@@ -28,7 +28,11 @@ export default function CreateSpacePage() {
 
   return (
     <>
-      <SiteNav pageTitle="nance control panel" withProposalButton={false} withWallet />
+      <SiteNav
+        pageTitle="nance control panel"
+        withProposalButton={false}
+        withWallet
+      />
 
       <div className="flex justify-center">
         <div className="w-100">
@@ -117,7 +121,7 @@ function Form({ session }: { session: Session }) {
           name="config.name"
           register={register}
         />
-        <DiscordForm session={session} />
+        <DiscordForm />
         <SnapshotForm session={session} />
         <TextForm
           label="Proposal ID Prefix"
