@@ -1,26 +1,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Session } from "next-auth";
-import {
-  DiscordChannel,
-  DiscordGuild,
-  DiscordRole,
-} from "@/models/DiscordTypes";
+import { DiscordGuild, DiscordRole } from "@/models/DiscordTypes";
 import { addBotUrl, getGuildIconUrl } from "@/utils/functions/discordURL";
 import {
   managedGuildsOf,
-  formatChannels,
   formatRoles,
   fetchDiscordInitialValues,
 } from "@/utils/functions/discord";
 import {
   useFetchDiscordGuilds,
-  useFetchDiscordChannels,
   useIsBotMemberOfGuild,
   useFetchDiscordGuildRoles,
 } from "@/utils/hooks/DiscordHooks";
 import { DiscordConfig } from "@/models/NanceTypes";
 import GenericListbox from "@/components/common/GenericListbox";
+import DiscordChannelForm from "./DiscordChannelForm";
 
 export default function DiscordSelector({
   session,
@@ -39,12 +34,6 @@ export default function DiscordSelector({
   const [selectedGuild, setSelectedGuild] = useState<
     DiscordGuild | undefined
   >();
-  const [selectedProposalChannel, setSelectedProposalChannel] = useState<
-    DiscordChannel | undefined
-  >();
-  const [selectedAlertChannel, setSelectedAlertChannel] = useState<
-    DiscordChannel | undefined
-  >();
   const [selectedAlertRole, setSelectedAlertRole] = useState<
     DiscordRole | undefined
   >();
@@ -53,9 +42,6 @@ export default function DiscordSelector({
   // hooks
   const { data: guilds } = useFetchDiscordGuilds({
     address: session.user?.name,
-  });
-  const { data: channels, trigger: channelsTrigger } = useFetchDiscordChannels({
-    guildId: selectedGuild?.id,
   });
   const { data: botIsMember, trigger: memberTrigger } = useIsBotMemberOfGuild(
     { guildId: selectedGuild?.id },
@@ -66,17 +52,15 @@ export default function DiscordSelector({
   });
 
   const resetRolesAndChannels = () => {
-    setSelectedProposalChannel(undefined);
     setSelectedAlertRole(undefined);
-    setSelectedAlertChannel(undefined);
   };
 
+  // TODO: Extract into smaller components, use props changes to trigger re-renders instead of these effects
   useEffect(() => {
     if (selectedGuild && !botIsMember) {
       memberTrigger();
     }
     if (botIsMember && !discordConfig) {
-      channelsTrigger();
       rolesTrigger();
     }
     if (discordConfig && !configLoaded && guilds) {
@@ -88,8 +72,6 @@ export default function DiscordSelector({
             guilds,
           });
         setSelectedGuild(guild);
-        setSelectedProposalChannel(proposalChannel);
-        setSelectedAlertChannel(alertChannel);
         setSelectedAlertRole(role);
         setConfigLoaded(true);
       })();
@@ -103,13 +85,13 @@ export default function DiscordSelector({
         onChange={(guild) => {
           resetRolesAndChannels();
           setSelectedGuild(guild);
+          // TODO: use config.discord.guildId instead we bundle them in a big val which can be hard to matain
           setVal({ ...val, guildId: guild.id });
         }}
         label="Select a Discord Server"
         disabled={!guilds || !!discordConfig}
         items={managedGuildsOf(guilds)}
       />
-
       {/* add bot to server button */}
       {selectedGuild && !botIsMember && (
         <>
@@ -137,36 +119,18 @@ export default function DiscordSelector({
         </>
       )}
 
-      <GenericListbox<DiscordChannel>
-        value={
-          selectedProposalChannel ||
-          ({ name: "-", id: null } as unknown as DiscordChannel)
-        }
-        onChange={(channel) => {
-          setSelectedProposalChannel(channel);
-          setVal({ ...val, channelIds: { proposals: channel.id } });
-        }}
+      <DiscordChannelForm
+        guildId={selectedGuild?.id}
         label="Select a channel to post proposals"
-        disabled={
-          !selectedGuild || !botIsMember || !channels || !!discordConfig
-        }
-        items={formatChannels(channels)}
+        fieldName="config.discord.channelIds.proposals"
+        disabled={!selectedGuild || !botIsMember || !!discordConfig}
       />
 
-      <GenericListbox<DiscordChannel>
-        value={
-          selectedAlertChannel ||
-          ({ name: "-", id: null } as unknown as DiscordChannel)
-        }
-        onChange={(channel) => {
-          setSelectedAlertChannel(channel);
-          setVal({ ...val, reminder: { channelIds: [channel.id] } });
-        }}
+      <DiscordChannelForm
+        guildId={selectedGuild?.id}
         label="Select a channel to send daily alerts"
-        disabled={
-          !selectedGuild || !botIsMember || !channels || !!discordConfig
-        }
-        items={formatChannels(channels)}
+        fieldName="config.discord.reminder.channelIds.[0]"
+        disabled={!selectedGuild || !botIsMember || !!discordConfig}
       />
 
       <GenericListbox<DiscordRole>
