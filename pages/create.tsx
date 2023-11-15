@@ -20,6 +20,8 @@ import {
 import { SiteNav } from "@/components/Site";
 import DiscordUser from "@/components/CreateSpace/sub/DiscordUser";
 import WalletConnectWrapper from "@/components/WalletConnectWrapper/WalletConnectWrapper";
+import MultipleStep from "@/components/MultipleStep/MultipleStep";
+import AestheticsStep from "@/components/CreateSpace/AestheticsStep";
 
 export default function CreateSpacePage() {
   // hooks
@@ -34,17 +36,37 @@ export default function CreateSpacePage() {
         withWallet
       />
 
-      <div className="flex justify-center">
-        <div className="w-100">
-          <h1 className="mb-5 mt-8 text-center text-lg font-bold text-gray-900">
-            Create New Nance Instance
-          </h1>
+      <div className="m-6">
+        <MultipleStep
+          steps={[
+            {
+              name: "Aesthetics",
+              content: <AestheticsStep />,
+            },
+            {
+              name: "Integrations",
+              content: (
+                <div className="flex justify-center">
+                  <div className="w-100">
+                    <h1 className="mb-5 mt-8 text-center text-lg font-bold text-gray-900">
+                      Create New Nance Instance
+                    </h1>
 
-          <WalletConnectWrapper>
-            <DiscordUser address={address} />
-            <Form session={session!} />
-          </WalletConnectWrapper>
-        </div>
+                    <WalletConnectWrapper>
+                      <DiscordUser address={address} />
+                      <Form session={session!} />
+                    </WalletConnectWrapper>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              name: "Governance Rules",
+              content: <div>governance rules placeholder</div>,
+            },
+          ]}
+          enableDefaultStyle={false}
+        />
       </div>
     </>
   );
