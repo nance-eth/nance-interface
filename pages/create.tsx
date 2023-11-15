@@ -18,8 +18,8 @@ import {
   TextForm,
 } from "@/components/CreateSpace";
 import { SiteNav } from "@/components/Site";
-import ConnectWalletButton from "@/components/common/ConnectWalletButton";
 import DiscordUser from "@/components/CreateSpace/sub/DiscordUser";
+import WalletConnectWrapper from "@/components/WalletConnectWrapper/WalletConnectWrapper";
 
 export default function CreateSpacePage() {
   // hooks
@@ -39,18 +39,11 @@ export default function CreateSpacePage() {
           <h1 className="mb-5 mt-8 text-center text-lg font-bold text-gray-900">
             Create New Nance Instance
           </h1>
-          {status === "unauthenticated" && (
-            <div className="text-center">
-              <ConnectWalletButton />
-            </div>
-          )}
 
-          {status === "authenticated" && (
-            <>
-              <DiscordUser address={address} />
-              <Form session={session} />
-            </>
-          )}
+          <WalletConnectWrapper>
+            <DiscordUser address={address} />
+            <Form session={session!} />
+          </WalletConnectWrapper>
         </div>
       </div>
     </>
