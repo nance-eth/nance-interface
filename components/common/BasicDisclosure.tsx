@@ -1,3 +1,4 @@
+import { classNames } from "@/utils/functions/tailwind";
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/20/solid";
 import { PropsWithChildren } from "react";
@@ -11,6 +12,10 @@ interface BasicDisclosureProps {
    * Whether the disclosure should be open by default.
    */
   defaultOpen?: boolean;
+  /**
+   * taildwindcss className for the disclosure.
+   */
+  className?: string;
 }
 
 /**
@@ -20,11 +25,12 @@ export default function BasicDisclosure({
   title,
   defaultOpen = false,
   children,
+  className,
 }: PropsWithChildren<BasicDisclosureProps>) {
   return (
     <Disclosure
       as="div"
-      className="rounded-lg bg-blue-100"
+      className={classNames("rounded-lg bg-blue-100", className)}
       defaultOpen={defaultOpen}
     >
       {({ open }) => (
@@ -37,7 +43,7 @@ export default function BasicDisclosure({
               } h-5 w-5 text-blue-500`}
             />
           </Disclosure.Button>
-          <Disclosure.Panel className="px-4 pb-2 pt-4 text-sm text-blue-500">
+          <Disclosure.Panel className="px-4 pb-2 pt-4" unmount={false}>
             {children}
           </Disclosure.Panel>
         </>
