@@ -8,11 +8,10 @@ import { useCreateSpace } from "@/utils/hooks/NanceHooks";
 import { Session } from "next-auth";
 import { useEffect, useState } from "react";
 import ProjectForm from "@/components/form/ProjectForm";
-import ToggleSwitch from "@/components/common/ToggleSwitch";
+import AddressForm from "@/components/form/AddressForm";
 
 import {
   DiscordForm,
-  GnosisSafeForm,
   GovernanceCycleForm,
   SnapshotForm,
   TextForm,
@@ -22,6 +21,8 @@ import DiscordUser from "@/components/CreateSpace/sub/DiscordUser";
 import WalletConnectWrapper from "@/components/WalletConnectWrapper/WalletConnectWrapper";
 import MultipleStep from "@/components/MultipleStep/MultipleStep";
 import AestheticsStep from "@/components/CreateSpace/AestheticsStep";
+import BasicDisclosure from "@/components/common/BasicDisclosure";
+import { isValidSafe } from "@/utils/hooks/SafeHooks";
 
 export default function CreateSpacePage() {
   // hooks
@@ -136,34 +137,50 @@ function Form({ session }: { session: Session }) {
           name="config.name"
           register={register}
         />
-        <DiscordForm />
-        <SnapshotForm session={session} />
-        <TextForm
-          label="Proposal ID Prefix"
-          name="config.proposalIdPrefix"
-          register={register}
-          maxLength={3}
-          placeHolder="JBP"
-          className="w-16"
-          tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
-        />
 
-        <ToggleSwitch
-          enabled={juiceboxProjectDisabled}
-          setEnabled={setJuiceboxProjectDisabled}
-          label="Link to a Juicebox Project?"
-        />
-        <div className="mb-3 mt-2">
+        <BasicDisclosure title="Setup Discord" defaultOpen className="mt-6">
+          <DiscordForm />
+        </BasicDisclosure>
+
+        <BasicDisclosure title="Setup Snapshot" defaultOpen className="mt-6">
+          <SnapshotForm session={session} />
+        </BasicDisclosure>
+
+        <BasicDisclosure title="Integrate Juicebox" className="mt-6">
           <ProjectForm
+            label="Juicebox projectId"
             fieldName="config.juicebox.projectId"
             showType={false}
-            disabled={!juiceboxProjectDisabled}
           />
-        </div>
+        </BasicDisclosure>
 
-        <GnosisSafeForm />
+        <BasicDisclosure title="Integrate Safe" className="mt-6">
+          <AddressForm
+            label="Safe address"
+            fieldName="config.juicebox.gnosisSafeAddress"
+            showType={false}
+            validate={async (e) => {
+              const isSafe = await isValidSafe(e);
+              if (!isSafe) {
+                return "Invalid Safe address";
+              }
+            }}
+          />
+        </BasicDisclosure>
 
-        <GovernanceCycleForm />
+        <BasicDisclosure title="Governance Rules" className="mt-6">
+          <TextForm
+            label="Proposal ID Prefix"
+            name="config.proposalIdPrefix"
+            register={register}
+            maxLength={3}
+            placeHolder="JBP"
+            className="w-16"
+            tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
+          />
+          <GovernanceCycleForm />
+        </BasicDisclosure>
+
         {
           <button
             type="submit"
