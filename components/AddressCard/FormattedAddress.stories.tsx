@@ -17,6 +17,7 @@ type Story = StoryObj<typeof FormattedAddress>;
 export const ENSResolved: Story = {
   args: {
     address: "0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e",
+    subText: "I have ENS",
   },
   parameters: {
     moduleMock: {
@@ -46,10 +47,10 @@ export const NoENSResolved: Story = {
   },
 };
 
-export const NoLink: Story = {
+export const Minified: Story = {
   args: {
     address: "0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e",
-    noLink: true,
+    minified: true,
   },
   parameters: {
     moduleMock: {

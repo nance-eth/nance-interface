@@ -29,13 +29,14 @@ export default function ProposalContent({ body }: { body: string }) {
           {commonProps.title}
         </h1>
 
-        <p className="text-right text-sm text-gray-500">
+        <p className="flex text-right text-sm text-gray-500">
           by&nbsp;
           <FormattedAddress
             address={commonProps.author}
             style="text-gray-500"
             overrideURLPrefix="/u/"
             openInNewWindow={false}
+            minified
           />
         </p>
         {commonProps.coauthors.length > 0 && (

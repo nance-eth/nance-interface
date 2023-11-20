@@ -12,6 +12,7 @@ type Story = StoryObj<typeof ProjectLink>;
 export const ProjectId: Story = {
   args: {
     projectId: 4,
+    subText: "subText here",
   },
 };
 

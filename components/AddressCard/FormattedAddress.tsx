@@ -1,17 +1,21 @@
 import { shortenAddress } from "@/utils/functions/address";
 import { Address, useEnsName } from "wagmi";
 import { useContext, useEffect, useState } from "react";
-import Image from "next/image";
 import { classNames } from "@/utils/functions/tailwind";
 import { getAddressLink } from "@/utils/functions/EtherscanURL";
 import { NetworkContext } from "@/context/NetworkContext";
 import CopyableTooltip from "../common/CopyableTooltip";
+import BasicFormattedCard from "../common/BasicFormattedCard";
 
 interface Props {
   /**
    * Address to be formatted.
    */
   address: string | undefined;
+  /**
+   * Subtext of the address.
+   */
+  subText?: string;
   /**
    * Style of the address.
    */
@@ -25,25 +29,27 @@ interface Props {
    */
   openInNewWindow?: boolean;
   /**
-   * Don't render the link.
+   * Don't render the link and avatar.
    */
-  noLink?: boolean;
+  minified?: boolean;
 }
 
 /**
  * Address will be resolved to ENS name if available.
  * @param address Address to be formatted.
  * @param style Style of the address.
+ * @param subText Subtext of the address.
  * @param overrideURLPrefix Override the URL prefix. Default is `https://[goerli.]etherscan.io/address/`.
  * @param openInNewWindow Open the link in a new window. Default is `true`.
- * @param noLink Don't render the link.
+ * @param minified Don't render the link and avatar.
  */
 export default function FormattedAddress({
   address,
+  subText,
   style,
   overrideURLPrefix,
   openInNewWindow = true,
-  noLink = false,
+  minified = false,
 }: Props) {
   const addr = address as Address;
   const hasAddr = addr && addr.length == 42;
@@ -63,45 +69,30 @@ export default function FormattedAddress({
     }
   }, [ensName, address]);
 
-  if (noLink) {
+  if (minified) {
     return (
       <CopyableTooltip text={address || ""}>
-        <ImageAndLabel address={address} label={label} />
+        <span className={classNames(style)}>{label}</span>
       </CopyableTooltip>
     );
   }
 
   return (
     <CopyableTooltip text={address || ""}>
-      <a
-        target={anchorTarget}
-        rel="noopener noreferrer"
-        className={classNames(style, "flex hover:underline")}
-        href={`${urlPrefix}${address ? encodeURIComponent(address) : ""}`}
+      <BasicFormattedCard
+        imgSrc={`https://cdn.stamp.fyi/avatar/${address}?h=100&w=100`}
+        imgAlt={`Avatar of ${label}`}
       >
-        <ImageAndLabel address={address} label={label} />
-      </a>
+        <a
+          target={anchorTarget}
+          rel="noopener noreferrer"
+          className={classNames(style, "flex flex-col hover:underline")}
+          href={`${urlPrefix}${address ? encodeURIComponent(address) : ""}`}
+        >
+          <p>{label}</p>
+          <p className="text-xs text-gray-400">{subText}</p>
+        </a>
+      </BasicFormattedCard>
     </CopyableTooltip>
-  );
-}
-
-function ImageAndLabel({
-  address,
-  label,
-}: {
-  address: string | undefined;
-  label: string;
-}) {
-  return (
-    <>
-      <Image
-        src={`https://cdn.stamp.fyi/avatar/${address}?w=24&h=24`}
-        alt={`Avatar of ${label}`}
-        width={24}
-        height={24}
-        className="mr-1 rounded-full"
-      />
-      {label}
-    </>
   );
 }

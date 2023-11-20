@@ -9,6 +9,7 @@ interface Props {
    * The ID of the project to link to.
    */
   projectId: number | undefined;
+  subText?: string;
   /**
    * The style of the link.
    */
@@ -24,6 +25,7 @@ interface Props {
  */
 export default function ProjectLink({
   projectId,
+  subText,
   style,
   isTestnet = false,
 }: Props) {
@@ -67,10 +69,7 @@ export default function ProjectLink({
       >
         <>
           <p>{projectLabel}</p>
-          <p className="text-gray-400">
-            #{projectId}
-            {networkSuffix}
-          </p>
+          <p className="text-xs text-gray-400">{subText}</p>
         </>
       </BasicFormattedCard>
     </Link>

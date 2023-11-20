@@ -169,7 +169,7 @@ export default function ProposalVotes({
                           <FormattedAddress
                             address={vote.voter}
                             style="text-gray-900"
-                            noLink={true}
+                            minified
                           />
                         </div>
                         &nbsp;
@@ -209,7 +209,7 @@ export default function ProposalVotes({
                         <FormattedAddress
                           address={vote.voter}
                           style="text-gray-900"
-                          noLink={true}
+                          minified
                         />
                       </div>
 

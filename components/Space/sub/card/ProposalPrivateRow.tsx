@@ -49,7 +49,7 @@ export default function ProposalPrivateRow({
             {`GC-${proposal.governanceCycle}, ${proposalIdPrefix}${
               proposal.proposalId || "tbd"
             } - by `}
-            <FormattedAddress address={proposal.authorAddress} noLink />
+            <FormattedAddress address={proposal.authorAddress} minified />
           </span>
 
           <p className="break-words text-base text-black">{proposal.title}</p>
