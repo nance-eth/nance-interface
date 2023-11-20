@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import BasicDisclosure from "./BasicDisclosure";
 
 const meta: Meta<typeof BasicDisclosure> = {
-  title: "Nance Components/BasicDisclosure",
+  title: "Nance Components/common/BasicDisclosure",
   component: BasicDisclosure,
 };
 
