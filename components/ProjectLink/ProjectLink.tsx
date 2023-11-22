@@ -42,19 +42,21 @@ export default function ProjectLink({
     );
   }
 
+  const handle = projects?.[0]?.handle;
   const host = isTestnet
     ? "https://goerli.juicebox.money"
     : "https://juicebox.money";
-  const handle = projects?.[0]?.handle;
   const projectUrl = handle
     ? `${host}/@${handle}`
     : `${host}/v2/p/${projectId}`;
-  const networkSuffix = isTestnet ? " (goerli)" : "";
   const projectLabel = handle ? `@${handle}` : `#${projectId}`;
 
   const logoUri = projects?.[0]?.logo_uri;
   const imgSrc = logoUri ? ipfsUrlOf(cidFromUrl(logoUri)) : JBDAO_LOGO;
   console.debug(logoUri, imgSrc);
+
+  const networkSuffix = isTestnet ? " (goerli)" : "";
+  const name = (projects?.[0]?.name || "Untitled") + networkSuffix;
 
   return (
     <Link
@@ -68,7 +70,8 @@ export default function ProjectLink({
         imgAlt={`Logo of juicebox project ${projectId}`}
       >
         <>
-          <p>{projectLabel}</p>
+          <p>{name}</p>
+          <p className="text-xs text-gray-400">{projectLabel}</p>
           <p className="text-xs text-gray-400">{subText}</p>
         </>
       </BasicFormattedCard>
