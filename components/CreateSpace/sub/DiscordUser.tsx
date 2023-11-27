@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { LOCAL_STORAGE_KEY_DISCORD_STATUS } from "@/utils/functions/discordURL";
-import { useFetchDiscordUser, useLogoutDiscordUser } from "@/utils/hooks/DiscordHooks";
+import {
+  useFetchDiscordUser,
+  useLogoutDiscordUser,
+} from "@/utils/hooks/DiscordHooks";
 import { avatarBaseUrl } from "@/constants/Discord";
 import { discordAuthWindow } from "@/utils/functions/discord";
 import Image from "next/image";
@@ -18,7 +21,6 @@ export default function DiscordUser({ address }: { address: string }) {
     { address },
     !!discordUser,
   );
-
 
   useEffect(() => {
     // check if there is a recent LOCAL_STORAGE_KEY_DISCORD_STATUS we can use
@@ -40,17 +42,16 @@ export default function DiscordUser({ address }: { address: string }) {
   return (
     <>
       {!discordUser?.username && !discordLoading && (
-        <div className="flex justify-center">
-          <button
-            className="text-sm inline-flex w-fit items-center justify-center rounded-md border border-transparent bg-purple-800 px-4 py-2 text-white shadow-sm hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-black disabled:opacity-50"
-            onClick={() => {
-              localStorage.removeItem(LOCAL_STORAGE_KEY_DISCORD_STATUS);
-              discordAuthWindow();
-            }}
-          >
+        <button
+          className="inline-flex w-fit items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-black disabled:opacity-50"
+          onClick={() => {
+            bg - indigobg - indigo;
+            localStorage.removeItem(LOCAL_STORAGE_KEY_DISCORD_STATUS);
+            discordAuthWindow();
+          }}
+        >
           Connect Discord
-          </button>
-        </div>
+        </button>
       )}
       <div className="flex justify-center">
         {discordLoading && (
@@ -63,7 +64,7 @@ export default function DiscordUser({ address }: { address: string }) {
       </div>
       {!discordLoading && discordUser?.avatar && (
         <>
-          <div className="flex justify-center">
+          <div>
             <div className="block text-center">
               <p className="">{`${discordUser?.username}`}</p>
               <a
@@ -71,13 +72,11 @@ export default function DiscordUser({ address }: { address: string }) {
                 onClick={() => {
                   discordLogoutTrigger();
                   // set local storage to false, then refresh
-                  localStorage.removeItem(
-                    LOCAL_STORAGE_KEY_DISCORD_STATUS,
-                  );
+                  localStorage.removeItem(LOCAL_STORAGE_KEY_DISCORD_STATUS);
                   window.location.assign(window.location.pathname);
                 }}
               >
-              disconnect
+                disconnect
               </a>
             </div>
             <Image

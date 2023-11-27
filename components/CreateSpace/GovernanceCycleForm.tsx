@@ -32,43 +32,7 @@ export default function GovernanceCycleForm() {
   ]);
 
   return (
-    <div>
-      <TimePicker />
-      <SmallNumberInput
-        label="Temperature Check Length"
-        name="governanceCycleForm.temperatureCheckLength"
-        defaultValue={3}
-        tooltipContent="This is the length of time that a Discord Temperature Check is open for polling"
-        register={register}
-        onChange={setTemperatureCheckLength}
-      />
-      <SmallNumberInput
-        label="Vote Length"
-        name="governanceCycleForm.voteLength"
-        defaultValue={4}
-        tooltipContent="This is the length of time that a Snapshot vote is open"
-        register={register}
-        onChange={setVoteLength}
-      />
-      <SmallNumberInput
-        label="Execution Length"
-        name="governanceCycleForm.executionLength"
-        defaultValue={4}
-        tooltipContent="This is the length of time for the execution of proposals that pass Snapshot"
-        register={register}
-        onChange={setExecutionLength}
-      />
-      <SmallNumberInput
-        label="Delay Length"
-        name="governanceCycleForm.delayLength"
-        defaultValue={3}
-        tooltipContent="This is the length of time between the end of execution and the start of the next Temperature Check"
-        register={register}
-        onChange={setDelayLength}
-      />
-      <div className="mt-2 inline-flex items-center rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-600">
-        Total Days: {totalCycleLength}
-      </div>
+    <div className="flex space-x-8">
       <div className="mb-1 w-80 flex-col">
         <div className="inline-flex">
           <label className="mt-2 block text-sm font-medium text-gray-700">
@@ -89,6 +53,45 @@ export default function GovernanceCycleForm() {
           delayLength={delayLength}
           totalCycleLength={totalCycleLength}
         />
+      </div>
+
+      <div>
+        <TimePicker />
+        <SmallNumberInput
+          label="Temperature Check Length"
+          name="governanceCycleForm.temperatureCheckLength"
+          defaultValue={3}
+          tooltipContent="This is the length of time that a Discord Temperature Check is open for polling"
+          register={register}
+          onChange={setTemperatureCheckLength}
+        />
+        <SmallNumberInput
+          label="Vote Length"
+          name="governanceCycleForm.voteLength"
+          defaultValue={4}
+          tooltipContent="This is the length of time that a Snapshot vote is open"
+          register={register}
+          onChange={setVoteLength}
+        />
+        <SmallNumberInput
+          label="Execution Length"
+          name="governanceCycleForm.executionLength"
+          defaultValue={4}
+          tooltipContent="This is the length of time for the execution of proposals that pass Snapshot"
+          register={register}
+          onChange={setExecutionLength}
+        />
+        <SmallNumberInput
+          label="Delay Length"
+          name="governanceCycleForm.delayLength"
+          defaultValue={3}
+          tooltipContent="This is the length of time between the end of execution and the start of the next Temperature Check"
+          register={register}
+          onChange={setDelayLength}
+        />
+        <div className="mt-2 inline-flex items-center rounded-md bg-blue-100 px-2 py-1 font-medium text-blue-600">
+          Total Days: {totalCycleLength}
+        </div>
       </div>
     </div>
   );
