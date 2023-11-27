@@ -23,6 +23,7 @@ export default function ENSAddressInput({
   const [query, setQuery] = useState("");
   const { data: address, isLoading } = useEnsAddress({
     name: query,
+    chainId: 1, // always use mainnet for ENS for now
     enabled: query.endsWith(".eth"),
   });
 

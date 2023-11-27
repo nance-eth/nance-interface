@@ -1,6 +1,5 @@
 import useSWR, { Fetcher } from "swr";
 import {
-  RevisedSafeMultisigTransactionResponse,
   SafeBalanceUsdResponse,
   SafeDelegatesResponse,
   SafeInfoResponse,

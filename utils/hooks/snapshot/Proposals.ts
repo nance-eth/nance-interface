@@ -1,204 +1,20 @@
 import { APIError, useQuery } from "graphql-hooks";
-import { mapChoiceIndex } from "../../functions/snapshotUtil";
-import { SNAPSHOT_HEADERS, SNAPSHOT_HUB } from "../../../constants/Snapshot";
-
-const PROPOSALS_QUERY = `
-query Proposals($first: Int, $skip: Int, $space: String, $state: String, $keyword: String) {
-  proposals(
-    first: $first
-    skip: $skip
-    where: {
-      space: $space,
-      state: $state,
-      title_contains: $keyword
-    }
-    orderBy: "created",
-    orderDirection: desc
-  ) {
-    id,
-    author,
-    title,
-    body,
-    type,
-    state,
-    created,
-    start,
-    end,
-    choices,
-    scores,
-    votes,
-    quorum,
-    scores_total,
-    ipfs,
-    snapshot
-  }
-}
-`;
-
-const PROPOSALS_BY_ID_QUERY = `
-query ProposalsByID($first: Int, $proposalIds: [String]) {
-  proposals(
-    first: $first
-    skip: 0
-    where: {
-      id_in: $proposalIds
-    }
-    orderBy: "created",
-    orderDirection: desc
-  ) {
-    id,
-    author,
-    title,
-    body,
-    type,
-    state,
-    created,
-    start,
-    end,
-    choices,
-    scores,
-    votes,
-    quorum,
-    scores_total,
-    ipfs,
-    snapshot
-  }
-}
-`;
-
-const VOTES_OF_PROPOSAL_QUERY = `
-query VotesBySingleProposalId($id: String, $skip: Int, $orderBy: String, $first: Int) {
-  votes (
-    first: $first
-    skip: $skip
-    where: {
-      proposal: $id
-    }
-    orderBy: $orderBy,
-    orderDirection: desc
-  ) {
-    id
-    app
-    created
-    voter
-    choice
-    vp
-    reason
-  }
-}
-`;
-
-const VOTED_PROPOSALS_QUERY = `
-query VotedProposals($first: Int, $skip: Int, $voter: String, $proposalIds: [String], $space: String) {
-  votes (
-    first: $first,
-    skip: $skip,
-    where: {
-      voter: $voter,
-      proposal_in: $proposalIds,
-      space: $space
-    }
-    orderBy: "created",
-    orderDirection: desc
-  ) {
-    id,
-    app,
-    created,
-    choice,
-    vp,
-    reason,
-    proposal {
-      id,
-      choices,
-      type,
-      title
-    },
-    space {
-      id,
-      name
-    }
-  }
-}
-`;
-
-const ALL_VOTES_OF_USER = `
-query AllVotesOfUser($first: Int, $voter: String, $space: String) {
-  votes (
-    first: $first,
-    where: {
-      voter: $voter,
-      space: $space
-    }
-    orderBy: "created",
-    orderDirection: desc
-  ) {
-    id
-    choice
-    proposal {
-      type
-    }
-  }
-}
-`;
-
-// Model for a single proposal
-export interface SnapshotProposal {
-  id: string;
-  // content
-  author: string;
-  title: string;
-  body: string;
-  // metadata
-  type: string;
-  state: string;
-  created: number;
-  start: number;
-  end: number;
-  ipfs: string; // bafkreiete6tryrhksyt5gowckreabilu57zl4shjrl6kptkfy7oiowqd44
-  snapshot: string; // 16922147
-  // voting
-  choices: string[];
-  scores: number[];
-  votes: number;
-  quorum: number;
-  scores_total: number;
-}
-
-// Model for a single vote
-export interface SnapshotVote {
-  id: string;
-  // metadata
-  app: string;
-  created: number;
-  // voting
-  voter: string;
-  choice: any;
-  vp: number;
-  reason: string;
-}
-
-export type SnapshotVotedData = Omit<
-  SnapshotVote & {
-    proposal: {
-      id: string;
-      choices: string[];
-      type: string;
-      title: string;
-    };
-    space: {
-      id: string;
-      name: string;
-    };
-  },
-  "voter"
->;
+import { mapChoiceIndex } from "@/utils/functions/snapshotUtil";
+import { PROPOSALS_BY_ID_QUERY, PROPOSALS_QUERY } from "./queries/Proposal";
+import { VOTED_PROPOSALS_QUERY, VOTES_OF_PROPOSAL_QUERY } from "./queries/Vote";
+import {
+  SnapshotProposal,
+  SnapshotVote,
+  SnapshotVotedData,
+  SnapshotSpaceWithVotesCount,
+} from "@/models/SnapshotTypes";
 
 export function useProposalsByID(
   proposalIds: string[],
   address: string,
   skip: boolean = false,
 ) {
-  return useProposalsWithCustomQuery(
+  const ret = useProposalsWithCustomQuery(
     PROPOSALS_BY_ID_QUERY,
     {
       first: proposalIds.length,
@@ -207,6 +23,20 @@ export function useProposalsByID(
     address,
     skip,
   );
+
+  if (address?.length !== 42) {
+    console.debug("skip");
+  } else {
+    console.debug("useProposalsByID", {
+      proposalIds,
+      address,
+      skip,
+      loading: ret.loading,
+      data: ret.data,
+    });
+  }
+
+  return ret;
 }
 
 export function useProposalsWithFilter(
@@ -265,7 +95,7 @@ export function useProposalsWithCustomQuery(
       proposalIds: proposalsData?.proposals.map((proposal) => proposal.id),
       first: Math.min(proposalsData?.proposals.length || 0, 1000),
     },
-    skip,
+    skip: skip || address.length !== 42, // address not ready, don't run this query yet
   });
   // console.debug("🔧 useProposalsWithCustomQuery.cacheHit", cacheHit);
 
@@ -289,112 +119,13 @@ export function useProposalsWithCustomQuery(
       proposalsData: proposalsData?.proposals,
       votedData,
     },
-    loading: proposalsLoading || votedLoading,
+    // FIXME: this is a hack to get around the flashing issue, need to find a better way
+    loading: proposalsLoading && votedLoading,
     error: proposalsError || votedError,
     refetch,
   };
   // console.debug("🔧 useProposalsWithCustomQuery.return ->", { ret });
   return ret;
-}
-
-export interface SnapshotSpaceWithVotesCount {
-  id: string;
-  name: string;
-  votes: number;
-}
-
-export interface AllVotes {
-  total: number;
-  for: number;
-  against: number;
-  abstain: number;
-}
-
-export function useAllVotesOfAddress(
-  address: string,
-  limit: number,
-  spaceFilter: string = "",
-): {
-  loading: boolean;
-  error: APIError<object> | undefined;
-  data: AllVotes;
-} {
-  // Load voted proposals
-  const { loading, data, error, cacheHit } = useQuery<{
-    votes: { id: string; choice: any; proposal: { type: string } }[];
-  }>(ALL_VOTES_OF_USER, {
-    variables: {
-      voter: address,
-      first: Math.min(limit, 1000),
-      space: spaceFilter,
-    },
-    skip: !(address && address.length == 42),
-  });
-  console.debug("🔧 useAllVotesOfAddress.cacheHit", cacheHit);
-
-  const optionCount: { [key: number]: number } = [];
-  data?.votes
-    ?.filter((v) => v.proposal.type === "basic")
-    .forEach((v) => optionCount[v.choice]++);
-
-  return {
-    loading,
-    error,
-    data: {
-      total: data?.votes.length ?? 0,
-      for: optionCount[1],
-      against: optionCount[2],
-      abstain: optionCount[3],
-    },
-  };
-}
-
-export async function fetchAllVotesOfAddress(
-  address: string,
-  limit: number,
-  spaceFilter: string = "",
-): Promise<AllVotes> {
-  const ret = await fetch(`${SNAPSHOT_HUB}/graphql`, {
-    method: "POST",
-    headers: SNAPSHOT_HEADERS,
-    body: JSON.stringify({
-      query: ALL_VOTES_OF_USER,
-      variables: {
-        voter: address,
-        first: Math.min(limit, 1000),
-        space: spaceFilter,
-      },
-    }),
-  }).then((res) => res.json());
-
-  if (ret.errors) {
-    console.warn("fetchAllVotesOfAddress errors occurred: ", ret.errors);
-    return {
-      total: 0,
-      for: 0,
-      against: 0,
-      abstain: 0,
-    };
-  }
-
-  const votes: {
-    id: string;
-    choice: any;
-    proposal: {
-      type: string;
-    };
-  }[] = ret.data?.votes;
-  const optionCount = [0, 0, 0, 0];
-  votes
-    .filter((v) => v.proposal.type === "basic")
-    .forEach((v) => optionCount[v.choice]++);
-
-  return {
-    total: votes.length,
-    for: optionCount[1],
-    against: optionCount[2],
-    abstain: optionCount[3],
-  };
 }
 
 export function useVotesOfAddress(
@@ -427,7 +158,7 @@ export function useVotesOfAddress(
     error: votedError,
   } = useQuery<{ votes: SnapshotVotedData[] }>(VOTED_PROPOSALS_QUERY, {
     variables,
-    skip: !(address && address.length == 42),
+    skip: address.length !== 42,
   });
 
   // Map choices from index to option label
@@ -508,8 +239,8 @@ export function useProposalVotes(
       first: sortAfterQuery
         ? Math.min(proposal?.votes ?? 0, 1000)
         : overrideLimit === 0
-        ? VOTES_PER_PAGE
-        : Math.min(overrideLimit, 1000),
+          ? VOTES_PER_PAGE
+          : Math.min(overrideLimit, 1000),
       skip: sortAfterQuery ? 0 : skip,
       orderBy: orderBy,
       id: proposal?.id ?? "",

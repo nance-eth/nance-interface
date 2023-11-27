@@ -42,6 +42,7 @@ export default function NumberForm({
             {...register(fieldName, { shouldUnregister: true })}
             className="block h-10 w-16 rounded-md rounded-r-none border-gray-300 bg-white shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
             type="number"
+            step={1e-18}
             min={0}
             defaultValue={defaultValue}
           ></input>

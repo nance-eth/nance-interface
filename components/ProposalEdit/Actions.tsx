@@ -198,6 +198,7 @@ export default function Actions({
         setOpen={setOpen}
         selectedAction={selectedAction}
         setSelectedAction={newAction}
+        space={space}
       />
     </div>
   );

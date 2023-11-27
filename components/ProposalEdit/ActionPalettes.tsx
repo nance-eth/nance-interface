@@ -37,7 +37,7 @@ const items: ActionItem[] = [
   {
     id: 3,
     name: "Transfer",
-    description: "Transfer tokens from Safe.",
+    description: "Transfer ERC-20 tokens from Safe.",
     url: "#",
     color: "bg-blue-500",
     icon: ArrowsUpDownIcon,
@@ -58,6 +58,7 @@ export default function ActionPalettes({
   setOpen,
   selectedAction,
   setSelectedAction,
+  space
 }: any) {
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -90,52 +91,54 @@ export default function ActionPalettes({
                   static
                   className="max-h-96 scroll-py-3 overflow-y-auto p-3"
                 >
-                  {items.map((item) => (
-                    <Combobox.Option
-                      key={item.id}
-                      value={item}
-                      className={({ active }) =>
-                        classNames(
-                          "flex cursor-default select-none rounded-xl p-3",
-                          active && "bg-gray-100",
-                        )
-                      }
-                    >
-                      {({ active }) => (
-                        <>
-                          <div
-                            className={classNames(
-                              "flex h-10 w-10 flex-none items-center justify-center rounded-lg",
-                              item.color,
-                            )}
-                          >
-                            <item.icon
-                              className="h-6 w-6 text-white"
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <div className="ml-4 flex-auto">
-                            <p
+                  {items.map((item) => {
+                    return (
+                      <Combobox.Option
+                        key={item.id}
+                        value={item}
+                        className={({ active }) =>
+                          classNames(
+                            "flex cursor-default select-none rounded-xl p-3",
+                            active && "bg-gray-100",
+                          )
+                        }
+                      >
+                        {({ active }) => (
+                          <>
+                            <div
                               className={classNames(
-                                "text-sm font-medium",
-                                active ? "text-gray-900" : "text-gray-700",
+                                "flex h-10 w-10 flex-none items-center justify-center rounded-lg",
+                                item.color,
                               )}
                             >
-                              {item.name}
-                            </p>
-                            <p
-                              className={classNames(
-                                "text-sm",
-                                active ? "text-gray-700" : "text-gray-500",
-                              )}
-                            >
-                              {item.description}
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </Combobox.Option>
-                  ))}
+                              <item.icon
+                                className="h-6 w-6 text-white"
+                                aria-hidden="true"
+                              />
+                            </div>
+                            <div className="ml-4 flex-auto">
+                              <p
+                                className={classNames(
+                                  "text-sm font-medium",
+                                  active ? "text-gray-900" : "text-gray-700",
+                                )}
+                              >
+                                {item.name}
+                              </p>
+                              <p
+                                className={classNames(
+                                  "text-sm",
+                                  active ? "text-gray-700" : "text-gray-500",
+                                )}
+                              >
+                                {item.description}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </Combobox.Option>
+                    );
+                  })}
                 </Combobox.Options>
               </Combobox>
             </Dialog.Panel>

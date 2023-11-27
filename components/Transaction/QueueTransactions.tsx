@@ -1,12 +1,10 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { utils } from "ethers";
 import {
   CustomTransaction,
   Transfer,
   extractFunctionName,
 } from "@/models/NanceTypes";
-import useProjectInfo from "@/utils/hooks/juicebox/ProjectInfo";
 import { getContractLabel } from "@/constants/Contract";
 import { Interface, parseUnits } from "ethers/lib/utils";
 import {
@@ -28,12 +26,12 @@ import TransactionCreator from "./TransactionCreator";
 export default function QueueTransactionsModal({
   open,
   setOpen,
-  juiceboxProjectId,
+  transactorAddress,
   space,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
-  juiceboxProjectId: number;
+  transactorAddress?: string;
   space: string;
 }) {
   const cancelButtonRef = useRef(null);
@@ -46,14 +44,6 @@ export default function QueueTransactionsModal({
     sortDesc: withDefault(BooleanParam, true),
   });
   const { cycle, keyword, limit } = query;
-
-  // Get configuration of current fundingCycle
-  const projectId = juiceboxProjectId;
-  const { data: projectInfo, loading: infoIsLoading } = useProjectInfo(
-    3,
-    projectId,
-  );
-  const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : "";
 
   const { data: proposalDataArray, isLoading: proposalsLoading } =
     useProposalsInfinite({ space, cycle, keyword, limit }, router.isReady);
@@ -109,6 +99,7 @@ export default function QueueTransactionsModal({
         },
       };
     }) || [];
+
   const customTransactionEntries: TransactionEntry[] =
     customTransactionActions?.map((v) => {
       const customTransaction = v.action.payload as CustomTransaction;
@@ -165,7 +156,7 @@ export default function QueueTransactionsModal({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <Dialog.Title
@@ -175,13 +166,13 @@ export default function QueueTransactionsModal({
                       Queue Transactions
                     </Dialog.Title>
 
-                    <OrderCheckboxTable address={owner} entries={entries} />
+                    <OrderCheckboxTable address={transactorAddress || ""} entries={entries} />
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                   <div className="sm:ml-3 sm:w-auto">
                     <TransactionCreator
-                      address={owner}
+                      address={transactorAddress || ""}
                       transactions={entries.map((e) => e.transactionData)}
                     />
                   </div>
