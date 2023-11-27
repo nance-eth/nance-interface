@@ -20,15 +20,10 @@ import { SiteNav } from "@/components/Site";
 import DiscordUser from "@/components/CreateSpace/sub/DiscordUser";
 import WalletConnectWrapper from "@/components/WalletConnectWrapper/WalletConnectWrapper";
 import MultipleStep from "@/components/MultipleStep/MultipleStep";
-import AestheticsStep from "@/components/CreateSpace/AestheticsStep";
-import BasicDisclosure from "@/components/common/BasicDisclosure";
 import { isValidSafe } from "@/utils/hooks/SafeHooks";
+import DescriptionCardWrapper from "@/components/DescriptionCardWrapper/DescriptionCardWrapper";
 
 export default function CreateSpacePage() {
-  // hooks
-  const { data: session, status } = useSession();
-  const address = session?.user?.name || "";
-
   return (
     <>
       <SiteNav
@@ -36,44 +31,27 @@ export default function CreateSpacePage() {
         withProposalButton={false}
         withWallet
       />
-
-      <div className="m-6">
-        <MultipleStep
-          steps={[
-            {
-              name: "Aesthetics",
-              content: <AestheticsStep />,
-            },
-            {
-              name: "Integrations",
-              content: (
-                <div className="flex justify-center">
-                  <div className="w-100">
-                    <h1 className="mb-5 mt-8 text-center text-lg font-bold text-gray-900">
-                      Create New Nance Instance
-                    </h1>
-
-                    <WalletConnectWrapper>
-                      <DiscordUser address={address} />
-                      <Form session={session!} />
-                    </WalletConnectWrapper>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              name: "Governance Rules",
-              content: <div>governance rules placeholder</div>,
-            },
-          ]}
-          enableDefaultStyle={false}
-        />
+      <div className="m-20">
+        <WalletConnectWrapper
+          renderButton={(button: JSX.Element) => (
+            <DescriptionCardWrapper
+              title="Connect your wallet"
+              description="Please connect your wallet to continue, we need to know who you are."
+            >
+              {button}
+            </DescriptionCardWrapper>
+          )}
+        >
+          <Form />
+        </WalletConnectWrapper>
       </div>
     </>
   );
 }
 
-function Form({ session }: { session: Session }) {
+function Form() {
+  const { data: session, status } = useSession();
+  const address = session?.user?.name || "";
   // query and context
   const router = useRouter();
   const dryrun = router.query.dryrun === "true";
@@ -85,8 +63,6 @@ function Form({ session }: { session: Session }) {
     data,
     reset,
   } = useCreateSpace(router.isReady);
-  // state
-  const [juiceboxProjectDisabled, setJuiceboxProjectDisabled] = useState(false);
   // form
   const methods = useForm<CreateFormValues>({ mode: "onChange" });
   const {
@@ -132,65 +108,131 @@ function Form({ session }: { session: Session }) {
         />
       )}
       <form className="flex flex-col lg:m-6" onSubmit={handleSubmit(onSubmit)}>
-        <TextForm
-          label="Nance space name"
-          name="config.name"
-          register={register}
+        <MultipleStep
+          steps={[
+            {
+              name: "Rules",
+              content: (
+                <DescriptionCardWrapper
+                  title="Describe the Space"
+                  description="Please choose a name for your space and a prefix for your proposal IDs."
+                >
+                  <TextForm
+                    label="Nance space name"
+                    name="config.name"
+                    register={register}
+                  />
+                  <TextForm
+                    label="Proposal ID Prefix"
+                    name="config.proposalIdPrefix"
+                    register={register}
+                    maxLength={3}
+                    placeHolder="JBP"
+                    className="w-16"
+                    tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
+                  />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Schedule",
+              content: (
+                <DescriptionCardWrapper
+                  title="Configure the Governance Cycle"
+                  description={
+                    <span>
+                      A Governance Cycle is a set amount of time that a DAO has
+                      to propose, discuss, vote, and execute proposals.{" "}
+                      <a
+                        href="https://docs.nance.app/docs/basics/governance-cycle"
+                        className="underline"
+                      >
+                        Learn more.
+                      </a>
+                    </span>
+                  }
+                >
+                  <GovernanceCycleForm />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Snapshot",
+              content: (
+                <DescriptionCardWrapper
+                  title="Connect with Snapshot"
+                  description="Snapshot is a free, open-source platform for community governance. Nance can connect with your Snapshot space to create proposals, and then users can directly vote here."
+                >
+                  <SnapshotForm session={session!} />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Discord",
+              content: (
+                <DescriptionCardWrapper
+                  title="Connect with Discord"
+                  description="Nance can connect with your Discord server to send governance messages."
+                >
+                  <DiscordUser address={address} />
+                  <DiscordForm />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Safe",
+              content: (
+                <DescriptionCardWrapper
+                  title="Connect with Safe"
+                  description="Nance can connect with your Safe to queue transactions after proposals pass."
+                >
+                  <AddressForm
+                    label="Safe address"
+                    fieldName="config.juicebox.gnosisSafeAddress"
+                    showType={false}
+                    validate={async (e) => {
+                      const isSafe = await isValidSafe(e);
+                      if (!isSafe) {
+                        return "Invalid Safe address";
+                      }
+                    }}
+                  />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Juicebox",
+              content: (
+                <DescriptionCardWrapper
+                  title="Connect with Juicebox"
+                  description="Nance can connect with your Juicebox project to queue reconfigurations after proposals pass."
+                >
+                  <ProjectForm
+                    label="Juicebox projectId"
+                    fieldName="config.juicebox.projectId"
+                    showType={false}
+                  />
+                </DescriptionCardWrapper>
+              ),
+            },
+            {
+              name: "Review and Submit",
+              content: (
+                <div>
+                  <button
+                    type="submit"
+                    disabled={!isValid || isMutating}
+                    className="ml-300 mt-5 inline-flex w-20 justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white
+                    shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
+                  >
+                    Submit
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+          enableDefaultStyle={false}
         />
-
-        <BasicDisclosure title="Setup Discord" defaultOpen className="mt-6">
-          <DiscordForm />
-        </BasicDisclosure>
-
-        <BasicDisclosure title="Setup Snapshot" defaultOpen className="mt-6">
-          <SnapshotForm session={session} />
-        </BasicDisclosure>
-
-        <BasicDisclosure title="Integrate Juicebox" className="mt-6">
-          <ProjectForm
-            label="Juicebox projectId"
-            fieldName="config.juicebox.projectId"
-            showType={false}
-          />
-        </BasicDisclosure>
-
-        <BasicDisclosure title="Integrate Safe" className="mt-6">
-          <AddressForm
-            label="Safe address"
-            fieldName="config.juicebox.gnosisSafeAddress"
-            showType={false}
-            validate={async (e) => {
-              const isSafe = await isValidSafe(e);
-              if (!isSafe) {
-                return "Invalid Safe address";
-              }
-            }}
-          />
-        </BasicDisclosure>
-
-        <BasicDisclosure title="Governance Rules" className="mt-6">
-          <TextForm
-            label="Proposal ID Prefix"
-            name="config.proposalIdPrefix"
-            register={register}
-            maxLength={3}
-            placeHolder="JBP"
-            className="w-16"
-            tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
-          />
-          <GovernanceCycleForm />
-        </BasicDisclosure>
-
-        {
-          <button
-            type="submit"
-            disabled={!isValid || isMutating}
-            className="ml-300 mt-5 inline-flex w-20 justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white
-              shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-gray-400"
-          >
-            Submit
-          </button>
-        }
       </form>
     </FormProvider>
   );
