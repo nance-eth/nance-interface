@@ -133,7 +133,7 @@ export default function SnapshotSearch({
             {(() => {
               const canUserEdit = canEditSnapshotSpace(
                 selectedSpace,
-                session.user?.name?.toLowerCase() as string,
+                session?.user?.name?.toLowerCase() as string,
               );
 
               const addNanceSnapshotButton = (
