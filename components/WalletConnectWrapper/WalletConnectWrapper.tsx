@@ -2,14 +2,21 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSession } from "next-auth/react";
 import { PropsWithChildren } from "react";
 
+interface Props {
+  renderButton?: (button: JSX.Element) => JSX.Element;
+}
+
 /**
  * Gated component that will only render its children if the user is authenticated via connect wallet and signing.
  */
-export default function WalletConnectWrapper({ children }: PropsWithChildren) {
+export default function WalletConnectWrapper({
+  children,
+  renderButton = (button: JSX.Element) => button,
+}: PropsWithChildren<Props>) {
   const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();
 
-  if (status !== "authenticated") {
+  function Button() {
     return (
       <button
         type="button"
@@ -23,5 +30,13 @@ export default function WalletConnectWrapper({ children }: PropsWithChildren) {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {status !== "authenticated" && renderButton(<Button />)}
+
+      <div className={status === "authenticated" ? "" : "hidden"}>
+        {children}
+      </div>
+    </>
+  );
 }
