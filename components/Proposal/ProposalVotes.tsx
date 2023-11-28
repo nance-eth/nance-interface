@@ -164,7 +164,7 @@ export default function ProposalVotes({
                 >
                   {isSimpleVoting && (
                     <div className="flex justify-between text-sm">
-                      <div>
+                      <div className="flex">
                         <div className="inline">
                           <FormattedAddress
                             address={vote.voter}

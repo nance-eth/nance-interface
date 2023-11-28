@@ -28,15 +28,17 @@ export default function ProposalContent({ body }: { body: string }) {
           {commonProps.title}
         </h1>
 
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 flex text-sm text-gray-500">
           by&nbsp;
-          <FormattedAddress
-            address={commonProps.author}
-            style="text-gray-500"
-            overrideURLPrefix="/u/"
-            openInNewWindow={false}
-            minified
-          />
+          <span>
+            <FormattedAddress
+              address={commonProps.author}
+              style="text-gray-500"
+              overrideURLPrefix="/u/"
+              openInNewWindow={false}
+              minified
+            />
+          </span>
         </p>
         {commonProps.coauthors.length > 0 && (
           <p className="text-left text-sm text-gray-500">
