@@ -31,7 +31,7 @@ export default function CopyableTooltip({
   return (
     <Tooltip
       content={
-        <div className="flex">
+        <div className="flex overflow-x-auto">
           {text}
           <Tooltip
             content={copied ? "Copied!" : "Copy to clipboard"}
