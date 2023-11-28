@@ -1,16 +1,10 @@
-import { Switch } from "@headlessui/react";
 import SearchableComboBoxMultiple from "@/components/common/SearchableComboBoxMultiple";
 import { useState } from "react";
 import { Option } from "@/components/common/SearchableComboBox";
 
 import { DocumentMagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { classNames } from "@/utils/functions/tailwind";
-import {
-  BooleanParam,
-  StringParam,
-  useQueryParams,
-  withDefault,
-} from "next-query-params";
+import { StringParam, useQueryParams, withDefault } from "next-query-params";
+import SpaceAction from "./SpaceAction";
 
 const allCycle = { id: "All", label: `All`, status: true };
 
@@ -67,7 +61,7 @@ export default function CycleSelectorAndSearchBar({
 
   return (
     <div className="mt-6 flex flex-col space-y-2 md:flex-row md:justify-between md:space-x-4 md:space-y-0">
-      <div id="cycle-select-box" className="md:w-1/4">
+      <div id="cycle-select-box" className="md:w-3/12">
         <SearchableComboBoxMultiple
           val={genSelectedOptions(options, cycle)}
           setVal={(options) => {
@@ -81,7 +75,7 @@ export default function CycleSelectorAndSearchBar({
       </div>
 
       {/* Search bar and limit */}
-      <div className="md:w-3/4" id="search-bar">
+      <div className="md:w-8/12" id="search-bar">
         <label
           htmlFor="keyword"
           className="block text-sm font-medium text-gray-700"
@@ -115,6 +109,13 @@ export default function CycleSelectorAndSearchBar({
             />
           </div>
         </div>
+      </div>
+
+      <div
+        className="flex flex-col justify-center md:w-1/12"
+        id="advanced-actions"
+      >
+        <SpaceAction />
       </div>
     </div>
   );
