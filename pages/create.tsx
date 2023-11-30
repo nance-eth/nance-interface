@@ -240,7 +240,7 @@ function Form() {
               contentRender: (back, next) => (
                 <div>
                   <p>You may review all inputs here...</p>
-                  <p>{JSON.stringify(watch("config"))}</p>
+                  <p>{JSON.stringify(watch())}</p>
                   <button
                     type="submit"
                     disabled={!isValid || isMutating}
