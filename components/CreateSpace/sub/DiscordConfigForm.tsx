@@ -11,7 +11,7 @@ export default function DiscordConfigForm({ guildId }: { guildId: string }) {
 
   if (!botIsMember) {
     return (
-      <div className="w-100">
+      <div>
         <div className="mt-4">
           <button
             type="button"
@@ -38,7 +38,7 @@ export default function DiscordConfigForm({ guildId }: { guildId: string }) {
   }
 
   return (
-    <div className="w-100">
+    <div>
       <DiscordChannelForm
         guildId={guildId}
         label="Select a channel to post proposals"
