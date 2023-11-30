@@ -52,7 +52,7 @@ export default function DiscordUser({ address }: { address: string }) {
           Connect Discord
         </button>
       )}
-      <div className="flex justify-center">
+      <div className="flex justify-left">
         {discordLoading && (
           <div
             className="inline-block h-6 w-6 animate-spin rounded-full border-[3px] border-current border-t-transparent text-blue-600"
@@ -64,7 +64,7 @@ export default function DiscordUser({ address }: { address: string }) {
       {!discordLoading && discordUser?.avatar && (
         <>
           <div>
-            <div className="block text-center">
+            <div className="block mb-1">
               <p className="">{`${discordUser?.username}`}</p>
               <a
                 className="text-xs underline hover:cursor-pointer"
@@ -79,7 +79,7 @@ export default function DiscordUser({ address }: { address: string }) {
               </a>
             </div>
             <Image
-              className="ml-4 overflow-hidden rounded-full"
+              className="overflow-hidden rounded-full"
               src={`${avatarBaseUrl}/${discordUser?.id}/${discordUser?.avatar}.png`}
               alt={discordUser?.username || ""}
               width={50}

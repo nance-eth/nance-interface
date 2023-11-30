@@ -5,8 +5,6 @@ import { useRouter } from "next/router";
 import Notification from "@/components/common/Notification";
 import { CreateFormValues } from "@/models/NanceTypes";
 import { useCreateSpace } from "@/utils/hooks/NanceHooks";
-import { Session } from "next-auth";
-import { useEffect, useState } from "react";
 import ProjectForm from "@/components/form/ProjectForm";
 import AddressForm from "@/components/form/AddressForm";
 
@@ -127,10 +125,7 @@ function Form() {
                     className="w-16"
                     tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
                   />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -153,10 +148,7 @@ function Form() {
                   }
                 >
                   <GovernanceCycleForm />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -168,10 +160,7 @@ function Form() {
                   description="Snapshot is a free, open-source platform for community governance. Nance can connect with your Snapshot space to create proposals, and then users can directly vote here."
                 >
                   <SnapshotForm session={session!} />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -184,10 +173,7 @@ function Form() {
                 >
                   <DiscordUser address={address} />
                   <DiscordForm />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -209,10 +195,7 @@ function Form() {
                       }
                     }}
                   />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -228,10 +211,7 @@ function Form() {
                     fieldName="config.juicebox.projectId"
                     showType={false}
                   />
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </DescriptionCardWrapper>
               ),
             },
@@ -240,7 +220,7 @@ function Form() {
               contentRender: (back, next) => (
                 <div>
                   <p>You may review all inputs here...</p>
-                  <p>{JSON.stringify(watch())}</p>
+                  <pre>{JSON.stringify(watch(), null, 2)}</pre>
                   <button
                     type="submit"
                     disabled={!isValid || isMutating}
@@ -249,10 +229,7 @@ function Form() {
                   >
                     Submit
                   </button>
-                  <div className="flex justify-end space-x-6">
-                    {back && <button onClick={back}>Back</button>}
-                    {next && <button onClick={next}>Next</button>}
-                  </div>
+                  <BackNextButtons back={back} next={next} />
                 </div>
               ),
             },
@@ -263,3 +240,14 @@ function Form() {
     </FormProvider>
   );
 }
+
+const BackNextButtons = ({ back, next }: { back?: () => void, next?: () => void}) => (
+  <div className="flex justify-end space-x-6">
+    {back && <button
+      className="inline-flex w-fit items-center justify-center rounded-md border border-transparent bg-gray-400 px-4 py-2 text-sm text-white shadow-sm hover:bg-gray-500" 
+      onClick={back}>Back</button>}
+    {next && <button
+      className="inline-flex w-fit items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm text-white shadow-sm hover:bg-indigo-500"
+      onClick={next}>Next</button>}
+  </div>
+);
