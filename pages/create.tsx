@@ -112,7 +112,7 @@ function Form() {
           steps={[
             {
               name: "Rules",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Describe the Space"
                   description="Please choose a name for your space and a prefix for your proposal IDs."
@@ -131,12 +131,16 @@ function Form() {
                     className="w-16"
                     tooltip="Text prepended to proposal ID numbers, usually 3 letters representing your organization"
                   />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Schedule",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Configure the Governance Cycle"
                   description={
@@ -153,35 +157,47 @@ function Form() {
                   }
                 >
                   <GovernanceCycleForm />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Snapshot",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Connect with Snapshot"
                   description="Snapshot is a free, open-source platform for community governance. Nance can connect with your Snapshot space to create proposals, and then users can directly vote here."
                 >
                   <SnapshotForm session={session!} />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Discord",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Connect with Discord"
                   description="Nance can connect with your Discord server to send governance messages."
                 >
                   <DiscordUser address={address} />
                   <DiscordForm />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Safe",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Connect with Safe"
                   description="Nance can connect with your Safe to queue transactions after proposals pass."
@@ -197,12 +213,16 @@ function Form() {
                       }
                     }}
                   />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Juicebox",
-              content: (
+              contentRender: (back, next) => (
                 <DescriptionCardWrapper
                   title="Connect with Juicebox"
                   description="Nance can connect with your Juicebox project to queue reconfigurations after proposals pass."
@@ -212,12 +232,16 @@ function Form() {
                     fieldName="config.juicebox.projectId"
                     showType={false}
                   />
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </DescriptionCardWrapper>
               ),
             },
             {
               name: "Review and Submit",
-              content: (
+              contentRender: (back, next) => (
                 <div>
                   <button
                     type="submit"
@@ -227,6 +251,10 @@ function Form() {
                   >
                     Submit
                   </button>
+                  <div className="flex justify-end space-x-6">
+                    {back && <button onClick={back}>Back</button>}
+                    {next && <button onClick={next}>Next</button>}
+                  </div>
                 </div>
               ),
             },
