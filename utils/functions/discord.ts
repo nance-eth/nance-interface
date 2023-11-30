@@ -1,4 +1,9 @@
-import { MANAGE_GUILD, TEXT_CHANNEL, BOT_COMMANDS } from "@/constants/Discord";
+import {
+  MANAGE_GUILD,
+  GUILD_TEXT_CHANNEL,
+  BOT_COMMANDS,
+  GUILD_ANNOUNCEMENT_CHANNEL,
+} from "@/constants/Discord";
 import {
   discordAuthUrl,
   getGuildIconUrl,
@@ -98,7 +103,11 @@ export const formatChannels = (
     // error from Discord API
     return [];
   return channels
-    .filter((channel) => channel.type === TEXT_CHANNEL)
+    .filter(
+      (channel) =>
+        channel.type === GUILD_TEXT_CHANNEL ||
+        channel.type === GUILD_ANNOUNCEMENT_CHANNEL,
+    )
     .map((channel) => {
       return { ...channel, name: appendSymbol(channel.name, "# ") };
     })
