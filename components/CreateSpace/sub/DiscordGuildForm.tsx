@@ -26,7 +26,7 @@ export default function DiscordGuildForm({
   function guildOfId(id: string) {
     const guild =
       guilds.find((g) => g.id === id) ||
-      ({ name: `Unknown(${id})`, id } as unknown as DiscordGuild);
+      ({ name: '-', id } as unknown as DiscordGuild);
     return guild;
   }
 

@@ -26,7 +26,7 @@ export default function DiscordRoleForm({
   function roleOfId(id: string | null) {
     return (
       roles.find((c) => c.id === id) ||
-      ({ name: `Unknown(${id})`, id } as unknown as DiscordRole)
+      ({ name: '-', id } as unknown as DiscordRole)
     );
   }
 

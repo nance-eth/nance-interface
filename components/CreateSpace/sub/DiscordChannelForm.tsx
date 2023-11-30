@@ -26,7 +26,7 @@ export default function DiscordChannelForm({
   function channelOfId(id: string) {
     const channel =
       channels.find((c) => c.id === id) ||
-      ({ name: `Unknown(${id})`, id } as unknown as DiscordChannel);
+      ({ name: '-', id } as unknown as DiscordChannel);
     return channel;
   }
 
