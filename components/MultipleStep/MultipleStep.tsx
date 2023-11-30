@@ -1,6 +1,7 @@
 import { classNames } from "@/utils/functions/tailwind";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { useRef, useState } from "react";
+import SmallListbox from "../common/SmallListBox";
 
 interface Step {
   name: string;
@@ -33,6 +34,8 @@ export default function MultipleStep({
 }: MultipleStepProps) {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const currentListRef = useRef<HTMLOListElement>(null);
+
+  const stepOptions = Array.from(Array(steps.length).keys()).map((i) => i + 1);
 
   function setCurrentStepIdxWithScroll(idx: number) {
     setCurrentStepIdx(idx);
@@ -128,8 +131,14 @@ export default function MultipleStep({
         </ol>
       </nav>
 
-      <div className="flex justify-end md:hidden">
-        step {currentStepIdx + 1} of {steps.length}
+      <div className="flex items-end justify-end space-x-2 md:hidden">
+        <span>step</span>
+        <SmallListbox
+          options={stepOptions}
+          selected={currentStepIdx + 1}
+          setSelected={(i) => setCurrentStepIdx(i - 1)}
+        />
+        <span>{`of ${steps.length}`}</span>
       </div>
 
       <div
