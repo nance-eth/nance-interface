@@ -31,7 +31,7 @@ export default function CreateSpacePage() {
         withProposalButton={false}
         withWallet
       />
-      <div className="m-20">
+      <div className="m-5 md:m-10 lg:m-20">
         <WalletConnectWrapper
           renderButton={(button: JSX.Element) => (
             <DescriptionCardWrapper
@@ -107,7 +107,7 @@ function Form() {
           checked={false}
         />
       )}
-      <form className="flex flex-col lg:m-6" onSubmit={handleSubmit(onSubmit)}>
+      <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         <MultipleStep
           steps={[
             {
@@ -243,6 +243,8 @@ function Form() {
               name: "Review and Submit",
               contentRender: (back, next) => (
                 <div>
+                  <p>You may review all inputs here...</p>
+                  <p>{JSON.stringify(watch("config"))}</p>
                   <button
                     type="submit"
                     disabled={!isValid || isMutating}

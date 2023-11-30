@@ -32,8 +32,8 @@ export default function GovernanceCycleForm() {
   ]);
 
   return (
-    <div className="flex space-x-8">
-      <div className="mb-1 w-80 flex-col">
+    <div className="flex flex-col space-x-8 md:flex-row">
+      <div className="mb-1 w-fit flex-col">
         <div className="inline-flex">
           <label className="mt-2 block text-sm font-medium text-gray-700">
             Select Start Date
