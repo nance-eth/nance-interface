@@ -75,7 +75,7 @@ export default function CycleSelectorAndSearchBar({
       </div>
 
       {/* Search bar and limit */}
-      <div className="md:w-8/12" id="search-bar">
+      <div className="md:w-6/12" id="search-bar">
         <label
           htmlFor="keyword"
           className="block text-sm font-medium text-gray-700"
@@ -111,10 +111,7 @@ export default function CycleSelectorAndSearchBar({
         </div>
       </div>
 
-      <div
-        className="flex flex-col justify-center md:w-1/12"
-        id="advanced-actions"
-      >
+      <div className="flex flex-col justify-end md:w-3/12">
         <SpaceAction />
       </div>
     </div>

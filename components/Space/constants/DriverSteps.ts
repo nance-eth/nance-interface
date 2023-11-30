@@ -24,6 +24,16 @@ export const driverSteps: DriveStep[] = [
     },
   },
   {
+    element: "#new-proposal-button",
+    popover: {
+      title: "Create new proposal",
+      description:
+        "You can request payouts, reserve tokens and custom transactions.",
+      side: "left",
+      align: "start",
+    },
+  },
+  {
     element: "#advanced-actions",
     popover: {
       title: "Advanced actions",
