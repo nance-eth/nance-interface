@@ -23,6 +23,13 @@ export default function DiscordChannelForm({
 
   const channels = formatChannels(data);
 
+  function channelOfId(id: string) {
+    const channel =
+      channels.find((c) => c.id === id) ||
+      ({ name: `Unknown(${id})`, id } as unknown as DiscordChannel);
+    return channel;
+  }
+
   return (
     <Controller
       name={fieldName}
@@ -32,10 +39,7 @@ export default function DiscordChannelForm({
       }}
       render={({ field: { onChange, value } }) => (
         <GenericListbox<DiscordChannel>
-          value={
-            channels.find((c) => c.id === value) ||
-            ({ name: "-", id: null } as unknown as DiscordChannel)
-          }
+          value={channelOfId(value)}
           onChange={(c) => onChange(c.id)}
           label={label}
           disabled={disabled}

@@ -23,6 +23,13 @@ export default function DiscordRoleForm({
 
   const roles = formatRoles(data);
 
+  function roleOfId(id: string | null) {
+    return (
+      roles.find((c) => c.id === id) ||
+      ({ name: `Unknown(${id})`, id } as unknown as DiscordRole)
+    );
+  }
+
   return (
     <Controller
       name={fieldName}
@@ -32,10 +39,7 @@ export default function DiscordRoleForm({
       }}
       render={({ field: { onChange, value } }) => (
         <GenericListbox<DiscordRole>
-          value={
-            roles.find((c) => c.id === value) ||
-            ({ name: "-", id: null } as unknown as DiscordRole)
-          }
+          value={roleOfId(value)}
           onChange={(c) => onChange(c.id)}
           label={label}
           disabled={disabled}

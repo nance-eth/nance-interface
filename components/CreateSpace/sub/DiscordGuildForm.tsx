@@ -23,6 +23,13 @@ export default function DiscordGuildForm({
 
   const guilds = managedGuildsOf(data);
 
+  function guildOfId(id: string) {
+    const guild =
+      guilds.find((g) => g.id === id) ||
+      ({ name: `Unknown(${id})`, id } as unknown as DiscordGuild);
+    return guild;
+  }
+
   return (
     <Controller
       name={fieldName}
@@ -32,10 +39,7 @@ export default function DiscordGuildForm({
       }}
       render={({ field: { onChange, value } }) => (
         <GenericListbox<DiscordGuild>
-          value={
-            guilds.find((c) => c.id === value) ||
-            ({ name: "-", id: null } as unknown as DiscordGuild)
-          }
+          value={guildOfId(value)}
           onChange={(c) => onChange(c.id)}
           label={label}
           disabled={disabled}
