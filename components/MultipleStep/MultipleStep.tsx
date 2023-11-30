@@ -1,10 +1,14 @@
 import { classNames } from "@/utils/functions/tailwind";
 import { CheckIcon } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 interface Step {
   name: string;
-  content: JSX.Element;
+  content?: JSX.Element;
+  contentRender?: (
+    back: (() => void) | undefined,
+    next: (() => void) | undefined,
+  ) => JSX.Element;
 }
 
 interface MultipleStepProps {
@@ -28,13 +32,26 @@ export default function MultipleStep({
   enableDefaultStyle = true,
 }: MultipleStepProps) {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
+  const currentListRef = useRef<HTMLOListElement>(null);
+
+  function setCurrentStepIdxWithScroll(idx: number) {
+    setCurrentStepIdx(idx);
+    if (currentListRef.current) {
+      // scroll to current step li
+      currentListRef.current.children[idx].scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+      });
+    }
+  }
 
   return (
     <>
-      <nav aria-label="Progress">
+      <nav aria-label="Progress" className="hidden md:block">
         <ol
           role="list"
-          className="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0"
+          ref={currentListRef}
+          className="divide-y divide-gray-300 overflow-x-scroll rounded-md border border-gray-300 md:flex md:divide-y-0"
         >
           {steps.map((step, stepIdx) => (
             <li
@@ -111,6 +128,10 @@ export default function MultipleStep({
         </ol>
       </nav>
 
+      <div className="flex justify-end md:hidden">
+        step {currentStepIdx + 1} of {steps.length}
+      </div>
+
       <div
         className={classNames(
           "mt-5",
@@ -122,7 +143,16 @@ export default function MultipleStep({
             key={step.name}
             className={stepIdx === currentStepIdx ? "block" : "hidden"}
           >
-            {step.content}
+            {step.contentRender
+              ? step.contentRender(
+                  currentStepIdx - 1 >= 0
+                    ? () => setCurrentStepIdxWithScroll(currentStepIdx - 1)
+                    : undefined,
+                  currentStepIdx + 1 <= steps.length - 1
+                    ? () => setCurrentStepIdxWithScroll(currentStepIdx + 1)
+                    : undefined,
+                )
+              : step.content}
           </div>
         ))}
       </div>

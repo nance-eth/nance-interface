@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 import MultipleStep from "./MultipleStep";
 
 const meta: Meta<typeof MultipleStep> = {
-  title: "Nance Components/MultipleStep",
   component: MultipleStep,
 };
 
@@ -15,15 +14,106 @@ export const ThreeSteps: Story = {
     steps: [
       {
         name: "First step",
-        content: <p>First step content</p>,
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
       },
       {
         name: "Second step",
-        content: <p>Second step content</p>,
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
       },
       {
         name: "Third step",
         content: <p>Third step content</p>,
+      },
+      {
+        name: "Fourth step",
+      },
+      {
+        name: "Middle step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: "Middle step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: "Middle step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: "Middle step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: "Middle step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
+      },
+      {
+        name: "Fifth step",
+        contentRender: (back, next) => (
+          <div>
+            <p>Content</p>
+            <div className="flex justify-end space-x-6">
+              {back && <button onClick={back}>Back</button>}
+              {next && <button onClick={next}>Next</button>}
+            </div>
+          </div>
+        ),
       },
     ],
   },
