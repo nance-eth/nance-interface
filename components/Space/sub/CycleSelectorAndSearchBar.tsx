@@ -60,7 +60,7 @@ export default function CycleSelectorAndSearchBar({
   const [keywordInput, setKeywordInput] = useState<string>(keyword || "");
 
   return (
-    <div className="mt-6 flex flex-col space-y-2 md:flex-row md:justify-between md:space-x-4 md:space-y-0">
+    <div className="flex flex-col space-y-2 md:flex-row md:justify-between md:space-x-4 md:space-y-0">
       <div id="cycle-select-box" className="md:w-3/12">
         <SearchableComboBoxMultiple
           val={genSelectedOptions(options, cycle)}
