@@ -81,10 +81,6 @@ function Form() {
     });
   };
 
-  useEffect(() => {
-    console.debug("📝 Nance.create ->", watch());
-  });
-
   return (
     <FormProvider {...methods}>
       <Notification
