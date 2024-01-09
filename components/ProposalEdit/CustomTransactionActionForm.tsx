@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { FunctionFragment, FormatTypes } from "ethers/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
   TenderlySimulationAPIResponse,
@@ -12,6 +12,7 @@ import AddressForm from "../form/AddressForm";
 import UIntForm from "../form/UIntForm";
 import StringForm from "../form/StringForm";
 import BooleanForm from "../form/BooleanForm";
+import SafeInjectIframeCard from "../SafeInjectIframeCard";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -66,110 +67,119 @@ export default function CustomTransactionActionForm({
     getValues(genFieldName("functionName")),
   ]);
 
-  function onSimulated(
-    data: TenderlySimulationAPIResponse | undefined,
-    shouldSimulate: boolean,
-  ) {
-    const simulationId = data?.simulation?.id;
-    const simulationStatus = data?.simulation?.status;
+  const onSimulated = useCallback(
+    (
+      data: TenderlySimulationAPIResponse | undefined,
+      shouldSimulate: boolean,
+    ) => {
+      const simulationId = data?.simulation?.id;
+      const simulationStatus = data?.simulation?.status;
 
-    if (simulationId) {
-      setValue(genFieldName("tenderlyId"), simulationId);
-    }
+      if (simulationId) {
+        setValue(genFieldName("tenderlyId"), simulationId);
+      }
 
-    if (shouldSimulate) {
-      setValue(
-        genFieldName("tenderlyStatus"),
-        simulationStatus ? "true" : "false",
-      );
-    } else {
-      setValue(genFieldName("tenderlyStatus"), "false");
-    }
-  }
+      if (shouldSimulate) {
+        setValue(
+          genFieldName("tenderlyStatus"),
+          simulationStatus ? "true" : "false",
+        );
+      } else {
+        setValue(genFieldName("tenderlyStatus"), "false");
+      }
+    },
+    [setValue],
+  );
 
   return (
-    <div className="grid grid-cols-4 gap-6">
-      <TenderlySimulationButton
-        simulationArgs={simulateArgs}
-        shouldSimulate={!!projectOwner && !!input && !!shouldSimulate}
-        setShouldSimulate={setShouldSimulate}
-        onSimulated={onSimulated}
-      />
+    <div>
+      <div className="grid grid-cols-4 gap-6">
+        <TenderlySimulationButton
+          simulationArgs={simulateArgs}
+          shouldSimulate={!!projectOwner && !!input && !!shouldSimulate}
+          setShouldSimulate={setShouldSimulate}
+          onSimulated={onSimulated}
+        />
 
-      <div className="col-span-4 sm:col-span-2">
-        <AddressForm label="Contract" fieldName={genFieldName("contract")} />
-      </div>
-
-      <div className="col-span-4 sm:col-span-1">
-        <UIntForm label="ETH Value" fieldName={genFieldName("value")} />
-      </div>
-
-      {watch(genFieldName("contract"))?.length === 42 && (
         <div className="col-span-4 sm:col-span-2">
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Function
-          </label>
-          <Controller
-            name={genFieldName("functionName")}
-            control={control}
-            rules={{
-              required: "Can't be empty",
-            }}
-            render={({ field: { onChange, onBlur, value, ref } }) => (
-              <FunctionSelector
-                address={watch(genFieldName("contract"))}
-                val={value}
-                setVal={onChange}
-                setFunctionFragment={(f) => setFunctionFragment(f)}
-                inputStyle="h-10"
+          <AddressForm label="Contract" fieldName={genFieldName("contract")} />
+        </div>
+
+        <div className="col-span-4 sm:col-span-1">
+          <UIntForm label="ETH Value" fieldName={genFieldName("value")} />
+        </div>
+
+        {watch(genFieldName("contract"))?.length === 42 && (
+          <div className="col-span-4 sm:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Function
+            </label>
+            <Controller
+              name={genFieldName("functionName")}
+              control={control}
+              rules={{
+                required: "Can't be empty",
+              }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <FunctionSelector
+                  address={watch(genFieldName("contract"))}
+                  val={value}
+                  setVal={onChange}
+                  setFunctionFragment={(f) => setFunctionFragment(f)}
+                  inputStyle="h-10"
+                />
+              )}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={genFieldName("functionName")}
+              render={({ message }) => (
+                <p className="mt-1 text-red-500">{message}</p>
+              )}
+            />
+          </div>
+        )}
+
+        {functionFragment?.inputs?.map((param, index) => (
+          <div key={index} className="col-span-4 sm:col-span-1">
+            {param.type === "address" && (
+              <AddressForm
+                label={`Param: ${param.name || "_"}`}
+                fieldName={genFieldName(`args.${index}`)}
               />
             )}
-          />
-          <ErrorMessage
-            errors={errors}
-            name={genFieldName("functionName")}
-            render={({ message }) => (
-              <p className="mt-1 text-red-500">{message}</p>
+
+            {param.type.includes("int") && (
+              <UIntForm
+                label={`Param: ${param.name || "_"}`}
+                fieldName={genFieldName(`args.${index}`)}
+                fieldType={param.type}
+              />
             )}
-          />
-        </div>
-      )}
 
-      {functionFragment?.inputs?.map((param, index) => (
-        <div key={index} className="col-span-4 sm:col-span-1">
-          {param.type === "address" && (
-            <AddressForm
-              label={`Param: ${param.name || "_"}`}
-              fieldName={genFieldName(`args.${index}`)}
-            />
-          )}
+            {param.type === "bool" && (
+              <BooleanForm
+                label={`Param: ${param.name || "_"}`}
+                fieldName={genFieldName(`args.${index}`)}
+              />
+            )}
 
-          {param.type.includes("int") && (
-            <UIntForm
-              label={`Param: ${param.name || "_"}`}
-              fieldName={genFieldName(`args.${index}`)}
-              fieldType={param.type}
-            />
-          )}
+            {param.type !== "address" &&
+              !param.type.includes("int") &&
+              param.type !== "bool" && (
+                <StringForm
+                  label={`Param: ${param.name || "_"}`}
+                  fieldName={genFieldName(`args.${index}`)}
+                  fieldType={param.type}
+                />
+              )}
+          </div>
+        ))}
+      </div>
 
-          {param.type === "bool" && (
-            <BooleanForm
-              label={`Param: ${param.name || "_"}`}
-              fieldName={genFieldName(`args.${index}`)}
-            />
-          )}
-
-          {param.type !== "address" &&
-            !param.type.includes("int") &&
-            param.type !== "bool" && (
-            <StringForm
-              label={`Param: ${param.name || "_"}`}
-              fieldName={genFieldName(`args.${index}`)}
-              fieldType={param.type}
-            />
-          )}
-        </div>
-      ))}
+      <div className="mt-2">
+        <SafeInjectIframeCard />
+      </div>
     </div>
   );
 }
