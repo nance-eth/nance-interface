@@ -60,7 +60,7 @@ class AppCommunicator {
           sdkVersion,
         )
       : MessageFormatter.makeResponse(requestId, data, sdkVersion);
-    console.debug("iframe.send", { msg, iframe: this.iframeRef.current });
+    // console.debug("iframe.send", { msg, iframe: this.iframeRef.current });
     this.iframeRef.current?.contentWindow?.postMessage(msg, "*");
   };
 
@@ -69,13 +69,13 @@ class AppCommunicator {
     const hasHandler = this.canHandleMessage(msg);
 
     if (validMessage && hasHandler) {
-      console.debug("iframe.receive", { msg: msg.data });
+      // console.debug("iframe.receive", { msg: msg.data });
 
       const handler = this.handlers.get(msg.data.method);
       try {
         // @ts-expect-error Handler existence is checked in this.canHandleMessage
         const response = await handler(msg);
-        console.debug("iframe.receive.handler", { response });
+        // console.debug("iframe.receive.handler", { response });
 
         // If response is not returned, it means the response will be send somewhere else
         if (typeof response !== "undefined") {

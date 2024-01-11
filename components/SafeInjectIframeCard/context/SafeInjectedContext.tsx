@@ -7,7 +7,6 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  PropsWithChildren,
 } from "react";
 import { providers, utils } from "ethers";
 import { useAppCommunicator } from "../helpers/communicator";
@@ -63,13 +62,14 @@ export const SafeInjectProvider: React.FunctionComponent<FCProps> = ({
     "0xca6Ed3Fdc8162304d7f1fCFC9cA3A81632d5E5B0",
   );
   const [appUrl, setAppUrl] = useState<string>();
-  // const [rpcUrl, setRpcUrl] = useState<string>();
-  // const [provider, setProvider] = useState<providers.StaticJsonRpcProvider>();
   const ethersProvider = useEthersProvider();
-  const provider =
+  const _provider =
     ((ethersProvider as providers.FallbackProvider)?.providerConfigs[0]
       ?.provider as providers.JsonRpcProvider) ||
     (ethersProvider as providers.JsonRpcProvider);
+  const provider = new providers.StaticJsonRpcProvider(
+    _provider.connection.url,
+  );
   const [latestTransaction, setLatestTransaction] =
     useState<TransactionWithId>();
 
@@ -96,12 +96,6 @@ export const SafeInjectProvider: React.FunctionComponent<FCProps> = ({
     },
     [iframeRef, appUrl],
   );
-
-  // useEffect(() => {
-  //   if (!rpcUrl) return;
-
-  //   setProvider(new providers.StaticJsonRpcProvider(rpcUrl));
-  // }, [rpcUrl]);
 
   useEffect(() => {
     if (!provider) return;
