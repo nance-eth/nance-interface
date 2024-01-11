@@ -1,5 +1,10 @@
 import { ErrorMessage } from "@hookform/error-message";
-import { FunctionFragment, FormatTypes } from "ethers/lib/utils";
+import {
+  FunctionFragment,
+  FormatTypes,
+  parseEther,
+  Interface,
+} from "ethers/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
@@ -13,7 +18,12 @@ import UIntForm from "../form/UIntForm";
 import StringForm from "../form/StringForm";
 import BooleanForm from "../form/BooleanForm";
 import SafeInjectIframeCard from "../SafeInjectIframeCard";
-import { SafeInjectProvider } from "../SafeInjectIframeCard/context/SafeInjectedContext";
+import {
+  SafeInjectProvider,
+  useSafeInject,
+} from "../SafeInjectIframeCard/context/SafeInjectedContext";
+import { BigNumber } from "ethers";
+import { classNames } from "@/utils/functions/tailwind";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -25,6 +35,7 @@ export default function CustomTransactionActionForm({
   const [functionFragment, setFunctionFragment] = useState<FunctionFragment>();
   const [shouldSimulate, setShouldSimulate] = useState<boolean>();
 
+  const { latestTransaction } = useSafeInject();
   const {
     watch,
     control,
@@ -53,12 +64,17 @@ export default function CustomTransactionActionForm({
   };
 
   useEffect(() => {
-    // clear args of last selected function
-    if (functionFragment?.inputs && replace) {
-      console.debug(functionFragment);
-      replace(functionFragment.inputs.map((p) => ""));
+    if (latestTransaction) {
+      console.debug(latestTransaction);
+      setValue(genFieldName("contract"), latestTransaction.to);
+      setValue(
+        genFieldName("value"),
+        BigNumber.from(latestTransaction.value).toString(),
+      );
+      // decode function name and args from data
+      console.debug("latestTransaction", latestTransaction);
     }
-  }, [functionFragment, replace]);
+  }, [latestTransaction, setValue]);
 
   useEffect(() => {
     // if the function input changed, we need to re-run simulation
@@ -126,8 +142,28 @@ export default function CustomTransactionActionForm({
                   address={watch(genFieldName("contract"))}
                   val={value}
                   setVal={onChange}
-                  setFunctionFragment={(f) => setFunctionFragment(f)}
+                  setFunctionFragment={(f) => {
+                    setFunctionFragment(f);
+                    // clear args of last selected function
+                    if (functionFragment?.inputs && replace) {
+                      console.debug(functionFragment);
+                      replace(functionFragment.inputs.map((p) => ""));
+                    }
+                    // load args from latest transaction
+                    if (latestTransaction) {
+                      const iface = new Interface([f]);
+                      const decoded = iface.decodeFunctionData(
+                        f.name,
+                        latestTransaction.data,
+                      );
+                      console.debug("decoded", decoded);
+                      if (replace) {
+                        replace(Object.values(decoded).map((v) => v));
+                      }
+                    }
+                  }}
                   inputStyle="h-10"
+                  functionData={latestTransaction?.data}
                 />
               )}
             />
@@ -179,9 +215,7 @@ export default function CustomTransactionActionForm({
       </div>
 
       <div className="mt-2">
-        <SafeInjectProvider defaultAddress={projectOwner}>
-          <SafeInjectIframeCard />
-        </SafeInjectProvider>
+        <SafeInjectIframeCard />
       </div>
     </div>
   );

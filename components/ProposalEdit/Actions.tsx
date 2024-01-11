@@ -12,6 +12,7 @@ import PayoutActionForm from "./PayoutActionForm";
 import ReserveActionForm from "./ReserveActionForm";
 import TransferActionForm from "./TransferActionForm";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
+import { SafeInjectProvider } from "../SafeInjectIframeCard/context/SafeInjectedContext";
 
 export default function Actions({
   loadedActions,
@@ -158,10 +159,12 @@ export default function Actions({
                 })}
                 className="hidden"
               />
-              <CustomTransactionActionForm
-                genFieldName={genFieldName(index)}
-                projectOwner={projectOwner}
-              />
+              <SafeInjectProvider defaultAddress={projectOwner}>
+                <CustomTransactionActionForm
+                  genFieldName={genFieldName(index)}
+                  projectOwner={projectOwner}
+                />
+              </SafeInjectProvider>
             </div>
           );
         } else {
