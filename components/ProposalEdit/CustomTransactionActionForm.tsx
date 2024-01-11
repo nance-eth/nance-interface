@@ -13,6 +13,7 @@ import UIntForm from "../form/UIntForm";
 import StringForm from "../form/StringForm";
 import BooleanForm from "../form/BooleanForm";
 import SafeInjectIframeCard from "../SafeInjectIframeCard";
+import { SafeInjectProvider } from "../SafeInjectIframeCard/context/SafeInjectedContext";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -178,7 +179,9 @@ export default function CustomTransactionActionForm({
       </div>
 
       <div className="mt-2">
-        <SafeInjectIframeCard />
+        <SafeInjectProvider defaultAddress={projectOwner}>
+          <SafeInjectIframeCard />
+        </SafeInjectProvider>
       </div>
     </div>
   );

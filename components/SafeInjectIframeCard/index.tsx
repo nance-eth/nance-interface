@@ -6,14 +6,6 @@ import {
 import { useDebounce } from "@/utils/hooks/UseDebounce";
 
 export default function SafeInjectIframeCard() {
-  return (
-    <SafeInjectProvider>
-      <IframeCard />
-    </SafeInjectProvider>
-  );
-}
-
-export function IframeCard() {
   const { appUrl, iframeRef, latestTransaction, setAddress, setAppUrl } =
     useSafeInject();
   const [urlInput, setUrlInput] = useState<string>("");

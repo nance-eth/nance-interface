@@ -53,14 +53,14 @@ export const SafeInjectContext = createContext<SafeInjectContextType>({
 
 export interface FCProps {
   children: React.ReactNode;
+  defaultAddress?: string;
 }
 
 export const SafeInjectProvider: React.FunctionComponent<FCProps> = ({
   children,
+  defaultAddress,
 }) => {
-  const [address, setAddress] = useState<string | undefined>(
-    "0xca6Ed3Fdc8162304d7f1fCFC9cA3A81632d5E5B0",
-  );
+  const [address, setAddress] = useState<string | undefined>(defaultAddress);
   const [appUrl, setAppUrl] = useState<string>();
   const ethersProvider = useEthersProvider();
   const _provider =
