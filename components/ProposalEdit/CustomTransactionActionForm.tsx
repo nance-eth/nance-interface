@@ -65,7 +65,6 @@ export default function CustomTransactionActionForm({
 
   useEffect(() => {
     if (latestTransaction) {
-      console.debug(latestTransaction);
       setValue(genFieldName("contract"), latestTransaction.to);
       setValue(
         genFieldName("value"),
@@ -146,7 +145,6 @@ export default function CustomTransactionActionForm({
                     setFunctionFragment(f);
                     // clear args of last selected function
                     if (functionFragment?.inputs && replace) {
-                      console.debug(functionFragment);
                       replace(functionFragment.inputs.map((p) => ""));
                     }
                     // load args from latest transaction
@@ -156,7 +154,6 @@ export default function CustomTransactionActionForm({
                         f.name,
                         latestTransaction.data,
                       );
-                      console.debug("decoded", decoded);
                       if (replace) {
                         replace(Object.values(decoded).map((v) => v));
                       }

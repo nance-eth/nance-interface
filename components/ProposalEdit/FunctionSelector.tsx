@@ -47,8 +47,11 @@ export default function FunctionSelector({
         const functionFragment = ethersInterface.getFunction(
           functionData.slice(0, 10),
         );
-        setVal(functionFragment.format("full"));
-        setFunctionFragment(functionFragment);
+        const newVal = functionFragment.format("full");
+        if (val !== newVal) {
+          setVal(newVal);
+          setFunctionFragment(functionFragment);
+        }
       } catch (e) {
         console.warn("FunctionSelector.getFunction error", e);
       }
