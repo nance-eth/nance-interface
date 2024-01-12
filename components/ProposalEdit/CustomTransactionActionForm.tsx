@@ -18,12 +18,9 @@ import UIntForm from "../form/UIntForm";
 import StringForm from "../form/StringForm";
 import BooleanForm from "../form/BooleanForm";
 import SafeInjectIframeCard from "../SafeInjectIframeCard";
-import {
-  SafeInjectProvider,
-  useSafeInject,
-} from "../SafeInjectIframeCard/context/SafeInjectedContext";
+import { useSafeInject } from "../SafeInjectIframeCard/context/SafeInjectedContext";
 import { BigNumber } from "ethers";
-import { classNames } from "@/utils/functions/tailwind";
+import { CustomTransactionArg } from "@/models/NanceTypes";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -33,6 +30,7 @@ export default function CustomTransactionActionForm({
   projectOwner: string | undefined;
 }) {
   const [functionFragment, setFunctionFragment] = useState<FunctionFragment>();
+  const [functionData, setFunctionData] = useState<string>();
   const [shouldSimulate, setShouldSimulate] = useState<boolean>();
 
   const { latestTransaction } = useSafeInject();
@@ -44,10 +42,7 @@ export default function CustomTransactionActionForm({
     getFieldState,
     setValue,
   } = useFormContext();
-  const { replace } = useFieldArray<{
-    args: any[];
-    [key: string]: any;
-  }>({ name: genFieldName("args") });
+  const { replace, fields } = useFieldArray({ name: genFieldName("args") });
 
   const args = functionFragment?.inputs?.map((param, index) =>
     getValues(genFieldName(`args.${index}`)),
@@ -70,6 +65,7 @@ export default function CustomTransactionActionForm({
         genFieldName("value"),
         BigNumber.from(latestTransaction.value).toString(),
       );
+      setFunctionData(latestTransaction.data);
       // decode function name and args from data
       console.debug("latestTransaction", latestTransaction);
     }
@@ -143,24 +139,43 @@ export default function CustomTransactionActionForm({
                   setVal={onChange}
                   setFunctionFragment={(f) => {
                     setFunctionFragment(f);
-                    // clear args of last selected function
-                    if (functionFragment?.inputs && replace) {
-                      replace(functionFragment.inputs.map((p) => ""));
-                    }
-                    // load args from latest transaction
-                    if (latestTransaction) {
+
+                    if (functionData) {
+                      // load args from latest transaction
                       const iface = new Interface([f]);
                       const decoded = iface.decodeFunctionData(
                         f.name,
-                        latestTransaction.data,
+                        functionData,
                       );
-                      if (replace) {
-                        replace(Object.values(decoded).map((v) => v));
-                      }
+                      const args = decoded.map((v) => v);
+
+                      args.forEach((arg, index) => {
+                        setValue(genFieldName(`args.${index}`), arg);
+                      });
+                      replace(
+                        args.map((v, index) => ({
+                          value: v,
+                          type: f.inputs[index].type,
+                          name: f.inputs[index].name,
+                        })),
+                      );
+                      // clear this one-time data that we got from latest transaction
+                      setFunctionData(undefined);
+                    } else {
+                      // reset args
+                      replace(
+                        f.inputs?.map((param) => {
+                          return {
+                            value: "",
+                            type: param.type,
+                            name: param.name,
+                          };
+                        }) || [],
+                      );
                     }
                   }}
                   inputStyle="h-10"
-                  functionData={latestTransaction?.data}
+                  functionData={functionData}
                 />
               )}
             />
@@ -174,37 +189,37 @@ export default function CustomTransactionActionForm({
           </div>
         )}
 
-        {functionFragment?.inputs?.map((param, index) => (
-          <div key={index} className="col-span-4 sm:col-span-1">
-            {param.type === "address" && (
+        {(fields as unknown as CustomTransactionArg[]).map((field, index) => (
+          <div key={field.id} className="col-span-4 sm:col-span-1">
+            {field.type === "address" && (
               <AddressForm
-                label={`Param: ${param.name || "_"}`}
-                fieldName={genFieldName(`args.${index}`)}
+                label={`Param: ${field.name || "_"}`}
+                fieldName={genFieldName(`args.${index}.value`)}
               />
             )}
 
-            {param.type.includes("int") && (
+            {field.type.includes("int") && (
               <UIntForm
-                label={`Param: ${param.name || "_"}`}
-                fieldName={genFieldName(`args.${index}`)}
-                fieldType={param.type}
+                label={`Param: ${field.name || "_"}`}
+                fieldName={genFieldName(`args.${index}.value`)}
+                fieldType={field.type}
               />
             )}
 
-            {param.type === "bool" && (
+            {field.type === "bool" && (
               <BooleanForm
-                label={`Param: ${param.name || "_"}`}
-                fieldName={genFieldName(`args.${index}`)}
+                label={`Param: ${field.name || "_"}`}
+                fieldName={genFieldName(`args.${index}.value`)}
               />
             )}
 
-            {param.type !== "address" &&
-              !param.type.includes("int") &&
-              param.type !== "bool" && (
+            {field.type !== "address" &&
+              !field.type.includes("int") &&
+              field.type !== "bool" && (
                 <StringForm
-                  label={`Param: ${param.name || "_"}`}
-                  fieldName={genFieldName(`args.${index}`)}
-                  fieldType={param.type}
+                  label={`Param: ${field.name || "_"}`}
+                  fieldName={genFieldName(`args.${index}.value`)}
+                  fieldType={field.type}
                 />
               )}
           </div>

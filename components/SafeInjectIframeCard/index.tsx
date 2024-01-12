@@ -1,13 +1,10 @@
 import { useState } from "react";
-import {
-  SafeInjectProvider,
-  useSafeInject,
-} from "./context/SafeInjectedContext";
+import { useSafeInject } from "./context/SafeInjectedContext";
 import { useDebounce } from "@/utils/hooks/UseDebounce";
+import { isAddress } from "viem";
 
 export default function SafeInjectIframeCard() {
-  const { appUrl, iframeRef, latestTransaction, setAddress, setAppUrl } =
-    useSafeInject();
+  const { appUrl, iframeRef, address, setAppUrl } = useSafeInject();
   const [urlInput, setUrlInput] = useState<string>("");
 
   useDebounce<string | undefined>(urlInput, 500, (k: string | undefined) => {
@@ -27,6 +24,12 @@ export default function SafeInjectIframeCard() {
           className="block h-10 w-full flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           value={urlInput}
           onChange={(e) => setUrlInput(e.target.value)}
+          disabled={!isAddress(address || "")}
+          placeholder={
+            isAddress(address || "")
+              ? "Input app url you want to load"
+              : "No project owner address founded"
+          }
         />
       </div>
 

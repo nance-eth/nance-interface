@@ -48,15 +48,14 @@ export default function FunctionSelector({
           functionData.slice(0, 10),
         );
         const newVal = functionFragment.format("full");
-        if (val !== newVal) {
-          setVal(newVal);
-          setFunctionFragment(functionFragment);
-        }
+        console.debug("wtaaaa");
+        setVal(newVal);
+        setFunctionFragment(functionFragment);
       } catch (e) {
         console.warn("FunctionSelector.getFunction error", e);
       }
     }
-  }, [functionData, ethersInterface]);
+  }, [functionData, abi]);
 
   return (
     <Combobox
