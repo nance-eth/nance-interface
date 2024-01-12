@@ -1,10 +1,5 @@
 import { ErrorMessage } from "@hookform/error-message";
-import {
-  FunctionFragment,
-  FormatTypes,
-  parseEther,
-  Interface,
-} from "ethers/lib/utils";
+import { FunctionFragment, FormatTypes, Interface } from "ethers/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import {
@@ -45,7 +40,7 @@ export default function CustomTransactionActionForm({
   const { replace, fields } = useFieldArray({ name: genFieldName("args") });
 
   const args = functionFragment?.inputs?.map((param, index) =>
-    getValues(genFieldName(`args.${index}`)),
+    getValues(genFieldName(`args.${index}.value`)),
   );
   const input = encodeTransactionInput(
     functionFragment?.format(FormatTypes.minimal) || "",
