@@ -18,6 +18,11 @@ export default function SafeInjectIframeCard() {
       <label className="block text-sm font-medium text-gray-700">
         {"Input app url you want to load"}
       </label>
+      <p className="text-xs text-gray-500">
+        {
+          "You can visit any dApps that supports Safe, interact with interface and get transaction you need to sign here."
+        }
+      </p>
       <div className="mt-1 flex rounded-md shadow-sm">
         <input
           type="text"

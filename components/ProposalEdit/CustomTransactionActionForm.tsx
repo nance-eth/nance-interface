@@ -226,7 +226,7 @@ export default function CustomTransactionActionForm({
         ))}
       </div>
 
-      <div className="mt-2">
+      <div className="mt-6">
         <SafeInjectIframeCard />
       </div>
     </div>
