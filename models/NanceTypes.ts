@@ -290,7 +290,7 @@ export type CustomTransaction = {
   // can pass as ABI
   // can have unnamed parameters
   functionName: string;
-  args: any[];
+  args: CustomTransactionArg[];
   tenderlyId: string;
   tenderlyStatus: string;
 };
