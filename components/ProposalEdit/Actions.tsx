@@ -151,6 +151,10 @@ export default function Actions({
                   onClick={() => remove(index)}
                 />
               </div>
+              <p className="text-xs text-gray-500">
+                You can input transaction data manually or get them from
+                interacting with embed dApp below.
+              </p>
               <input
                 type="text"
                 {...register(`proposal.actions.${index}.type`, {

@@ -2,6 +2,22 @@ import { useState } from "react";
 import { useSafeInject } from "./context/SafeInjectedContext";
 import { useDebounce } from "@/utils/hooks/UseDebounce";
 import { isAddress } from "viem";
+import GenericListbox from "../common/GenericListbox";
+
+const dAppList = [
+  {
+    id: "https://juicebox.money",
+    name: "Juicebox",
+  },
+  {
+    id: "https://app.uniswap.org",
+    name: "Uniswap",
+  },
+  {
+    id: "https://jokerace.xyz",
+    name: "Jokerace",
+  },
+];
 
 export default function SafeInjectIframeCard() {
   const { appUrl, iframeRef, address, setAppUrl } = useSafeInject();
@@ -23,10 +39,10 @@ export default function SafeInjectIframeCard() {
           "You can visit any dApps that supports Safe, interact with interface and get transaction you need to sign here."
         }
       </p>
-      <div className="mt-1 flex rounded-md shadow-sm">
+      <div className="mt-1 flex flex-col gap-2 md:flex-row">
         <input
           type="text"
-          className="block h-10 w-full flex-1 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="block h-10 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm md:w-2/3"
           value={urlInput}
           onChange={(e) => setUrlInput(e.target.value)}
           disabled={!isAddress(address || "")}
@@ -36,6 +52,24 @@ export default function SafeInjectIframeCard() {
               : "No project owner address founded"
           }
         />
+
+        <div className="md:1/3">
+          <GenericListbox
+            label=""
+            items={dAppList}
+            value={
+              dAppList.find((v) => v.id === appUrl) || {
+                id: "",
+                name: "-- Select dApp --",
+              }
+            }
+            onChange={(v) => {
+              setUrlInput(v.id);
+              setAppUrl(v.id);
+            }}
+            disabled={!isAddress(address || "")}
+          />
+        </div>
       </div>
 
       {appUrl && (
@@ -43,7 +77,7 @@ export default function SafeInjectIframeCard() {
           <iframe
             ref={iframeRef}
             src={appUrl}
-            className="h-[40vw] w-full p-2"
+            className="h-[60vh] w-full p-2"
           />
         </div>
       )}
