@@ -15,7 +15,9 @@ import { useSession } from "next-auth/react";
 
 export default function ProposalSummaries() {
   const { proposalSummary, threadSummary } = useContext(ProposalContext);
-  if (!proposalSummary && !threadSummary) return null;
+  const { status: walletStatus } = useSession();
+  const authenticated = walletStatus === "authenticated";
+  {if (!proposalSummary && !threadSummary && !authenticated) return null;}
   return (
     <div className="rounded-md border bg-gray-100">
       <div className="mx-auto max-w-7xl px-6">
