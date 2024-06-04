@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 
 export default function ProposalSummaries() {
-  const { proposalSummary, threadSummary, commonProps } = useContext(ProposalContext);
+  const { proposalSummary, threadSummary } = useContext(ProposalContext);
   const { status: walletStatus } = useSession();
   const authenticated = walletStatus === "authenticated";
   {if (!proposalSummary && !threadSummary && !authenticated) return null;}
@@ -24,9 +24,7 @@ export default function ProposalSummaries() {
         <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
           <dl className="mb-5 space-y-6 divide-y divide-gray-900/10">
             <Summary type="Proposal" markdown={proposalSummary} />
-            {commonProps.space === "juicebox" && (
-              <Summary type="Discussion" markdown={threadSummary} />
-            )}
+            <Summary type="Discussion" markdown={threadSummary} />
           </dl>
         </div>
       </div>
