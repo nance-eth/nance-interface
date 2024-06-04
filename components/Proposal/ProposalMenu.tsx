@@ -36,7 +36,8 @@ export default function ProposalMenu() {
   const [archiveConfirmModalIsOpen, setArchiveConfirmModalIsOpen] = useState(false);
 
   const status = proposalContext.commonProps.status;
-  const showVariableActions = walletStatus === "authenticated" && (
+  const authenticated = walletStatus === "authenticated";
+  const showVariableActions = authenticated && (
     status === "Archived" || status === "Draft" || status === "Discussion" || status === "Temperature Check"
   );
 
@@ -124,23 +125,25 @@ export default function ProposalMenu() {
               )}
             </Menu.Item>
           </div>
+          {authenticated && (
+            <div className="px-1 py-1">
+              <Menu.Item>
+                {({ active }) => (
+                  <Link
+                    className={`${
+                      active ? "bg-green-500 text-white" : "text-gray-900"
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                    href={`/s/${space}/edit?&proposalId=${proposalId || uuid}&fork=true`}
+                  >
+                    <ArrowUpOnSquareStackIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                        Fork
+                  </Link>
+                )}
+              </Menu.Item>
+            </div>
+          )}
           {showVariableActions && (
             <>
-              <div className="px-1 py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <Link
-                      className={`${
-                        active ? "bg-green-500 text-white" : "text-gray-900"
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                      href={`/s/${space}/edit?&proposalId=${proposalId || uuid}&fork=true`}
-                    >
-                      <ArrowUpOnSquareStackIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                      Fork
-                    </Link>
-                  )}
-                </Menu.Item>
-              </div>
               <div className="px-1 py-1">
                 <Menu.Item>
                   {({ active }) => (
