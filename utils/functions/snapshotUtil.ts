@@ -29,7 +29,7 @@ export function processChoices(
   choice: any,
 ): string | string[] {
   if (!choice || !type) return "";
-
+  if (choice.undefined) return ["🔐"]; // undefined entry appears with shutter voting
   if (type == "approval") {
     return choice as string[];
   } else if (type == "ranked-choice") {
