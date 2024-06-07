@@ -1,7 +1,7 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { BigNumber, utils } from "ethers";
-import { Reserve } from "@nance/nance-sdk";
+import { Reserve, getActionsFromBody } from "@nance/nance-sdk";
 import {
   useCurrentPayouts,
   useProposalsInfinite,
@@ -83,9 +83,13 @@ export default function QueueReconfigurationModal({
     .flat()
     // only gather approved actions
     ?.filter(
-      (p) =>
-        p.actions && p.actions.length > 0 &&
-        (p.status === "Voting" || p.status === "Approved"),
+      (p) => {
+        p.actions = getActionsFromBody(p.body) || [];
+        return (
+          p.actions && p.actions.length > 0 &&
+          (p.status === "Voting" || p.status === "Approved")
+        );
+      }
     )
     .flatMap((p) => {
       return p.actions?.map((action) => {

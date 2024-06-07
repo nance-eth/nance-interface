@@ -92,17 +92,17 @@ export default function SpaceAction() {
               href: `/review?project=${projectId}`,
               icon: ShieldCheckIcon,
             },
-            {
-              name: "Queue Reconfiguration",
-              description:
-                "Queue a reconfiguration based on governance results and submit it to Safe.",
-              href: "#",
-              icon: BanknotesIcon,
-              onClick: () => {
-                setQuery({ cycle: currentCycle });
-                setShowQueueReconfigurationModal(true);
-              },
-            },
+            // {
+            //   name: "Queue Reconfiguration",
+            //   description:
+            //     "Queue a reconfiguration based on governance results and submit it to Safe.",
+            //   href: "#",
+            //   icon: BanknotesIcon,
+            //   onClick: () => {
+            //     setQuery({ cycle: currentCycle });
+            //     setShowQueueReconfigurationModal(true);
+            //   },
+            // },
             {
               name: "Queue Transactions",
               description:

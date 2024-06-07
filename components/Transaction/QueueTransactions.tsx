@@ -4,6 +4,7 @@ import {
   CustomTransaction,
   SpaceInfo,
   Transfer,
+  getActionsFromBody,
 } from "@nance/nance-sdk";
 import { extractFunctionName } from "@/utils/functions/nance";
 import { getContractLabel } from "@/constants/Contract";
@@ -59,9 +60,13 @@ export default function QueueTransactionsModal({
     .flat()
     // only gather approved actions
     ?.filter(
-      (p) =>
-        p.actions.length > 0 &&
-        (p.status === "Voting" || p.status === "Approved"),
+      (p) => {
+        p.actions = getActionsFromBody(p.body) || [];
+        return (
+          p.actions && p.actions.length > 0 &&
+          (p.status === "Voting" || p.status === "Approved")
+        );
+      }
     )
     .flatMap((p) => {
       return p.actions?.map((action) => {
