@@ -12,7 +12,8 @@ export default function UIntForm({
   fieldType = "uint256",
   defaultValue = 0,
   showType = true,
-  tooltip = ""
+  tooltip = "",
+  step = 1
 }: {
   label: string;
   fieldName: any;
@@ -20,6 +21,7 @@ export default function UIntForm({
   defaultValue?: number;
   showType?: boolean;
   tooltip?: string;
+  step?: number
 }) {
   const {
     register,
@@ -40,7 +42,7 @@ export default function UIntForm({
 
         <input
           type="number"
-          step={1}
+          step={step}
           min={0}
           defaultValue={defaultValue}
           {...register(fieldName, {

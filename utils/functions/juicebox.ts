@@ -864,7 +864,7 @@ export function payout2JBSplit(payout: Payout) {
   const split: JBSplit = {
     preferClaimed: false,
     preferAddToBalance: false,
-    percent: BigNumber.from(payout.amountUSD),
+    percent: BigNumber.from(Math.floor(payout.amountUSD)), // HACK FOR FLOAT VALUES
     lockedUntil: BIG_ZERO,
     beneficiary: payout.address || "",
     projectId: BigNumber.from(payout.project || 0),
