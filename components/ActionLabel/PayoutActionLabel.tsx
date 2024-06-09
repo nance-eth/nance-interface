@@ -27,7 +27,7 @@ export default function PayoutActionLabel({ payout }: { payout: Payout }) {
   return (
     <div className="flex flex-col">
       <span className="line-clamp-5">
-        ${Number(payout.amountUSD).toLocaleString()}
+        ${Number(payout.amountUSD).toFixed(2)}
         &nbsp;to
         <JBSplitEntry mod={payout2JBSplit(payout)} />
         {`for ${payout.count} cycles`} (<span className="font-mono text-sm">{dateRanges}</span>)
