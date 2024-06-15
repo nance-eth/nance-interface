@@ -24,7 +24,7 @@ export default function ProposalSummaries() {
         <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
           <dl className="mb-5 space-y-6 divide-y divide-gray-900/10">
             <Summary type="Proposal" markdown={proposalSummary} />
-            <Summary type="Discussion" markdown={threadSummary} />
+            {!threadSummary && !authenticated ? (null) : <Summary type="Discussion" markdown={threadSummary} />}
           </dl>
         </div>
       </div>
