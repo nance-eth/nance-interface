@@ -46,12 +46,11 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
     setSummary(undefined);
     try {
       const res = await fetch(`${NANCE_API_URL}/${space}/summary/${_type}/${uuid}`);
-      const { data } = await res.json();
+      const { data, error } = await res.json();
+      if (error) throw Error(error);
       setSummary(data);
     } catch (e: any) {
-      toast.error("Failed to generate summary");
       toast.error(e.toString());
-      console.error(e);
     }
     setSummaryLoading(false);
   };
