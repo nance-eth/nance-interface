@@ -5,8 +5,6 @@ import { useContext } from "react";
 import { ProposalContext } from "../Proposal/context/ProposalContext";
 import { dateRangesOfCycles } from "@/utils/functions/GovernanceCycle";
 import { SpaceContext } from "@/context/SpaceContext";
-import FormattedAddress from "../AddressCard/FormattedAddress";
-import { formatNumber } from "@/utils/functions/NumberFormatter";
 
 export default function PayoutActionLabel({ payout }: { payout: Payout }) {
   const { commonProps } = useContext(ProposalContext);
@@ -27,7 +25,7 @@ export default function PayoutActionLabel({ payout }: { payout: Payout }) {
   return (
     <div className="flex flex-col">
       <span className="line-clamp-5">
-        ${Number(payout.amountUSD).toFixed(2)}
+        ${Number(payout.amountUSD).toLocaleString()}
         &nbsp;to
         <JBSplitEntry mod={payout2JBSplit(payout)} />
         {`for ${payout.count} cycles`} (<span className="font-mono text-sm">{dateRanges}</span>)
