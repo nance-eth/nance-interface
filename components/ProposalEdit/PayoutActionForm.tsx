@@ -57,7 +57,7 @@ export default function PayoutActionForm({
           fieldName={genFieldName("amountUSD")}
           fieldType="$"
           tooltip="Amount in USD to be paid to the receiver each funding cycle"
-          step={0.01}
+          step={0.001}
         />
       </div>
 
