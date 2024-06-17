@@ -27,7 +27,7 @@ import {
   // SnapshotTypes,
   // ==========================================
   getActionsFromBody,
-  trimActionsFromBody
+  trimActionsFromBody,
 } from "@nance/nance-sdk";
 import MiddleStepModal from "../modal/MiddleStepModal";
 import Actions from "./Actions";
@@ -35,7 +35,11 @@ import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "@/utils/hooks/LocalStorage";
 import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
-import { NANCE_DEFAULT_IPFS_GATEWAY, ProposalStatus, TEMPLATE } from "@/constants/Nance";
+import {
+  NANCE_DEFAULT_IPFS_GATEWAY,
+  ProposalStatus,
+  TEMPLATE,
+} from "@/constants/Nance";
 import { ProposalSubmitButton } from "./ProposalSubmitButton";
 import DiscordUser from "../CreateSpace/sub/DiscordUser";
 import { classNames } from "@/utils/functions/tailwind";
@@ -54,16 +58,18 @@ const NanceEditor = dynamic(
   async () => {
     getMarkdown = (await import("@nance/nance-editor")).getMarkdown;
     setMarkdown = (await import("@nance/nance-editor")).setMarkdown;
-    return import("@nance/nance-editor").then(mod => mod.NanceEditor);
-  }, {
+    return import("@nance/nance-editor").then((mod) => mod.NanceEditor);
+  },
+  {
     ssr: false,
-  });
+  },
+);
 
 const fileUploadIPFS = {
   gateway: NANCE_DEFAULT_IPFS_GATEWAY,
   auth: `Basic ${Buffer.from(
     `${process.env.NEXT_PUBLIC_INFURA_IPFS_ID}:${process.env.NEXT_PUBLIC_INFURA_IPFS_SECRET}`,
-  ).toString("base64")}`
+  ).toString("base64")}`,
 };
 
 const ResultModal = dynamic(() => import("../modal/ResultModal"), {
@@ -131,15 +137,9 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const isNew = metadata.fork || metadata.loadedProposal === undefined;
 
   // form
-  const methods = useForm<ProposalFormValues>({mode: "onBlur"});
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState,
-    getValues,
-    setValue,
-  } = methods;
+  const methods = useForm<ProposalFormValues>({ mode: "onBlur" });
+  const { register, handleSubmit, control, formState, getValues, setValue } =
+    methods;
 
   const onSubmit: SubmitHandler<ProposalFormValues> = async (formData) => {
     // check if actions all passed simulation
@@ -154,20 +154,17 @@ export default function ProposalEditForm({ space }: { space: string }) {
       : "You have some transactions may failed based on simulations.\n";
 
     // check if user has satisfied the requirements of potential guildxyz gate
-    const { hasPassGuildxyzCheck, guildxyzInfo } = await accessCheckWithGuild(
-      guildxyz?.id,
-      address,
-      guildxyz?.roles || [],
-    );
+    // const { hasPassGuildxyzCheck, guildxyzInfo } = await accessCheckWithGuild(
+    //   guildxyz?.id,
+    //   address,
+    //   guildxyz?.roles || [],
+    // );
 
-    if (
-      _allSimulated &&
-      (selected.value !== "Discussion" || hasPassGuildxyzCheck)
-    ) {
+    if (_allSimulated) {
       return await processAndUploadProposal(formData);
     } else {
       setFormDataPayload(formData);
-      setSubmitWillFailReason(simulationFailedInfo + guildxyzInfo);
+      setSubmitWillFailReason(simulationFailedInfo);
     }
   };
   const processAndUploadProposal: SubmitHandler<ProposalFormValues> = async (
@@ -186,7 +183,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
       status:
         metadata.loadedProposal?.status === "Temperature Check" && !isNew
           ? "Temperature Check"
-          : selected.value as ProposalStatusType,
+          : (selected.value as ProposalStatusType),
     };
 
     if (!address || !spaceInfo?.snapshotSpace) return;
@@ -304,7 +301,10 @@ export default function ProposalEditForm({ space }: { space: string }) {
       <form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <Actions
           loadedActions={
-            (metadata.fork ? metadata.loadedProposal?.actions?.map(({ uuid, ...rest }) => rest)
+            (metadata.fork
+              ? metadata.loadedProposal?.actions?.map(
+                  ({ uuid, ...rest }) => rest,
+                )
               : getActionsFromBody(metadata?.loadedProposal?.body || "")) || []
           }
         />
@@ -339,10 +339,16 @@ export default function ProposalEditForm({ space }: { space: string }) {
                   <Controller
                     name="proposal.body"
                     control={control}
-                    defaultValue={trimActionsFromBody(metadata.loadedProposal?.body) || TEMPLATE}
+                    defaultValue={
+                      trimActionsFromBody(metadata.loadedProposal?.body) ||
+                      TEMPLATE
+                    }
                     render={({ field: { onChange } }) => (
                       <NanceEditor
-                        initialValue={trimActionsFromBody(metadata.loadedProposal?.body) || TEMPLATE}
+                        initialValue={
+                          trimActionsFromBody(metadata.loadedProposal?.body) ||
+                          TEMPLATE
+                        }
                         onEditorChange={(value) => {
                           if (!cacheModalIsOpen) {
                             setProposalCache({
