@@ -45,7 +45,7 @@ import DiscordUser from "../CreateSpace/sub/DiscordUser";
 import { classNames } from "@/utils/functions/tailwind";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useAccount, useSignTypedData } from "wagmi";
-import { accessCheckWithGuild } from "@/utils/hooks/GuildxyzHooks";
+// import { accessCheckWithGuild } from "@/utils/hooks/GuildxyzHooks";
 import "@nance/nance-editor/lib/css/editor.css";
 import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
@@ -91,6 +91,12 @@ interface ProposalCache {
   body: string;
 }
 
+interface MiddleStepInfo {
+  title: string;
+  description: string;
+  warning?: boolean;
+}
+
 const CACHE_VERSION = 1;
 
 export default function ProposalEditForm({ space }: { space: string }) {
@@ -103,7 +109,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   // state
   const [formErrors, setFormErrors] = useState<string>("");
   const [selected, setSelected] = useState(ProposalStatus[0]);
-  const [submitWillFailReason, setSubmitWillFailReason] = useState<string>("");
+  const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
   const [formDataPayload, setFormDataPayload] = useState<ProposalFormValues>();
   const [authorDiscordId, setAuthorDiscordId] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
@@ -149,9 +155,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
           a.type === "Custom Transaction" &&
           (a.payload as ICustomTransaction).tenderlyStatus !== "true",
       ).length === 0;
-    const simulationFailedInfo = _allSimulated
-      ? ""
-      : "You have some transactions may failed based on simulations.\n";
 
     // check if user has satisfied the requirements of potential guildxyz gate
     // const { hasPassGuildxyzCheck, guildxyzInfo } = await accessCheckWithGuild(
@@ -160,11 +163,25 @@ export default function ProposalEditForm({ space }: { space: string }) {
     //   guildxyz?.roles || [],
     // );
 
+    if (
+      formData.proposal.body.toLowerCase().includes("pay" || "send") &&
+      formData.proposal.actions.length === 0
+    ) {
+      setMiddleStepInfo({
+        title: "Did you forget to add an action?",
+        description: "You mention doing something but didn't attach an action. Consider adding one!",
+        warning: true
+      });
+    }
+
     if (_allSimulated) {
       return await processAndUploadProposal(formData);
     } else {
       setFormDataPayload(formData);
-      setSubmitWillFailReason(simulationFailedInfo);
+      setMiddleStepInfo({
+        title: "Submit will fail, please check the following",
+        description: "You have some transactions may failed based on simulations.\n"
+      });
     }
   };
   const processAndUploadProposal: SubmitHandler<ProposalFormValues> = async (
@@ -287,24 +304,27 @@ export default function ProposalEditForm({ space }: { space: string }) {
       />
 
       <UIGuide name="EditPage" steps={driverSteps} />
-      <MiddleStepModal
-        open={submitWillFailReason.length > 0}
-        setOpen={(v) => {
-          if (!v) {
-            setSubmitWillFailReason("");
-          }
-        }}
-        title="Submit will fail, please check the following:"
-        description={submitWillFailReason}
-        onContinue={() => processAndUploadProposal(formDataPayload!)}
-      />
+      {middleStepInfo && (
+        <MiddleStepModal
+          open={middleStepInfo !== undefined}
+          setOpen={(v) => {
+            if (!v) {
+              setMiddleStepInfo(undefined);
+            }
+          }}
+          title={middleStepInfo.title}
+          warning={middleStepInfo.warning}
+          description={middleStepInfo.description}
+          onContinue={() => processAndUploadProposal(formDataPayload!)}
+        />
+      )}
       <form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <Actions
           loadedActions={
             (metadata.fork
               ? metadata.loadedProposal?.actions?.map(
-                  ({ uuid, ...rest }) => rest,
-                )
+                ({ uuid, ...rest }) => rest,
+              )
               : getActionsFromBody(metadata?.loadedProposal?.body || "")) || []
           }
         />

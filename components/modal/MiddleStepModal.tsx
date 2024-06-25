@@ -1,6 +1,7 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { classNames } from "@/utils/functions/tailwind";
 
 export default function MiddleStepModal({
   open,
@@ -9,6 +10,7 @@ export default function MiddleStepModal({
   description,
   onContinue,
   continueLabel = "Continue",
+  warning = false,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
@@ -16,6 +18,7 @@ export default function MiddleStepModal({
   description: string;
   onContinue: () => void;
   continueLabel?: string;
+  warning?: boolean
 }) {
   const cancelButtonRef = useRef(null);
 
@@ -52,9 +55,12 @@ export default function MiddleStepModal({
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <div className="sm:flex sm:items-start">
-                  <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                  <div className={classNames(
+                    "mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10",
+                    warning ? "bg-amber-100" : "bg-red-100"
+                  )}>
                     <ExclamationTriangleIcon
-                      className="h-6 w-6 text-red-600"
+                      className={classNames("h-6 w-6", warning ? "text-amber-400" : "text-red-600")}
                       aria-hidden="true"
                     />
                   </div>
