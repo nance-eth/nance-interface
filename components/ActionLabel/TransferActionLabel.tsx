@@ -17,11 +17,12 @@ export default function TransferActionLabel({
 
   const chain = getChainById(transfer.chainId);
   const explorer = `${chain.blockExplorers?.etherscan?.url}/token/${transfer.contract}`;
-
+  const symbol = transfer.contract !== "ETH" ? `$${data?.symbol}` : "ETH";
+  const fixed = transfer.amount.split(".")[1].replace(/0+$/, '').length; // get mantissa length
   return (
     <span className="line-clamp-5">
-      {numToPrettyString(Number(transfer.amount))}
-      &nbsp;<a href={explorer} target="_blank" rel="noreferrer">${data?.symbol}</a>
+      {numToPrettyString(Number(transfer.amount), fixed)}
+      &nbsp;<a href={explorer} target="_blank" rel="noreferrer">{symbol}</a>
       &nbsp;to
       <div className="mx-1 inline-block">
         <FormattedAddress address={transfer.to} style="inline ml-1" minified copyable />

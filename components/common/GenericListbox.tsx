@@ -27,6 +27,10 @@ interface GenericListboxProps<T> {
    */
   disabled?: boolean;
   /**
+   * Whether the listbox is loading
+   */
+  loading?: boolean;
+  /**
    * The label of the listbox
    */
   label: string;
@@ -40,13 +44,17 @@ export default function GenericListbox<T extends Includes>({
   items,
   onChange,
   disabled,
+  loading,
   label,
 }: GenericListboxProps<T>) {
   return (
     <Listbox value={value} onChange={onChange} disabled={disabled}>
       {({ open }) => (
         <>
-          <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">
+          <Listbox.Label className={classNames(
+            "block text-sm font-medium leading-6 text-gray-900",
+            loading && "animate-pulse"
+          )}>
             {label}
           </Listbox.Label>
           <div className="relative">

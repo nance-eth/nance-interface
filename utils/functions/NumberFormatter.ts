@@ -13,17 +13,18 @@ export function formatTokenBalance(balance: BigNumber): string {
   return formatter.format(parseInt(formatEther(balance)));
 }
 
-export function numToPrettyString(num: number | undefined) {
+export function numToPrettyString(_num: number | string | undefined, fixed = 1) {
+  const num = Number(_num);
   if (num === undefined) {
     return '';
   } if (num === 0) {
     return 0;
   } if (num > 1E9) {
-    return `${(num / 1E9).toFixed(1)}B`;
+    return `${(num / 1E9).toFixed(fixed)}B`;
   } if (num >= 1E6) {
-    return `${(num / 1E6).toFixed(1)}M`;
+    return `${(num / 1E6).toFixed(fixed)}M`;
   } if (num > 1E3) {
-    return `${(num / 1E3).toFixed(1)}k`;
+    return `${(num / 1E3).toFixed(fixed)}k`;
   }
-  return num.toFixed(1);
+  return num.toFixed(fixed);
 }
