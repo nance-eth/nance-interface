@@ -18,7 +18,7 @@ export default function TransferActionLabel({
   const chain = getChainById(transfer.chainId);
   const explorer = `${chain.blockExplorers?.etherscan?.url}/token/${transfer.contract}`;
   const symbol = transfer.contract !== "ETH" ? `$${data?.symbol}` : "ETH";
-  const fixed = transfer.amount.split(".")[1].replace(/0+$/, '').length; // get mantissa length
+  const fixed = transfer.amount.includes(".") ? transfer.amount.split(".")[1].replace(/0+$/, '').length : 0; // get mantissa length
   return (
     <span className="line-clamp-5">
       {numToPrettyString(Number(transfer.amount), fixed)}
