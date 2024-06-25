@@ -172,6 +172,8 @@ export default function ProposalEditForm({ space }: { space: string }) {
         description: "You mention doing something but didn't attach an action. Consider adding one!",
         warning: true
       });
+      setFormDataPayload(formData);
+      return;
     }
 
     if (_allSimulated) {
