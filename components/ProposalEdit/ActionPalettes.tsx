@@ -5,7 +5,6 @@ import {
   CurrencyDollarIcon,
   BoltIcon,
   ArrowsUpDownIcon,
-  UserGroupIcon,
 } from "@heroicons/react/24/solid";
 
 export interface ActionItem {
@@ -21,31 +20,23 @@ const items: ActionItem[] = [
   {
     id: 1,
     name: "Payout",
-    description: "Apply payouts from Juicebox treasury.",
+    description: "Add payout from Juicebox treasury",
     url: "#",
     color: "bg-blue-500",
     icon: CurrencyDollarIcon,
   },
-  // {
-  //   id: 2,
-  //   name: "Reserve",
-  //   description: "Apply to be added in reserved token list.",
-  //   url: "#",
-  //   color: "bg-blue-500",
-  //   icon: UserGroupIcon,
-  // },
   {
-    id: 3,
+    id: 2,
     name: "Transfer",
-    description: "Transfer ERC-20 tokens from Safe.",
+    description: "Transfer tokens from Safe",
     url: "#",
     color: "bg-blue-500",
     icon: ArrowsUpDownIcon,
   },
   {
-    id: 4,
+    id: 3,
     name: "Custom Transaction",
-    description: "Execute custom transaction with Safe.",
+    description: "Execute custom transaction from Safe",
     url: "#",
     color: "bg-blue-500",
     icon: BoltIcon,
@@ -58,7 +49,6 @@ export default function ActionPalettes({
   setOpen,
   selectedAction,
   setSelectedAction,
-  space,
 }: any) {
   return (
     <Transition.Root show={open} as={Fragment}>
