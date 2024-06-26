@@ -11,6 +11,7 @@ export function calculateRemainingTime(endTime: string) {
     const endTimeDate = parseISO(endTime);
     formattedEndTime = format(endTimeDate, "EEE MMM dd yyyy h:mm a");
     const difference = differenceInSeconds(endTimeDate, new Date());
+    if (difference <= 0) return { remainingTime, formattedEndTime };
     const days = Math.floor(difference / (3600 * 24));
     const hours = String(Math.floor((difference % (3600 * 24)) / 3600)).padStart(2, "0");
     const minutes = String(Math.floor((difference % 3600) / 60)).padStart(2, "0");
