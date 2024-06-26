@@ -14,7 +14,7 @@ import Link from "next/link";
 import { format, formatDistanceToNow, fromUnixTime } from "date-fns";
 import { CalendarDaysIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
-import { formatNumber } from "@/utils/functions/NumberFormatter";
+import { formatNumber, numToPrettyString } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 
 function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
@@ -32,22 +32,21 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   actions
     ?.filter((action) => action.type === "Transfer")
     .map((action) => action.payload as Transfer)
-    .forEach(
-      (transfer) =>
-        (transferMap[transfer.contract] =
-          (transferMap[transfer.contract] || 0) + parseInt(transfer.amount)),
-    );
+    .forEach((transfer) => {
+      return (transferMap[transfer.contract] = (transferMap[transfer.contract] || 0) + Number(transfer.amount));
+    });
 
   if (usd === 0 && Object.entries(transferMap).length === 0) return null;
 
   const tokens = [];
-  if (usd > 0) tokens.push(`${formatNumber(usd)} USD`);
+  if (usd > 0) tokens.push(`$${numToPrettyString(usd)}`);
   Object.entries(transferMap).forEach((val) => {
+    console.log(val);
     const [contract, amount] = val;
     if (tokens.length > 0) tokens.push(" + ");
     tokens.push(
       <span key={contract}>
-        {formatNumber(amount)} <TokenSymbol address={contract} />
+        {numToPrettyString(amount)} <TokenSymbol address={contract} />
       </span>,
     );
   });

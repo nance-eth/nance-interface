@@ -23,7 +23,7 @@ export function numToPrettyString(_num: number | string | undefined, fixed = 1) 
     return `${(num / 1E9).toFixed(fixed)}B`;
   } if (num >= 1E6) {
     return `${(num / 1E6).toFixed(fixed)}M`;
-  } if (num > 1E3) {
+  } if (num >= 1E3) {
     return `${(num / 1E3).toFixed(fixed)}k`;
   }
   return num.toFixed(fixed);
