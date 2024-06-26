@@ -39,14 +39,14 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   if (usd === 0 && Object.entries(transferMap).length === 0) return null;
 
   const tokens = [];
-  if (usd > 0) tokens.push(`$${numToPrettyString(usd)}`);
+  if (usd > 0) tokens.push(`$${formatNumber(usd)}`);
   Object.entries(transferMap).forEach((val) => {
     console.log(val);
     const [contract, amount] = val;
     if (tokens.length > 0) tokens.push(" + ");
     tokens.push(
       <span key={contract}>
-        {numToPrettyString(amount)} <TokenSymbol address={contract} />
+        {formatNumber(amount)} <TokenSymbol address={contract} />
       </span>,
     );
   });
