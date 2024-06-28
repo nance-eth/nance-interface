@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { useVotesOfAddress } from "@/utils/hooks/snapshot/Proposals";
 import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import {
@@ -416,7 +417,7 @@ export default function NanceUserPage({
                               {userProfileInfo?.proposals
                                 ?.sort(
                                   (a, b) =>
-                                    (getProposalNumber(b.proposalId?.toString() || "0")) - (getProposalNumber(a.proposalId?.toString() || "0")),
+                                    (getProposalNumber(b.proposalId?.toString() || "0") || 0) - (getProposalNumber(a.proposalId?.toString() || "0") || 0),
                                 )
                                 .map((p) => (
                                   <li key={p.uuid}>
