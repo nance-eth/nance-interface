@@ -21,7 +21,7 @@ export interface ProposalCommonProps {
   governanceCycle?: number;
   uuid: string;
   actions: Action[];
-  proposalId: string;
+  proposalId?: string;
   minTokenPassingAmount: number;
 }
 

@@ -15,7 +15,7 @@ export default function ProposalContent() {
   const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
   const proposalId = commonProps.proposalId;
   const sourceSnapshot = commonProps.uuid === "snapshot"; // hack
-  const preTitleDisplay = proposalIdPrefix ? `${proposalIdPrefix}${proposalId}: ` : "";
+  const preTitleDisplay = (proposalIdPrefix && proposalId) ? `${proposalIdPrefix}${proposalId}: ` : "";
   console.debug(commonProps);
   const { body } = commonProps;
 

@@ -11,7 +11,7 @@ export default function ProposalNavigator() {
   let { commonProps, nextProposalId } = useContext(ProposalContext);
 
   const proposalNumber = getProposalNumber(commonProps.proposalId);
-
+  if (!proposalNumber) return;
   return (
     <div className="flex flex-col justify-between space-x-0 space-y-2 text-gray-500 md:flex-row md:space-x-4 md:space-y-0">
       {proposalNumber > 1 && (
