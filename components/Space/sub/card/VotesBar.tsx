@@ -36,12 +36,14 @@ export default function VotesBar({
               greenScore={scores_total || 0}
               redScore={0}
               threshold={threshold}
+              noTooltip
             />
           ) : (
             <ColorBar
               greenScore={proposal?.voteResults?.scores[0] || 0}
               redScore={proposal?.voteResults?.scores[1] || 0}
               threshold={threshold}
+              noTooltip
             />
           )}
       </div>
@@ -54,6 +56,7 @@ export default function VotesBar({
             greenScore={proposal?.temperatureCheckVotes?.[0] || 0}
             redScore={proposal?.temperatureCheckVotes?.[1] || 0}
             threshold={10}
+            noTooltip
           />
         )}
 

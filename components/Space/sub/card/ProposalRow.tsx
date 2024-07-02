@@ -105,11 +105,15 @@ export default function ProposalRow({
     const scoresLabel = snapshotProposal.choices
       .map(
         (choice, index) =>
-          `${choice} ${formatNumber(snapshotProposal.scores[index])}`,
+          `${choice} ${formatNumber(snapshotProposal.scores[index])} (${(snapshotProposal.scores[index] / snapshotProposal.scores_total * 100).toFixed(0)}%)`,
       )
       .slice(0, 3)
       .join(", ");
     votingInfo = `${quorumLabel}${scoresLabel}`;
+  } else if (proposal.status === "Cancelled" && proposal.temperatureCheckVotes) {
+    const [yes, no] = proposal.temperatureCheckVotes;
+    const quorum = yes + no;
+    votingInfo = `${((quorum / 10) * 100).toFixed(0)}% of quorum, 👍 ${yes}, 👎 ${no}`;
   }
 
   return (

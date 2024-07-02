@@ -55,6 +55,7 @@ export default function ProposalSidebar({
       {!snapshotProposal && (
         <div className="mt-2 space-y-4">
           <ColorBar
+            noTooltip={true}
             greenScore={proposal?.temperatureCheckVotes?.[0] || 0}
             redScore={proposal?.temperatureCheckVotes?.[1] || 0}
             threshold={10}
