@@ -159,7 +159,7 @@ export default function ProposalRow({
                 <div>
                   <p className="text-gray-500">Author</p>
                   <div className="text-center text-black">
-                    <FormattedAddress address={authorAddress} minified />
+                    <FormattedAddress address={authorAddress} minified copyable={false} />
                   </div>
                 </div>
               </div>
