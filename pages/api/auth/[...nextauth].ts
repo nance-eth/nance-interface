@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken } from "next-auth/react";
@@ -6,7 +7,7 @@ import { SiweMessage } from "siwe";
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 // FIXME: wallet not unlocked can bring a strange case
-export default async function auth(req: any, res: any) {
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const providers = [
     CredentialsProvider({
       name: "Ethereum",
@@ -24,13 +25,19 @@ export default async function auth(req: any, res: any) {
       },
       async authorize(credentials) {
         try {
-          const siwe = new SiweMessage(
-            JSON.parse(credentials?.message || "{}"),
-          );
+          if (!credentials?.message || !credentials?.signature) {
+            console.log("❌ NextAuth.authorize.error", "Invalid credentials");
+            return null;
+          }
+
+          const message = JSON.parse(credentials.message);
+          const { domain, nonce } = message;
+          const { signature } = credentials;
+
+          const siwe = new SiweMessage(message);
+
           const nextAuthDomains = process.env.NEXTAUTH_DOMAINS?.split(",");
           if (!nextAuthDomains) return null;
-          const csrf = await getCsrfToken({ req });
-          const domain = JSON.parse(credentials?.message || "")?.domain;
           const domainPattern = nextAuthDomains.filter((domain) =>
             domain.includes("*"),
           )[0]; // support 1 domain pattern
@@ -47,12 +54,7 @@ export default async function auth(req: any, res: any) {
             return null;
           }
 
-          console.log("📚 NextAuth.authorize", credentials, domain, csrf);
-          const result = await siwe.verify({
-            signature: credentials?.signature || "",
-            domain,
-            nonce: csrf,
-          });
+          const result = await siwe.verify({ signature, nonce });
 
           if (result.success) {
             return {
@@ -60,16 +62,16 @@ export default async function auth(req: any, res: any) {
             };
           }
           return null;
-        } catch (e) {
+        } catch (e: any) {
           console.log("❌ NextAuth.authorize.error", e);
-          return null;
+          return e;
         }
       },
     }),
   ];
 
   const isDefaultSigninPage =
-    req.method === "GET" && req.query.nextauth.includes("signin");
+    req.method === "GET" && req?.query?.nextauth?.includes("signin");
 
   // Hide Sign-In with Ethereum from default sign page
   if (isDefaultSigninPage) {
@@ -88,12 +90,6 @@ export default async function auth(req: any, res: any) {
         session.address = token.sub;
         session.user.name = token.sub;
         return session;
-      },
-      async signIn() {
-        return true;
-      },
-      async redirect({ url }: { url: string }) {
-        return url;
       },
     },
   });
