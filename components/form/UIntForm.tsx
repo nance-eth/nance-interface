@@ -48,6 +48,7 @@ export default function UIntForm({
           {...register(fieldName, {
             shouldUnregister: true,
             required: "Can't be empty",
+            valueAsNumber: true,
           })}
           className={classNames(
             "block h-10 w-full flex-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",

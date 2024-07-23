@@ -104,7 +104,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const router = useRouter();
   const metadata = useContext(ProposalMetadataContext);
   const spaceInfo = useContext(SpaceContext);
-  const guildxyz = spaceInfo?.guildxyz;
 
   // state
   const [formErrors, setFormErrors] = useState<string>("");
@@ -155,13 +154,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
           a.type === "Custom Transaction" &&
           (a.payload as ICustomTransaction).tenderlyStatus !== "true",
       ).length === 0;
-
-    // check if user has satisfied the requirements of potential guildxyz gate
-    // const { hasPassGuildxyzCheck, guildxyzInfo } = await accessCheckWithGuild(
-    //   guildxyz?.id,
-    //   address,
-    //   guildxyz?.roles || [],
-    // );
 
     if (
       formData.proposal.body.toLowerCase().includes("pay" || "send") &&
