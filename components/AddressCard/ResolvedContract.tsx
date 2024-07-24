@@ -1,4 +1,3 @@
-import { Address } from "wagmi";
 import { useContext, useEffect, useState } from "react";
 import { useEtherscanContract } from "@/utils/hooks/EtherscanHooks";
 import { classNames } from "@/utils/functions/tailwind";
@@ -20,7 +19,7 @@ export default function ResolvedContract({
   openInNewWindow = true,
   noLink = false,
 }: Props) {
-  const addr = address as Address;
+  const addr = address as `0x${string}`;
   const hasAddr = addr && addr.length == 42;
   const anchorTarget = openInNewWindow ? "_blank" : "_self";
 

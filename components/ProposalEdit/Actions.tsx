@@ -13,7 +13,7 @@ import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 import { SafeInjectProvider } from "../SafeInjectIframeCard/context/SafeInjectedContext";
 import { SpaceContext } from "@/context/SpaceContext";
 import { NetworkContext } from "@/context/NetworkContext";
-import { useSwitchNetwork } from "wagmi";
+import { useSwitchChain } from "wagmi";
 import { getChainByNetworkName } from "config/custom-chains";
 import { getChainIdFromName } from "../SafeInjectIframeCard/helpers/utils";
 import { uuidGen } from "@/utils/functions/nance";
@@ -37,7 +37,7 @@ export default function Actions({
   let network = useContext(NetworkContext).toLowerCase();
   if (network === "ethereum") network = "mainnet";
   const spaceChainName = spaceInfo?.transactorAddress?.network;
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchChain } = useSwitchChain();
   const projectOwner = spaceInfo?.transactorAddress?.address
     ? utils.getAddress(spaceInfo?.transactorAddress?.address)
     : "";
@@ -115,15 +115,14 @@ export default function Actions({
                   <p>{`Must be on ${spaceChainName} to propose a Transfer`}</p>
                   <button
                     type="button"
-                    disabled={!switchNetwork}
                     onClick={() => {
-                      switchNetwork?.(
-                        getChainByNetworkName(spaceChainName)?.id,
-                      );
+                      switchChain?.({
+                        chainId: getChainByNetworkName(spaceChainName)?.id,
+                      });
                     }}
                     className="relative inline-flex items-center gap-x-1.5 rounded-md bg-red-500 px-3 py-3 text-sm font-semibold text-white hover:bg-red-400 focus:z-10 disabled:opacity-50"
                   >
-                    {switchNetwork ? "Switch network" : `Not on ${network}`}
+                    Switch network
                   </button>
                 </div>
               ) : (

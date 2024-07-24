@@ -3,10 +3,10 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { GraphQLClient, ClientContext } from "graphql-hooks";
 import memCache from "graphql-hooks-memcache";
 
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { WagmiConfig, useNetwork } from "wagmi";
-import { mainnet } from "wagmi/chains";
-import { wagmiConfig, chains } from "../config/wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiProvider, http, fallback, useAccount } from "wagmi";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { gnosis, goerli, mainnet, optimism } from "wagmi/chains";
 
 import { NextQueryParamProvider } from "next-query-params";
 
@@ -21,6 +21,7 @@ import { SNAPSHOT_HEADERS, SNAPSHOT_HUB } from "../constants/Snapshot";
 import { SWRConfig } from "swr";
 import console from "@/utils/functions/console.debug";
 import { Toaster } from "react-hot-toast";
+import { customChains } from "config/custom-chains";
 
 console.debug("Hello from _app.tsx! 🚀");
 
@@ -39,8 +40,35 @@ const theme = {
   },
 };
 
+const wagmiConfig = getDefaultConfig({
+  appName: "Nance Interface",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
+  chains: customChains as any,
+  transports: {
+    [mainnet.id]: fallback([
+      http("https://eth.llamarpc.com"),
+      http(
+        `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`,
+      ),
+    ]),
+    [optimism.id]: fallback([
+      http("https://rpc.ankr.com/optimism"),
+      http(
+        `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`,
+      ),
+    ]),
+    [gnosis.id]: http("https://rpc.ankr.com/gnosis"),
+    [goerli.id]: fallback([
+      http("https://rpc.ankr.com/eth_goerli"),
+      http(`https://goerli.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
+    ]),
+  },
+});
+
+const queryClient = new QueryClient();
+
 function MyApp({ Component, pageProps }: any) {
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const network = chain?.name || mainnet.name;
 
   return (
@@ -53,7 +81,6 @@ function MyApp({ Component, pageProps }: any) {
     >
       <RainbowKitSiweNextAuthProvider>
         <RainbowKitProvider
-          chains={chains}
           appInfo={{
             appName: "Nance",
             learnMoreUrl: "https://docs.nance.app",
@@ -81,10 +108,12 @@ function MyApp({ Component, pageProps }: any) {
 function WagmiWrappedApp({ Component, pageProps }: any) {
   return (
     <>
-      <WagmiConfig config={wagmiConfig}>
-        <Toaster />
-        <MyApp Component={Component} pageProps={pageProps} />
-      </WagmiConfig>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <Toaster />
+          <MyApp Component={Component} pageProps={pageProps} />
+        </QueryClientProvider>
+      </WagmiProvider>
 
       <Analytics />
     </>

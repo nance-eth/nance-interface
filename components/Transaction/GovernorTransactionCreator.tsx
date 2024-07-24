@@ -19,7 +19,7 @@ export default function GovernorTransactionCreator({
 
   const network = useContext(NetworkContext);
 
-  const { data, error, isLoading, write } = usePropose(
+  const { data, error, isPending, writeContract, request } = usePropose(
     governorAddress as `0x${string}`,
     transactionDatas.map(
       (transactionData) => transactionData.to as `0x${string}`,
@@ -31,14 +31,18 @@ export default function GovernorTransactionCreator({
   const { data: walletClient } = useWalletClient();
 
   const queueNotReady =
-    !walletClient || !transactionDatas || !governorAddress || isLoading;
+    !walletClient ||
+    !transactionDatas ||
+    !governorAddress ||
+    isPending ||
+    !Boolean(request);
 
   let tooltip = "Propose with title";
   if (!walletClient) {
     tooltip = "Wallet not connected";
   } else if (!transactionDatas || !governorAddress) {
     tooltip = "Transaction not ready";
-  } else if (isLoading) {
+  } else if (isPending) {
     tooltip = "Loading...";
   }
 
@@ -49,11 +53,11 @@ export default function GovernorTransactionCreator({
         disabled={queueNotReady}
         onClick={() => {
           setOpen(true);
-          write?.();
+          writeContract(request!);
         }}
         className="relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
       >
-        {isLoading && (
+        {isPending && (
           <ArrowPathIcon
             className="-ml-0.5 h-5 w-5 animate-spin text-gray-400"
             aria-hidden="true"
@@ -83,9 +87,9 @@ export default function GovernorTransactionCreator({
       {data && (
         <ResultModal
           title="Success"
-          description={`Transaction queued as txn-${data.hash}`}
+          description={`Transaction queued as txn-${data}`}
           buttonText="Go to Etherscan Tx"
-          onClick={() => window.open(getTxLink(data.hash, network), "_blank")}
+          onClick={() => window.open(getTxLink(data, network), "_blank")}
           isSuccessful={true}
           shouldOpen={open}
           close={() => setOpen(false)}

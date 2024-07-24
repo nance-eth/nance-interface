@@ -1,5 +1,5 @@
 import { shortenAddress } from "@/utils/functions/address";
-import { Address, useEnsName } from "wagmi";
+import { useEnsName } from "wagmi";
 import { useEffect, useState } from "react";
 import { classNames } from "@/utils/functions/tailwind";
 import { getAddressLink } from "@/utils/functions/EtherscanURL";
@@ -77,15 +77,19 @@ export default function FormattedAddress({
   copyable = true,
   action,
 }: Props) {
-  const addr = address as Address;
+  const addr = address as `0x${string}`;
   const hasAddr = addr && addr.length == 42;
   const anchorTarget = openInNewWindow ? "_blank" : "_self";
 
   const [label, setLabel] = useState(shortenAddress(address) || "Anon");
   const [hover, setHover] = useState(false);
-  const { data: ensName } = useEnsName({ address: addr, enabled: hasAddr, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: addr,
+    query: { enabled: hasAddr },
+    chainId: 1,
+  });
 
-  const _network = network || 'mainnet';
+  const _network = network || "mainnet";
   const urlPrefix = overrideURLPrefix || getAddressLink("", _network);
 
   useEffect(() => {
@@ -111,7 +115,8 @@ export default function FormattedAddress({
 
   if (minified) {
     return (
-      <div className="flex flex-row items-center"
+      <div
+        className="flex flex-row items-center"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >
@@ -127,7 +132,8 @@ export default function FormattedAddress({
       imgAlt={`Avatar of ${label}`}
       action={action}
     >
-      <div className="flex flex-row items-center"
+      <div
+        className="flex flex-row items-center"
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
       >

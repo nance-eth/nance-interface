@@ -3,7 +3,7 @@ import { ContractType, useContractType } from "@/utils/hooks/ContractHooks";
 import GovernorTransactionCreator from "./GovernorTransactionCreator";
 import { NetworkContext } from "@/context/NetworkContext";
 import { SpaceContext } from "@/context/SpaceContext";
-import { useAccount, useSwitchNetwork } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 import SafeTransactionCreator from "./SafeTransactionCreator";
 import { getChainByNetworkName } from "config/custom-chains";
 
@@ -22,13 +22,14 @@ export default function TransactionCreator({
 }) {
   const contractType = useContractType(address);
   const { isConnected } = useAccount();
-  const { switchNetwork } = useSwitchNetwork();
+  const { switchChain } = useSwitchChain();
 
   const spaceInfo = useContext(SpaceContext);
   const _network = useContext(NetworkContext);
   const network =
     _network.toLowerCase() === "ethereum" ? "mainnet" : _network.toLowerCase();
-  const supportedNetwork = spaceInfo?.transactorAddress?.network.toLowerCase() as string;
+  const supportedNetwork =
+    spaceInfo?.transactorAddress?.network.toLowerCase() as string;
   const networkIsSupported = supportedNetwork
     ? network === supportedNetwork
     : true;
@@ -39,15 +40,12 @@ export default function TransactionCreator({
       <span className="isolate inline-flex rounded-md shadow-sm">
         <button
           type="button"
-          disabled={!switchNetwork}
           onClick={() => {
-            switchNetwork?.(supportedChainId);
+            switchChain({ chainId: supportedChainId });
           }}
           className="relative inline-flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
         >
-          {switchNetwork
-            ? "Switch network"
-            : `Not on ${spaceInfo?.transactorAddress?.network}`}
+          Switch network
         </button>
       </span>
     );

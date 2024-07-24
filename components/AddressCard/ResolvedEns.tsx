@@ -18,7 +18,7 @@ export default function ResolvedEns({ ens, style, hook }: Props) {
     isLoading,
   } = useEnsAddress({
     name: ens,
-    enabled: ens.endsWith(".eth"),
+    query: { enabled: ens.endsWith(".eth") },
   });
 
   if (isLoading) {
