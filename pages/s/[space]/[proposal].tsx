@@ -23,7 +23,7 @@ export default function NanceProposalPage() {
   // state
   const [loading, setLoading] = useState<boolean>(true);
 
-  const params = useParams<{ space: string, proposal: string }>();
+  const params = useParams<{ space: string; proposal: string }>();
   const args = { space: params?.space, uuid: params?.proposal };
   const space = args.space;
   const { data, isLoading: proposalLoading } = useProposal(args, !!params);
@@ -32,6 +32,7 @@ export default function NanceProposalPage() {
 
   const {
     data: { proposalsData },
+    refetch: refetchProposalsData,
   } = useProposalsByID([proposalHash], "", proposalHash === undefined);
 
   const snapshotProposal = proposalsData?.[0];
@@ -73,10 +74,12 @@ export default function NanceProposalPage() {
     author: proposal.authorAddress || snapshotProposal?.author || "",
     coauthors: proposal.coauthors || [],
     body: proposal.body || "",
-    created: (proposal.createdTime)
+    created: proposal.createdTime
       ? Math.floor(new Date(proposal.createdTime).getTime() / 1000)
       : snapshotProposal?.start || 0,
-    edited: Math.floor(new Date(proposal?.lastEditedTime || "").getTime() / 1000),
+    edited: Math.floor(
+      new Date(proposal?.lastEditedTime || "").getTime() / 1000,
+    ),
     voteStart: snapshotProposal?.start || 0,
     voteEnd: snapshotProposal?.end || 0,
     snapshot: snapshotProposal?.snapshot || "",
@@ -85,7 +88,10 @@ export default function NanceProposalPage() {
     discussion: proposal.discussionThreadURL || "",
     governanceCycle: proposal.governanceCycle,
     uuid: proposal.uuid || "",
-    actions: proposal.actions.length > 0 ? proposal.actions : getActionsFromBody(proposal.body) || [],
+    actions:
+      proposal.actions.length > 0
+        ? proposal.actions
+        : getActionsFromBody(proposal.body) || [],
     proposalId: proposal.proposalId ? String(proposal.proposalId) : undefined,
     minTokenPassingAmount: proposal.proposalInfo.minTokenPassingAmount || 0,
   };
@@ -96,9 +102,7 @@ export default function NanceProposalPage() {
     <>
       <SiteNav
         pageTitle={`${proposal.title} | ${space}`}
-        description={
-          getParagraphOfMarkdown(commonProps.body) || "No content"
-        }
+        description={getParagraphOfMarkdown(commonProps.body) || "No content"}
         image={`https://cdn.stamp.fyi/avatar/${
           commonProps.author || ZERO_ADDRESS
         }?w=1200&h=630`}
@@ -117,6 +121,7 @@ export default function NanceProposalPage() {
               nextProposalId: proposal.proposalInfo.nextProposalId,
               proposalSummary: proposal.proposalSummary,
               threadSummary: proposal.threadSummary,
+              refetch: refetchProposalsData,
             }}
           >
             <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
@@ -129,24 +134,21 @@ export default function NanceProposalPage() {
                 {/* Display Options if not basic (For Against) */}
                 <section aria-labelledby="options-title">
                   {snapshotProposal &&
-                      [
-                        "approval",
-                        "ranked-choice",
-                        "quadratic",
-                        "weighted",
-                      ].includes(snapshotProposal.type) && (
-                    <div className="mt-6 flow-root">
-                      <ProposalOptions proposal={snapshotProposal} />
-                    </div>
-                  )}
+                    [
+                      "approval",
+                      "ranked-choice",
+                      "quadratic",
+                      "weighted",
+                    ].includes(snapshotProposal.type) && (
+                      <div className="mt-6 flow-root">
+                        <ProposalOptions proposal={snapshotProposal} />
+                      </div>
+                    )}
                 </section>
               </div>
 
-              <section
-                aria-labelledby="stats-title"
-                className="lg:col-span-1"
-              >
-                { snapshotProposal && (
+              <section aria-labelledby="stats-title" className="lg:col-span-1">
+                {snapshotProposal && (
                   <ProposalSidebar
                     proposal={proposal}
                     snapshotProposal={snapshotProposal}

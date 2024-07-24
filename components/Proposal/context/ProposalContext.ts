@@ -32,6 +32,7 @@ export const ProposalContext = createContext<{
   proposalIdPrefix?: string;
   proposalSummary?: string;
   threadSummary?: string;
+  refetch?: () => void;
 }>({
   commonProps: {
     space: "",
@@ -60,4 +61,5 @@ export const ProposalContext = createContext<{
   proposalIdPrefix: undefined,
   proposalSummary: undefined,
   threadSummary: undefined,
+  refetch: undefined,
 });

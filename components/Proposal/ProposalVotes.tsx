@@ -9,7 +9,10 @@ import {
   useProposalVotes,
   VOTES_PER_PAGE,
 } from "@/utils/hooks/snapshot/Proposals";
-import { formatNumber, numToPrettyString } from "@/utils/functions/NumberFormatter";
+import {
+  formatNumber,
+  numToPrettyString,
+} from "@/utils/functions/NumberFormatter";
 import { processChoices } from "@/utils/functions/snapshotUtil";
 import { classNames } from "@/utils/functions/tailwind";
 import ColorBar from "@/components/common/ColorBar";
@@ -34,7 +37,11 @@ export default function ProposalVotes({
 }: {
   snapshotSpace: string;
 }) {
-  const { proposalInfo, commonProps } = useContext(ProposalContext);
+  const {
+    proposalInfo,
+    commonProps,
+    refetch: refetchProposalsData,
+  } = useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
@@ -42,7 +49,12 @@ export default function ProposalVotes({
     filterBy: withDefault(createEnumParam(["for", "against"]), ""),
   });
 
-  const { loading, data, error, refetch } = useProposalVotes(
+  const {
+    loading,
+    data,
+    error,
+    refetch: refetchProposalVotes,
+  } = useProposalVotes(
     proposalInfo,
     Math.max((query.page - 1) * VOTES_PER_PAGE, 0),
     query.sortBy as "created" | "vp",
@@ -137,9 +149,7 @@ export default function ProposalVotes({
           )}
 
           <div className="flex justify-between">
-            <p className="text-sm">
-              QUORUM {formatNumber(threshold)}
-            </p>
+            <p className="text-sm">QUORUM {formatNumber(threshold)}</p>
             <p className="text-sm">
               VOTERS {formatNumber(proposalInfo?.votes || 0)}
             </p>
@@ -162,24 +172,24 @@ export default function ProposalVotes({
                           copyable={false}
                         />
                       </div>
-                        &nbsp;
+                      &nbsp;
                       <span
                         className={classNames(
                           getColorOfChoice(
-                              processChoices(
-                                proposalInfo?.type,
-                                vote.choice,
-                              ) as string,
+                            processChoices(
+                              proposalInfo?.type,
+                              vote.choice,
+                            ) as string,
                           ),
                           "",
                         )}
                       >
-                          voted{" "}
+                        voted{" "}
                         {
-                            processChoices(
-                              proposalInfo?.type,
-                              vote.choice,
-                            ) as string
+                          processChoices(
+                            proposalInfo?.type,
+                            vote.choice,
+                          ) as string
                         }
                       </span>
                     </div>
@@ -187,7 +197,7 @@ export default function ProposalVotes({
                     <div>
                       {`${formatNumber(vote.vp)} (${(
                         (vote.vp * 100) /
-                          (proposalInfo?.scores_total ?? 1)
+                        (proposalInfo?.scores_total ?? 1)
                       ).toFixed()}%)`}
                     </div>
                   </div>
@@ -207,17 +217,17 @@ export default function ProposalVotes({
                     <div className="text-xs font-semibold text-slate-700">
                       {`${formatNumber(vote.vp)} (${(
                         (vote.vp * 100) /
-                          (proposalInfo?.scores_total ?? 1)
+                        (proposalInfo?.scores_total ?? 1)
                       ).toFixed()}%)`}{" "}
-                        total
+                      total
                     </div>
 
                     <div className="py-2 text-sm text-gray-600">
                       {(
-                          processChoices(
-                            proposalInfo?.type,
-                            vote.choice,
-                          ) as string[]
+                        processChoices(
+                          proposalInfo?.type,
+                          vote.choice,
+                        ) as string[]
                       ).map((choice, idx) => (
                         <p key={`${vote.id} - ${idx}`}>{choice}</p>
                       ))}
@@ -228,7 +238,9 @@ export default function ProposalVotes({
                 {vote.reason && (
                   <div className="ml-1 flex flex-row">
                     <div className="text-lg">↳</div>
-                    <div className="text-xs text-gray-600 ml-1 w-3/4 mt-1 border border-dashed border-gray-300 bg-gray-100 px-2 py-1 rounded-lg">{vote.reason}</div>
+                    <div className="text-xs text-gray-600 ml-1 w-3/4 mt-1 border border-dashed border-gray-300 bg-gray-100 px-2 py-1 rounded-lg">
+                      {vote.reason}
+                    </div>
                   </div>
                 )}
               </div>
@@ -240,7 +252,10 @@ export default function ProposalVotes({
       <NewVoteButton
         snapshotSpace={snapshotSpace}
         snapshotProposal={proposalInfo}
-        refetch={refetch}
+        refetch={() => {
+          refetchProposalsData?.();
+          refetchProposalVotes();
+        }}
       />
     </div>
   );

@@ -69,14 +69,14 @@ export function useProposalsWithCustomQuery(
     loading: proposalsLoading,
     data: proposalsData,
     error: proposalsError,
-    cacheHit,
+    refetch: proposalsRefetch,
   } = useQuery<{ proposals: SnapshotProposal[] }>(query, { variables, skip });
   // Load voted proposals
   const {
     loading: votedLoading,
     data: votedRawData,
     error: votedError,
-    refetch,
+    refetch: votedRefetch,
   } = useQuery<{ votes: SnapshotVotedData[] }>(VOTED_PROPOSALS_QUERY, {
     variables: {
       voter: address,
@@ -113,7 +113,10 @@ export function useProposalsWithCustomQuery(
     // FIXME: this is a hack to get around the flashing issue, need to find a better way
     loading: proposalsLoading && votedLoading,
     error: proposalsError || votedError,
-    refetch,
+    refetch: () => {
+      proposalsRefetch();
+      votedRefetch();
+    },
   };
   // console.debug("🔧 useProposalsWithCustomQuery.return ->", { ret });
   return ret;
