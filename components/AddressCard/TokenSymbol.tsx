@@ -27,7 +27,7 @@ export default function TokenSymbol({
       }
       className={classNames("break-all", !isETH && "hover:underline")}
     >
-      {tokenSymbol || "TOKEN"}
+      {isETH ? "" : "$"}{tokenSymbol || "TOKEN"}
     </a>
   );
 }

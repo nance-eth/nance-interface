@@ -4,6 +4,7 @@ import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { useReadContract } from "wagmi";
 import { getChainById } from "config/custom-chains";
 import { erc20Abi } from "viem";
+import TokenSymbol from "../AddressCard/TokenSymbol";
 
 export default function TransferActionLabel({
   action,
@@ -28,9 +29,7 @@ export default function TransferActionLabel({
     <span className="line-clamp-5">
       {numToPrettyString(Number(transfer.amount), fixed)}
       &nbsp;
-      <a href={explorer} target="_blank" rel="noreferrer">
-        {symbol}
-      </a>
+      <TokenSymbol address={transfer.contract} />
       &nbsp;to
       <div className="mx-1 inline-block">
         <FormattedAddress
