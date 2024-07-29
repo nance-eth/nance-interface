@@ -14,7 +14,10 @@ import Link from "next/link";
 import { format, formatDistanceToNow, fromUnixTime } from "date-fns";
 import { CalendarDaysIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
-import { formatNumber, numToPrettyString } from "@/utils/functions/NumberFormatter";
+import {
+  formatNumber,
+  numToPrettyString,
+} from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 
 function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
@@ -25,7 +28,7 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
       .map(
         (action) =>
           (action.payload as Payout).amountUSD *
-          (action.payload as Payout).count,
+          (action.payload as Payout).count
       )
       .reduce((sum, val) => sum + val, 0) || 0;
   const transferMap: { [key: string]: number } = {};
@@ -33,7 +36,8 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
     ?.filter((action) => action.type === "Transfer")
     .map((action) => action.payload as Transfer)
     .forEach((transfer) => {
-      return (transferMap[transfer.contract] = (transferMap[transfer.contract] || 0) + Number(transfer.amount));
+      return (transferMap[transfer.contract] =
+        (transferMap[transfer.contract] || 0) + Number(transfer.amount));
     });
 
   if (usd === 0 && Object.entries(transferMap).length === 0) return null;
@@ -41,13 +45,12 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   const tokens = [];
   if (usd > 0) tokens.push(`$${formatNumber(usd)}`);
   Object.entries(transferMap).forEach((val) => {
-    console.log(val);
     const [contract, amount] = val;
     if (tokens.length > 0) tokens.push(" + ");
     tokens.push(
       <span key={contract}>
         {formatNumber(amount)} <TokenSymbol address={contract} />
-      </span>,
+      </span>
     );
   });
 
@@ -105,15 +108,23 @@ export default function ProposalRow({
     const scoresLabel = snapshotProposal.choices
       .map(
         (choice, index) =>
-          `${choice} ${formatNumber(snapshotProposal.scores[index])} (${(snapshotProposal.scores[index] / snapshotProposal.scores_total * 100).toFixed(0)}%)`,
+          `${choice} ${formatNumber(snapshotProposal.scores[index])} (${(
+            (snapshotProposal.scores[index] / snapshotProposal.scores_total) *
+            100
+          ).toFixed(0)}%)`
       )
       .slice(0, 3)
       .join(", ");
     votingInfo = `${quorumLabel}${scoresLabel}`;
-  } else if (proposal.status === "Cancelled" && proposal.temperatureCheckVotes) {
+  } else if (
+    proposal.status === "Cancelled" &&
+    proposal.temperatureCheckVotes
+  ) {
     const [yes, no] = proposal.temperatureCheckVotes;
     const quorum = yes + no;
-    votingInfo = `${((quorum / 10) * 100).toFixed(0)}% of quorum, 👍 ${yes}, 👎 ${no}`;
+    votingInfo = `${((quorum / 10) * 100).toFixed(
+      0
+    )}% of quorum, 👍 ${yes}, 👎 ${no}`;
   }
 
   return (
@@ -121,7 +132,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-transparent",
-          "relative hidden text-sm md:table-cell",
+          "relative hidden text-sm md:table-cell"
         )}
       >
         <Link href={proposalUrl}>
@@ -137,7 +148,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-gray-200",
-          "text-sm text-gray-500",
+          "text-sm text-gray-500"
         )}
       >
         <Link href={proposalUrl}>
@@ -159,7 +170,11 @@ export default function ProposalRow({
                 <div>
                   <p className="text-gray-500">Author</p>
                   <div className="text-center text-black">
-                    <FormattedAddress address={authorAddress} minified copyable={false} />
+                    <FormattedAddress
+                      address={authorAddress}
+                      minified
+                      copyable={false}
+                    />
                   </div>
                 </div>
               </div>
@@ -199,7 +214,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-gray-200",
-          "hidden text-left text-sm text-gray-500 md:table-cell",
+          "hidden text-left text-sm text-gray-500 md:table-cell"
         )}
       >
         <Link href={proposalUrl}>
@@ -211,7 +226,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-gray-200",
-          "hidden text-center text-sm text-gray-500 md:table-cell",
+          "hidden text-center text-sm text-gray-500 md:table-cell"
         )}
       >
         <Link href={proposalUrl}>
@@ -221,7 +236,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-gray-200",
-          "hidden text-center text-sm text-gray-500 md:table-cell",
+          "hidden text-center text-sm text-gray-500 md:table-cell"
         )}
       >
         <Link href={proposalUrl}>
@@ -231,7 +246,7 @@ export default function ProposalRow({
       <td
         className={classNames(
           isFirst ? "" : "border-t border-gray-200",
-          "hidden px-3 py-3.5 text-center text-sm text-gray-500 md:table-cell",
+          "hidden px-3 py-3.5 text-center text-sm text-gray-500 md:table-cell"
         )}
       >
         {voteActionOrStatus}
