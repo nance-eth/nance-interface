@@ -3153,26 +3153,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nance/nance-hooks@npm:4.0.1-beta.1":
-  version: 4.0.1-beta.1
-  resolution: "@nance/nance-hooks@npm:4.0.1-beta.1"
-  dependencies:
-    "@nance/nance-sdk": ^4.0.1-beta.1
-    swr: ^2.2.4
-    tslib: ^2.6.2
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 767d495518abfeac925420b342a3f769d24d4821284440707a51da0bfd4db5bac439070c6daeedacf6116c06d5b7fb902e6e7b5705cc2b9da55b1b35d5cb72f4
-  languageName: node
-  linkType: hard
-
-"@nance/nance-sdk@npm:4.0.1-beta.1, @nance/nance-sdk@npm:^4.0.1-beta.1":
-  version: 4.0.1-beta.1
-  resolution: "@nance/nance-sdk@npm:4.0.1-beta.1"
+"@nance/nance-sdk@npm:^3.0.2":
+  version: 3.1.1
+  resolution: "@nance/nance-sdk@npm:3.1.1"
   dependencies:
     tslib: ^2.6.2
     yaml: ^2.4.2
-  checksum: 0271996f5b1daa0cfc9e9f864e68006d62963756b806363e90ff3227184e620556e22c9597c5799bbd13dd9bd37b13075dd51da1a59fba26e819f447dd42ae93
+  checksum: 6594f54a74176f0eb8917086e810d2a2a9edc813721f20c9db69b6179a6e3966b78fd5cf5c1cfafb70c2aeb5484ed2691da1b6742161e6a4c2443e46a72025f4
   languageName: node
   linkType: hard
 
@@ -16451,8 +16438,7 @@ __metadata:
     "@hookform/error-message": ^2.0.1
     "@jbx-protocol/juice-contracts-v3": 5.0.0
     "@nance/nance-editor": ^1.7.0
-    "@nance/nance-hooks": 4.0.1-beta.1
-    "@nance/nance-sdk": 4.0.1-beta.1
+    "@nance/nance-sdk": ^3.0.2
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": 2
     "@rainbow-me/rainbowkit-siwe-next-auth": ^0.3.1
@@ -20833,18 +20819,6 @@ __metadata:
   peerDependencies:
     react: ^16.11.0 || ^17.0.0 || ^18.0.0
   checksum: e9f073057b852932ea86d0ba586f14c7ccb23437ca326f14b23253477f9d9ad0be240e112c44225c9384171ebd2b0ea49df0da23a88181b8db30d8a9a2b0f24b
-  languageName: node
-  linkType: hard
-
-"swr@npm:^2.2.4":
-  version: 2.2.5
-  resolution: "swr@npm:2.2.5"
-  dependencies:
-    client-only: ^0.0.1
-    use-sync-external-store: ^1.2.0
-  peerDependencies:
-    react: ^16.11.0 || ^17.0.0 || ^18.0.0
-  checksum: c6e6a5bd254951b22e5fd0930a95c7f79b5d0657f803c41ba1542cd6376623fb70b1895049d54ddde26da63b91951ae9d62a06772f82be28c1014d421e5b7aa9
   languageName: node
   linkType: hard
 
