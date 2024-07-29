@@ -19,7 +19,8 @@ export default function OrderCheckboxTable({
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState<TransactionEntry[]>(entries);
+  const [selectedEntry, setSelectedEntry] =
+    useState<TransactionEntry[]>(entries);
 
   useEffect(() => {
     setSelectedEntry(entries);
@@ -40,9 +41,9 @@ export default function OrderCheckboxTable({
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="px-2 sm:px-4 lg:px-6">
       <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="relative">
               {selectedEntry.length > 0 && (
@@ -67,7 +68,7 @@ export default function OrderCheckboxTable({
                     </th>
                     <th
                       scope="col"
-                      className="min-w-[12rem] py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
+                      className="py-3.5 pr-3 text-left text-sm font-semibold text-gray-900"
                     >
                       Title
                     </th>
@@ -106,17 +107,17 @@ export default function OrderCheckboxTable({
                             setSelectedEntry(
                               e.target.checked
                                 ? [...selectedEntry, entry]
-                                : selectedEntry.filter((p) => p !== entry),
+                                : selectedEntry.filter((p) => p !== entry)
                             )
                           }
                         />
                       </td>
                       <td
                         className={classNames(
-                          "whitespace-nowrap py-4 pr-3 text-sm font-medium",
+                          "max-w-[5rem] sm:max-w-sm py-4 pr-3 text-sm font-medium",
                           selectedEntry.includes(entry)
                             ? "text-indigo-600"
-                            : "text-gray-900",
+                            : "text-gray-900"
                         )}
                       >
                         {selectedEntry.includes(entry) && (
@@ -127,11 +128,11 @@ export default function OrderCheckboxTable({
                         )}
                         {entry.title}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      <td className="break-words px-3 py-4 text-sm text-gray-500">
                         {entry.proposal}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {entry.transactionData.data}
+                      <td className="px-3 py-4 text-sm text-gray-500">
+                        {entry.transactionData.data.slice(0, 8)}
                       </td>
                     </tr>
                   ))}

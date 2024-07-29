@@ -1,5 +1,6 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
   CustomTransaction,
   SpaceInfo,
@@ -40,9 +41,9 @@ export default function QueueTransactionsModal({
   transactorAddress?: string;
   spaceInfo: SpaceInfo;
 }) {
-  const cancelButtonRef = useRef(null);
   const router = useRouter();
-  const [query] = useQueryParams({ // set cycle query in ./TransactionCycleNavigator
+  const [query] = useQueryParams({
+    // set cycle query in ./TransactionCycleNavigator
     keyword: StringParam,
     limit: withDefault(NumberParam, 10),
     cycle: StringParam,
@@ -59,15 +60,14 @@ export default function QueueTransactionsModal({
     ?.map((r) => r.data?.proposals)
     .flat()
     // only gather approved actions
-    ?.filter(
-      (p) => {
-        p.actions = getActionsFromBody(p.body) || [];
-        return (
-          p.actions && p.actions.length > 0 &&
-          (p.status === "Voting" || p.status === "Approved")
-        );
-      }
-    )
+    ?.filter((p) => {
+      p.actions = getActionsFromBody(p.body) || [];
+      return (
+        p.actions &&
+        p.actions.length > 0 &&
+        (p.status === "Voting" || p.status === "Approved")
+      );
+    })
     .flatMap((p) => {
       return p.actions?.map((action) => {
         return {
@@ -77,10 +77,10 @@ export default function QueueTransactionsModal({
       });
     });
   const transferActions = actionWithPIDArray?.filter(
-    (v) => v.action.type === "Transfer",
+    (v) => v.action.type === "Transfer"
   );
   const customTransactionActions = actionWithPIDArray?.filter(
-    (v) => v.action.type === "Custom Transaction",
+    (v) => v.action.type === "Custom Transaction"
   );
 
   // Turn them into entries with constructed transaction data
@@ -103,9 +103,9 @@ export default function QueueTransactionsModal({
             getContractLabel(transfer.contract) === "ETH"
               ? "0x"
               : erc20.encodeFunctionData("transfer", [
-                transfer.to,
-                parseUnits(transfer.amount, transfer.decimals),
-              ]),
+                  transfer.to,
+                  parseUnits(transfer.amount, transfer.decimals),
+                ]),
         },
       };
     }) || [];
@@ -131,7 +131,7 @@ export default function QueueTransactionsModal({
           value: customTransaction.value,
           data: contractInterface.encodeFunctionData(
             extractFunctionName(customTransaction.functionName),
-            args,
+            args
           ),
         },
       };
@@ -140,12 +140,7 @@ export default function QueueTransactionsModal({
 
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-10"
-        initialFocus={cancelButtonRef}
-        onClose={setOpen}
-      >
+      <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -169,22 +164,37 @@ export default function QueueTransactionsModal({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative transform overflow-auto rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-semibold leading-6 text-gray-900"
-                    >
-                      Queue Transactions for GC#{cycle}
-                    </Dialog.Title>
+              <Dialog.Panel className="relative transform rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 w-full sm:p-6">
+                <div className="sm:flex sm:justify-center">
+                  <div className="mt-3 text-left sm:mx-4 xl:mx-6 sm:mt-0">
+                    <div className="flex justify-between">
+                      <Dialog.Title
+                        as="h3"
+                        className="text-lg font-semibold leading-6 text-gray-900"
+                      >
+                        Queue Transactions for GC#{cycle}
+                      </Dialog.Title>
+
+                      <button
+                        type="button"
+                        onClick={() => setOpen(false)}
+                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      >
+                        <span className="sr-only">Close</span>
+                        <XMarkIcon aria-hidden="true" className="h-6 w-6" />
+                      </button>
+                    </div>
+
                     <TransactionCycleNavigator />
 
-                    <OrderCheckboxTable address={transactorAddress || ""} entries={entries} />
+                    <OrderCheckboxTable
+                      address={transactorAddress || ""}
+                      entries={entries}
+                    />
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                  <div className="sm:ml-3 sm:w-auto">
+                  <div className="w-full sm:w-auto sm:ml-3">
                     <TransactionCreator
                       address={transactorAddress || ""}
                       transactions={entries.map((e) => e.transactionData)}
@@ -194,16 +204,10 @@ export default function QueueTransactionsModal({
                   <button
                     type="button"
                     className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                    onClick={() => setOpen(false)}
-                    ref={cancelButtonRef}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                     onClick={() => {
-                      const chainId = getChainByNetworkName(spaceInfo.transactorAddress?.network)?.id;
+                      const chainId = getChainByNetworkName(
+                        spaceInfo.transactorAddress?.network
+                      )?.id;
                       const json = safeBatchTransactionBuilder(
                         space,
                         chainId || 1,

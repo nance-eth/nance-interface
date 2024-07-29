@@ -54,7 +54,7 @@ export default function SafeTransactionCreator({
   }, [historyTxs]);
 
   return (
-    <span className="isolate inline-flex rounded-md shadow-sm">
+    <span className="isolate inline-flex rounded-md shadow-sm w-full">
       <button
         type="button"
         disabled={queueNotReady}
@@ -62,7 +62,7 @@ export default function SafeTransactionCreator({
           setOpen(true);
           trigger();
         }}
-        className="relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
+        className="relative grow inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
       >
         {loading && (
           <ArrowPathIcon
@@ -101,7 +101,7 @@ export default function SafeTransactionCreator({
           onClick={() =>
             window.open(
               getSafeTxUrl(safeAddress, queueRes.safeTxHash),
-              "_blank",
+              "_blank"
             )
           }
           isSuccessful={true}
