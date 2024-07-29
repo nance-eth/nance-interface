@@ -97,7 +97,7 @@ export default function QueueReconfigurationModal({
           pid: Number(p.proposalId) || 0,
           action,
         };
-      });
+      }) || [];
     });
 
   // Splits with changes

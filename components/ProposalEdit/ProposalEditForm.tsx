@@ -157,7 +157,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
     if (
       formData.proposal.body.toLowerCase().includes("pay" || "send") &&
-      formData.proposal.actions.length === 0
+      formData.proposal?.actions?.length === 0
     ) {
       setMiddleStepInfo({
         title: "Did you forget to add an action?",
@@ -316,10 +316,8 @@ export default function ProposalEditForm({ space }: { space: string }) {
         <Actions
           loadedActions={
             (metadata.fork
-              ? metadata.loadedProposal?.actions?.map(
-                ({ uuid, ...rest }) => rest,
-              )
-              : getActionsFromBody(metadata?.loadedProposal?.body || "")) || []
+              ? metadata.loadedProposal?.actions
+              : getActionsFromBody(metadata?.loadedProposal?.body)) || []
           }
         />
 

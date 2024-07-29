@@ -74,7 +74,7 @@ export default function QueueTransactionsModal({
           pid: p.proposalId || 0,
           action,
         };
-      });
+      }) || [];
     });
   const transferActions = actionWithPIDArray?.filter(
     (v) => v.action.type === "Transfer"
@@ -95,7 +95,7 @@ export default function QueueTransactionsModal({
         str: parseUnits(transfer.amount, transfer.decimals || 18).toString(),
       });
       return {
-        title: <TransferActionLabel transfer={transfer} />,
+        title: <TransferActionLabel action={v.action} />,
         proposal: v.pid.toString(),
         transactionData: {
           to:

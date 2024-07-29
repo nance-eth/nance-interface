@@ -3,10 +3,10 @@ import { classNames } from "@/utils/functions/tailwind";
 import ProposalBadgeLabel from "./ProposalBadgeLabel";
 import {
   Action,
-  Payout,
   Proposal,
   Transfer,
   getActionsFromBody,
+  getPayoutCountAmount,
 } from "@nance/nance-sdk";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useContext } from "react";
@@ -14,10 +14,7 @@ import Link from "next/link";
 import { format, formatDistanceToNow, fromUnixTime } from "date-fns";
 import { CalendarDaysIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
-import {
-  formatNumber,
-  numToPrettyString,
-} from "@/utils/functions/NumberFormatter";
+import { formatNumber } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 
 function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
@@ -25,12 +22,11 @@ function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   const usd =
     actions
       ?.filter((action) => action.type === "Payout")
-      .map(
-        (action) =>
-          (action.payload as Payout).amountUSD *
-          (action.payload as Payout).count
-      )
-      .reduce((sum, val) => sum + val, 0) || 0;
+      .map((action) => {
+        const { count, amount } = getPayoutCountAmount(action);
+        return count * amount;
+      })
+      ?.reduce((sum, val) => sum + val, 0) || 0;
   const transferMap: { [key: string]: number } = {};
   actions
     ?.filter((action) => action.type === "Transfer")
@@ -86,10 +82,7 @@ export default function ProposalRow({
 
   const { proposalId, uuid, governanceCycle, status, authorAddress, title } =
     proposal;
-  const actions =
-    proposal.actions.length > 0
-      ? proposal.actions
-      : getActionsFromBody(proposal.body) || [];
+  const actions = proposal?.actions || getActionsFromBody(proposal.body) || [];
 
   const votes = proposal.voteResults?.votes || "-";
   const proposalUrl = `/s/${spaceInfo?.name}/${proposalId || uuid}`;

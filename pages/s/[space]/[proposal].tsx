@@ -88,10 +88,7 @@ export default function NanceProposalPage() {
     discussion: proposal.discussionThreadURL || "",
     governanceCycle: proposal.governanceCycle,
     uuid: proposal.uuid || "",
-    actions:
-      proposal.actions.length > 0
-        ? proposal.actions
-        : getActionsFromBody(proposal.body) || [],
+    actions: proposal.actions || [],
     proposalId: proposal.proposalId ? String(proposal.proposalId) : undefined,
     minTokenPassingAmount: proposal.proposalInfo.minTokenPassingAmount || 0,
   };

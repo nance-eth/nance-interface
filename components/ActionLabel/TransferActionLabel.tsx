@@ -1,23 +1,24 @@
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
-import { Transfer } from "@nance/nance-sdk";
+import { Action, Transfer } from "@nance/nance-sdk";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { useReadContract } from "wagmi";
 import { getChainById } from "config/custom-chains";
 import { erc20Abi } from "viem";
 
 export default function TransferActionLabel({
-  transfer,
+  action,
 }: {
-  transfer: Transfer;
+  action: Action;
 }) {
+  const transfer = action.payload as Transfer;
   const { data } = useReadContract({
     address: transfer.contract as `0x${string}`,
     abi: erc20Abi,
     functionName: "symbol",
-    chainId: transfer.chainId,
+    chainId: action.chainId || 1,
   });
 
-  const chain = getChainById(transfer.chainId);
+  const chain = getChainById(action.chainId);
   const explorer = `${chain.blockExplorers?.default?.url}/token/${transfer.contract}`;
   const symbol = transfer.contract !== "ETH" ? `$${data}` : "ETH";
   const fixed = transfer.amount.includes(".")

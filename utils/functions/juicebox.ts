@@ -20,6 +20,8 @@ import {
   Action,
   Payout,
   JBSplitStruct,
+  PayoutV1,
+  getPayoutCountAmount,
 } from "@nance/nance-sdk";
 import { getAddress } from "viem";
 import { SectionTableData } from "../../components/form/DiffTableWithSection";
@@ -589,10 +591,11 @@ export function mergePayouts(
 
     if (actionPayout) {
       // Amount change or refresh
+      const { amount } = getPayoutCountAmount(actionPayout.action);
       diff.change[key] = {
         ...defaultSplitDiffEntry,
         proposalId: actionPayout.pid,
-        amount: (actionPayout.action.payload as Payout).amountUSD,
+        amount,
       };
     } else if (registeredPayout) {
       // Will it expire?
@@ -640,6 +643,7 @@ export function mergePayouts(
   actionPayoutMap.forEach((action, key) => {
     // New entry
     const payout = action.action.payload as Payout;
+    const { amount } = getPayoutCountAmount(action.action);
     const split: JBSplit = {
       preferClaimed: false,
       preferAddToBalance: false,
@@ -654,7 +658,7 @@ export function mergePayouts(
       proposalId: action.pid,
       oldVal: "",
       newVal: "",
-      amount: payout.amountUSD,
+      amount: amount,
     };
   });
 
@@ -859,7 +863,7 @@ export function compareReserves(
   return diff;
 }
 
-export function payout2JBSplit(payout: Payout) {
+export function payout2JBSplit(payout: PayoutV1) {
   // FIXME: this may not work for allocator
   const split: JBSplit = {
     preferClaimed: false,

@@ -1,7 +1,5 @@
 import {
   Action,
-  Transfer,
-  Payout,
   CustomTransaction,
   Reserve,
 } from "@nance/nance-sdk";
@@ -29,11 +27,11 @@ export default function ActionLabel({
       </span>
 
       {action.type === "Transfer" && (
-        <TransferActionLabel transfer={action.payload as Transfer} />
+        <TransferActionLabel action={action} />
       )}
 
       {action.type === "Payout" && (
-        <PayoutActionLabel payout={action.payload as Payout} />
+        <PayoutActionLabel action={action} />
       )}
 
       {action.type === "Custom Transaction" && (
