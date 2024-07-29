@@ -5,7 +5,8 @@ export const CONTRACT_MAP = {
 };
 
 export function getContractLabel(address: string) {
-  if (CONTRACT_MAP.ETH === address) return "ETH";
+  if (CONTRACT_MAP.ETH === address || "ETH".localeCompare(address) === 0)
+    return "ETH";
   else if (CONTRACT_MAP.JBX === address) return "JBX";
   else if (CONTRACT_MAP.USDC === address) return "USDC";
   else return `Unknown(${address})`;

@@ -1,30 +1,30 @@
 import { SafeMultisigTransactionResponse } from "@safe-global/safe-core-sdk-types";
 
 export interface SafeMultisigConfirmation {
-  owner: string
-  submissionDate: string
-  transactionHash?: string
-  signature: string
-  signatureType?: string
+  owner: string;
+  submissionDate: string;
+  transactionHash?: string;
+  signature: string;
+  signatureType?: string;
 }
 
 export interface SafeMultisigTransaction {
-  safe: string
-  to: string
-  value: string
-  data?: string
-  nonce: number
-  submissionDate: string
-  executionDate: string
-  safeTxHash: string
-  transactionHash: string
-  origin: string
+  safe: string;
+  to: string;
+  value: string;
+  data?: string;
+  nonce: number;
+  submissionDate: string;
+  executionDate: string;
+  safeTxHash: string;
+  transactionHash: string;
+  origin: string;
   dataDecoded: {
-    method: string
-    parameters: object[]
-  } | null
-  isExecuted: boolean
-  confirmations?: SafeMultisigConfirmation[]
+    method: string;
+    parameters: object[];
+  } | null;
+  isExecuted: boolean;
+  confirmations?: SafeMultisigConfirmation[];
 }
 
 export interface SafeMultisigTransactionRequest {
@@ -55,7 +55,7 @@ export interface SafeBalanceUsdResponse {
     symbol: string;
     decimals: number;
     logoUri: string;
-  } | null
+  } | null;
   balance: string;
   ethValue: string;
   timestamp: string;
@@ -88,16 +88,20 @@ export interface SafeDelegateResponse {
   label: string;
 }
 
-export type RevisedSafeMultisigTransactionResponse = Omit<SafeMultisigTransactionResponse, 'dataDecoded'> & 
-  { dataDecoded: { 
-    method: string, 
-    parameters: { 
-      name: string,
-      type: string,
-      value: string | string[]
-    }[]
-  } };
-  
+export type RevisedSafeMultisigTransactionResponse = Omit<
+  SafeMultisigTransactionResponse,
+  "dataDecoded"
+> & {
+  dataDecoded: {
+    method: string;
+    parameters: {
+      name: string;
+      type: string;
+      value: string | string[];
+    }[];
+  };
+};
+
 export interface SafeTransactionBuilderTxn {
   to: string;
   value: string;
@@ -106,9 +110,13 @@ export interface SafeTransactionBuilderTxn {
     inputs: {
       name: string;
       type: string;
+      internalType: string;
     }[];
     name: string;
     payable: boolean;
   };
-  contractInputsValues: Record<SafeTransactionBuilderTxn['contractMethod']['inputs'][number]['name'], string>;
+  contractInputsValues: Record<
+    SafeTransactionBuilderTxn["contractMethod"]["inputs"][number]["name"],
+    string
+  >;
 }

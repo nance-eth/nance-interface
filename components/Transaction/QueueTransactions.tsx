@@ -29,6 +29,7 @@ import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
 import TransactionCycleNavigator from "./TransactionCycleNavigator";
+import { BigNumber } from "ethers";
 
 export default function QueueTransactionsModal({
   open,
@@ -94,10 +95,13 @@ export default function QueueTransactionsModal({
         title: <TransferActionLabel transfer={transfer} />,
         proposal: v.pid.toString(),
         transactionData: {
-          to: transfer.contract,
+          to:
+            getContractLabel(transfer.contract) === "ETH"
+              ? transfer.to
+              : transfer.contract,
           value:
             getContractLabel(transfer.contract) === "ETH"
-              ? transfer.amount
+              ? parseUnits(transfer.amount, transfer.decimals || 18).toString()
               : "0",
           data:
             getContractLabel(transfer.contract) === "ETH"
@@ -114,9 +118,11 @@ export default function QueueTransactionsModal({
     customTransactionActions?.map((v) => {
       const customTransaction = v.action.payload as CustomTransaction;
       const contractInterface = new Interface([customTransaction.functionName]);
+      const functionName = extractFunctionName(customTransaction.functionName);
       const args = customTransaction.args.map((arg) => {
         return arg.value;
       });
+
       return {
         title: (
           <CustomTransactionActionLabel
@@ -129,14 +135,12 @@ export default function QueueTransactionsModal({
         transactionData: {
           to: customTransaction.contract,
           value: customTransaction.value,
-          data: contractInterface.encodeFunctionData(
-            extractFunctionName(customTransaction.functionName),
-            args
-          ),
+          data: contractInterface.encodeFunctionData(functionName, args),
         },
       };
     }) || [];
   const entries = transferEntries.concat(customTransactionEntries);
+  const actions = (transferActions || []).concat(customTransactionActions);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -213,7 +217,9 @@ export default function QueueTransactionsModal({
                         chainId || 1,
                         cycle || "",
                         transactorAddress || "",
-                        transferActions?.map((x) => x.action) || []
+                        actions
+                          ?.filter((x) => x?.action !== undefined)
+                          .map((x) => x!.action) || []
                       );
                       downloadJSON(`${space}_GC${cycle}_safe_batch`, json);
                     }}
