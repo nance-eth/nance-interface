@@ -17,7 +17,7 @@ export default function SafeTransactionCreator({
   safeTransaction,
 }: {
   safeAddress: string;
-  safeTransaction: SafeTransactionDataPartial | MetaTransactionData[];
+  safeTransaction: MetaTransactionData[];
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [nonce, setNonce] = useState<string>("");

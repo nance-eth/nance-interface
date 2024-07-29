@@ -10,7 +10,7 @@ export interface TransactionData {
 }
 
 function transactionsToTuples(
-  transactions: TransactionData | TransactionData[],
+  transactions: TransactionData | TransactionData[]
 ) {
   const transactionArray = Array.isArray(transactions)
     ? transactions
@@ -25,14 +25,14 @@ function transactionsToTuples(
 
 export default function useQueueTransactionToContract(
   address: string,
-  transactions: TransactionData | TransactionData[],
-  nonce?: string,
+  transactions: TransactionData[],
+  nonce?: string
 ) {
   // TODO to decide whether address is a safe or a governor
   const { value, loading, error, trigger } = useQueueTransaction(
     address,
     transactions,
-    parseInt(nonce || "0"),
+    parseInt(nonce || "0")
   );
   const tuples = transactionsToTuples(transactions);
   const {
@@ -46,7 +46,7 @@ export default function useQueueTransactionToContract(
     tuples[0] as `0x${string}`[],
     tuples[1],
     tuples[2],
-    "Haha",
+    "Haha"
   );
 
   return {
@@ -67,7 +67,7 @@ export function useContractType(rawAddress: string) {
   const address = isAddress(rawAddress) ? getAddress(rawAddress) : undefined;
   const { data: safeInfo, error: safeError } = useSafeInfo(
     address as string,
-    address !== undefined,
+    address !== undefined
   );
 
   if (address === undefined) {

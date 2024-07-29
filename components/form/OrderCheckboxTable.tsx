@@ -9,6 +9,8 @@ export interface TransactionEntry {
   transactionData: SafeTransactionDataPartial;
 }
 
+// FIXME: selected entry only influence simulation button inside this table,
+//   but not queue and export button.
 export default function OrderCheckboxTable({
   address,
   entries,
