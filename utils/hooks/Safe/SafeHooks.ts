@@ -185,6 +185,7 @@ export function useQueueTransaction(
     };
 
     setLoading(true);
+    setError(undefined);
     console.debug("safeTransaction", {
       safeAddress,
       safeTransactionData,
