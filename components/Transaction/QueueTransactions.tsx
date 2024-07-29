@@ -29,7 +29,6 @@ import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
 import TransactionCycleNavigator from "./TransactionCycleNavigator";
-import { BigNumber } from "ethers";
 
 export default function QueueTransactionsModal({
   open,
@@ -91,6 +90,10 @@ export default function QueueTransactionsModal({
   const transferEntries: TransactionEntry[] =
     transferActions?.map((v) => {
       const transfer = v.action.payload as Transfer;
+      console.debug("Transfer", {
+        transfer,
+        str: parseUnits(transfer.amount, transfer.decimals || 18).toString(),
+      });
       return {
         title: <TransferActionLabel transfer={transfer} />,
         proposal: v.pid.toString(),
@@ -108,7 +111,7 @@ export default function QueueTransactionsModal({
               ? "0x"
               : erc20.encodeFunctionData("transfer", [
                   transfer.to,
-                  parseUnits(transfer.amount, transfer.decimals),
+                  parseUnits(transfer.amount, transfer.decimals || 18),
                 ]),
         },
       };

@@ -1,29 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SafeApiKit from "@safe-global/api-kit";
-import { useEthersSigner } from "@/utils/hooks/ViemAdapter";
-import { ethers } from "ethers";
-import { EthersAdapter } from "@safe-global/protocol-kit";
 import { useSafeNetworkAPI } from "@/utils/hooks/Safe/SafeURL";
+import { NetworkContext } from "@/context/NetworkContext";
+import { getChainByNetworkName } from "config/custom-chains";
 
 export function useSafeAPIKit() {
   const [value, setValue] = useState<SafeApiKit>();
-  const signer = useEthersSigner();
+  const network = useContext(NetworkContext);
   const txServiceUrl = useSafeNetworkAPI();
 
   useEffect(() => {
-    if (!signer) {
-      return;
-    }
-    const ethAdapter = new EthersAdapter({
-      ethers,
-      signerOrProvider: signer!,
-    });
+    const chain = getChainByNetworkName(network);
     const safeApiKit = new SafeApiKit({
+      chainId: BigInt(chain.id),
       txServiceUrl,
-      ethAdapter,
     });
     setValue(safeApiKit);
-  }, [signer]);
+  }, [network]);
 
   return { value, loading: !value };
 }

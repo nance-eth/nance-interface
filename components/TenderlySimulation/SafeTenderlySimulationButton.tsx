@@ -6,6 +6,8 @@ import { GenericTransactionData } from "../Transaction/TransactionCreator";
 import { NetworkContext } from "@/context/NetworkContext";
 import { getChainByNetworkName } from "config/custom-chains";
 
+const SAFE_SINGLETON_1_3_0 = "0xd9db270c1b5e3bd161e8c8503c55ceabee709552";
+
 export default function SafeTenderlySimulationButton({
   address,
   transactions,
@@ -17,17 +19,19 @@ export default function SafeTenderlySimulationButton({
 
   const { value: safeTransaction } = useCreateTransaction(
     address,
-    transactions,
+    transactions
   );
 
   const network = useContext(NetworkContext).toLowerCase() as string;
   const networkId = getChainByNetworkName(network)?.id;
+  const isMultiSend = transactions.length > 1;
+
   const simulationArgs: TenderlySimulateArgs = {
     from: address,
-    to: safeTransaction?.data.to || "",
+    to: isMultiSend ? SAFE_SINGLETON_1_3_0 : safeTransaction?.data.to || "",
     value: parseInt(safeTransaction?.data.value || "0"),
     input: safeTransaction?.data.data || "",
-    networkId
+    networkId,
   };
 
   useEffect(() => {

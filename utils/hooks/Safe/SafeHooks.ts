@@ -1,17 +1,11 @@
 import useSWR from "swr";
-import { ethers } from "ethers";
 import { SafeBalanceUsdResponse, SafeInfoResponse } from "@/models/SafeTypes";
 import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
-import { useEthersSigner } from "@/utils/hooks/ViemAdapter";
-import Safe, {
-  EthersAdapter,
-  SafeTransactionOptionalProps,
-} from "@safe-global/protocol-kit";
+import Safe, { SafeTransactionOptionalProps } from "@safe-global/protocol-kit";
 import {
   MetaTransactionData,
   SafeTransaction,
-  SafeTransactionDataPartial,
 } from "@safe-global/safe-core-sdk-types";
 import {
   safeNetworkAPI,
@@ -106,31 +100,28 @@ export function useSafeDelegates(address: string, shouldFetch: boolean = true) {
 export function useSafe(safeAddress: string) {
   const [error, setError] = useState<string>();
   const [value, setValue] = useState<Safe>();
-  const signer = useEthersSigner();
+  const { address } = useAccount();
 
   useEffect(() => {
-    if (!signer || !safeAddress) {
+    if (!address || !safeAddress) {
       return;
     }
 
-    const ethAdapter = new EthersAdapter({
-      ethers,
-      signerOrProvider: signer,
-    });
-    Safe.create({
-      ethAdapter,
+    Safe.init({
+      provider: window.ethereum,
+      signer: address,
       safeAddress,
     })
       .then((safe) => setValue(safe))
       .catch((err) => setError(err));
-  }, [signer, safeAddress]);
+  }, [address, safeAddress]);
 
   return { value, loading: !value, error };
 }
 
 export function useCreateTransaction(
   safeAddress: string,
-  safeTransactionData: SafeTransactionDataPartial | MetaTransactionData[]
+  safeTransactionData: MetaTransactionData[]
 ) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -146,8 +137,10 @@ export function useCreateTransaction(
 
     setLoading(true);
 
+    // FIXME: transactions has value, but the result safe transaction has zero value.
+    // More detail: one transction can work, but multiple transactions will failed.
     safe
-      .createTransaction({ safeTransactionData, onlyCalls: true })
+      .createTransaction({ transactions: safeTransactionData, onlyCalls: true })
       .then((safeTransaction) => setValue(safeTransaction))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
@@ -162,7 +155,7 @@ export function useCreateTransaction(
 
 export function useQueueTransaction(
   safeAddress: string,
-  safeTransactionData: SafeTransactionDataPartial | MetaTransactionData[],
+  safeTransactionData: MetaTransactionData[],
   nonce?: number
 ) {
   const [error, setError] = useState<string>();
@@ -186,21 +179,16 @@ export function useQueueTransaction(
 
     setLoading(true);
     setError(undefined);
-    console.debug("safeTransaction", {
-      safeAddress,
-      safeTransactionData,
-      nonce,
-    });
 
     try {
       const safeTransaction = await safe.createTransaction({
-        safeTransactionData,
+        transactions: safeTransactionData,
         options,
         onlyCalls: true,
       });
       const senderAddress = address;
       const safeTxHash = await safe.getTransactionHash(safeTransaction);
-      const signature = await safe.signTransactionHash(safeTxHash);
+      const signature = await safe.signHash(safeTxHash);
 
       // Propose transaction to the service
       await safeApiKit.proposeTransaction({
