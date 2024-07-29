@@ -140,7 +140,9 @@ export default function QueueTransactionsModal({
       };
     }) || [];
   const entries = transferEntries.concat(customTransactionEntries);
-  const actions = (transferActions || []).concat(customTransactionActions);
+  const actions = (transferActions || []).concat(
+    customTransactionActions || []
+  );
 
   return (
     <Transition.Root show={open} as={Fragment}>
