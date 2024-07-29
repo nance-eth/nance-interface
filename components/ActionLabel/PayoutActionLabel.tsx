@@ -26,7 +26,7 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
       <span className="line-clamp-5">
         ${Number(amount).toLocaleString()}
         &nbsp;to
-        {/* <JBSplitEntry mod={payout2JBSplit(payout)} /> */}
+        <JBSplitEntry mod={payout2JBSplit(action)} />
         {`for ${count} cycles`} (<span className="font-mono text-sm">{dateRanges}</span>)
       </span>
       <div className="font-semibold italic text-emerald-600">Total Amount: ${total}</div>

@@ -863,12 +863,14 @@ export function compareReserves(
   return diff;
 }
 
-export function payout2JBSplit(payout: PayoutV1) {
+export function payout2JBSplit(action: Action) {
   // FIXME: this may not work for allocator
+  const { amount } = getPayoutCountAmount(action);
+  const payout = action.payload as Payout;
   const split: JBSplit = {
     preferClaimed: false,
     preferAddToBalance: false,
-    percent: BigNumber.from(Math.floor(payout.amountUSD)), // HACK FOR FLOAT VALUES
+    percent: BigNumber.from(Math.floor(amount)), // HACK FOR FLOAT VALUES
     lockedUntil: BIG_ZERO,
     beneficiary: payout.address || "",
     projectId: BigNumber.from(payout.project || 0),
