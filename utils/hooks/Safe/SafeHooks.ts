@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { SafeBalanceUsdResponse, SafeInfoResponse } from "@/models/SafeTypes";
 import { useEffect, useState } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount, useGasPrice, useWalletClient } from "wagmi";
 import Safe, { SafeTransactionOptionalProps } from "@safe-global/protocol-kit";
 import {
   MetaTransactionData,
@@ -22,6 +22,7 @@ import {
   fetchSafeWithAddress,
   basicFetcher,
 } from "./SafeFetchers";
+import useChainConfigOfSpace from "../ChainOfSpace";
 
 export function useMultisigTransactionOf(
   address: string,
@@ -129,6 +130,17 @@ export function useCreateTransaction(
 
   const { value: safe } = useSafe(safeAddress);
 
+  const chain = useChainConfigOfSpace();
+  const { data: gasPrice } = useGasPrice({
+    chainId: chain.id,
+    query: { refetchInterval: 10000 }, // refetch every 10s
+  });
+
+  const options: SafeTransactionOptionalProps = {
+    gasPrice: gasPrice?.toString() || "0", // If gasPrice > 0, Safe contract will refund gasUsed.
+    // safeTxGas will be max tx gas can be used, should we set this?
+  };
+
   useEffect(() => {
     if (!safe) {
       setError("Not connected to wallet or safe not found.");
@@ -137,10 +149,12 @@ export function useCreateTransaction(
 
     setLoading(true);
 
-    // FIXME: transactions has value, but the result safe transaction has zero value.
-    // More detail: one transction can work, but multiple transactions will failed.
     safe
-      .createTransaction({ transactions: safeTransactionData, onlyCalls: true })
+      .createTransaction({
+        transactions: safeTransactionData,
+        options,
+        onlyCalls: true,
+      })
       .then((safeTransaction) => setValue(safeTransaction))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
@@ -150,6 +164,7 @@ export function useCreateTransaction(
     value,
     error,
     loading,
+    gasPrice,
   };
 }
 
@@ -166,6 +181,10 @@ export function useQueueTransaction(
   const { address, isConnecting, isDisconnected } = useAccount();
   const { value: safeApiKit } = useSafeAPIKit();
   const { value: safe } = useSafe(safeAddress);
+  const chain = useChainConfigOfSpace();
+  const { refetch } = useGasPrice({
+    chainId: chain.id,
+  });
 
   const trigger = async () => {
     if (!safe || !walletClient || !safeApiKit || !address) {
@@ -173,12 +192,15 @@ export function useQueueTransaction(
       return;
     }
 
-    const options: SafeTransactionOptionalProps = {
-      nonce, // Optional
-    };
-
     setLoading(true);
     setError(undefined);
+
+    const { data: gasPrice } = await refetch(); // get newest gasPrice
+    const options: SafeTransactionOptionalProps = {
+      nonce, // Optional
+      gasPrice: gasPrice?.toString() || "0", // If gasPrice > 0, Safe contract will refund gasUsed.
+      // safeTxGas will be max tx gas can be used, should we set this?
+    };
 
     try {
       const safeTransaction = await safe.createTransaction({
