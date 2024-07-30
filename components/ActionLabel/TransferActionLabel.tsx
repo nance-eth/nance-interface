@@ -2,7 +2,6 @@ import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { Action, Transfer } from "@nance/nance-sdk";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { useReadContract } from "wagmi";
-import { getChainById } from "config/custom-chains";
 import { erc20Abi } from "viem";
 import TokenSymbol from "../AddressCard/TokenSymbol";
 
@@ -19,9 +18,6 @@ export default function TransferActionLabel({
     chainId: action.chainId || 1,
   });
 
-  const chain = getChainById(action.chainId);
-  const explorer = `${chain.blockExplorers?.default?.url}/token/${transfer.contract}`;
-  const symbol = transfer.contract !== "ETH" ? `$${data}` : "ETH";
   const fixed = transfer.amount.includes(".")
     ? transfer.amount.split(".")[1].replace(/0+$/, "").length
     : 0; // get mantissa length
