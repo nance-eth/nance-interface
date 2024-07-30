@@ -1,13 +1,9 @@
 import { classNames } from "@/utils/functions/tailwind";
-import {
-  StringParam,
-  useQueryParams
-} from "next-query-params";
+import { StringParam, useQueryParams } from "next-query-params";
 
 export default function TransactionCycleNavigator() {
-
   return (
-    <div className="flex flex-row ml-2">
+    <div className="flex flex-row ml-2 px-2 md:px-4">
       <p className="text-sm font-semibold italic text-gray-900">Change Cycle</p>
       <CycleNavButton dir="prev" />
       <CycleNavButton dir="next" />
@@ -15,7 +11,7 @@ export default function TransactionCycleNavigator() {
   );
 }
 
-const CycleNavButton = ({ dir }: {dir: string}) => {
+const CycleNavButton = ({ dir }: { dir: string }) => {
   const [query, setQuery] = useQueryParams({
     cycle: StringParam,
   });
@@ -30,13 +26,12 @@ const CycleNavButton = ({ dir }: {dir: string}) => {
 
   return (
     <p
-      className={
-        classNames("ml-2 text-sm",
-          query.cycle === "0" && dir === "prev"
-            ? "text-gray-400"
-            : "text-blue-500 underline hover:cursor-pointer"
-        )
-      }
+      className={classNames(
+        "ml-2 text-sm",
+        query.cycle === "0" && dir === "prev"
+          ? "text-gray-400"
+          : "text-blue-500 underline hover:cursor-pointer"
+      )}
       onClick={() => handleCycleChange(dir)}
     >
       {dir}
