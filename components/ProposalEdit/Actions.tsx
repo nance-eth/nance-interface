@@ -55,7 +55,18 @@ export default function Actions({
   useEffect(() => {
     // load actions
     if (fields.length === 0) {
-      replace(loadedActions);
+      replace(
+        loadedActions.map((action) => {
+          return {
+            ...action,
+            payload: {
+              ...action.payload,
+              cycleStart: action.actionTracking?.[0].governanceCycle,
+              count: action.actionTracking?.length,
+            },
+          };
+        })
+      );
     }
   }, [replace]);
 

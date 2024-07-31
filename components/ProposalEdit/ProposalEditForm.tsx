@@ -62,13 +62,13 @@ const NanceEditor = dynamic(
   },
   {
     ssr: false,
-  },
+  }
 );
 
 const fileUploadIPFS = {
   gateway: NANCE_DEFAULT_IPFS_GATEWAY,
   auth: `Basic ${Buffer.from(
-    `${process.env.NEXT_PUBLIC_INFURA_IPFS_ID}:${process.env.NEXT_PUBLIC_INFURA_IPFS_SECRET}`,
+    `${process.env.NEXT_PUBLIC_INFURA_IPFS_ID}:${process.env.NEXT_PUBLIC_INFURA_IPFS_SECRET}`
   ).toString("base64")}`,
 };
 
@@ -119,10 +119,10 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const [proposalCache, setProposalCache] = useLocalStorage<ProposalCache>(
     "ProposalCache",
     CACHE_VERSION,
-    { version: CACHE_VERSION, title: "", body: "", timestamp: 0 },
+    { version: CACHE_VERSION, title: "", body: "", timestamp: 0 }
   );
   const [cacheModalIsOpen, setCacheModalIsOpen] = useState(
-    !!(proposalCache.title || proposalCache.body),
+    !!(proposalCache.title || proposalCache.body)
   );
   const {
     isMutating,
@@ -133,7 +133,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   } = useProposalUpload(
     space,
     (!metadata.fork && metadata.loadedProposal?.uuid) || undefined,
-    router.isReady,
+    router.isReady
   );
 
   const { data: session, status } = useSession();
@@ -152,7 +152,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
       getValues("proposal.actions")?.filter(
         (a) =>
           a.type === "Custom Transaction" &&
-          (a.payload as ICustomTransaction).tenderlyStatus !== "true",
+          (a.payload as ICustomTransaction).tenderlyStatus !== "true"
       ).length === 0;
 
     if (
@@ -161,8 +161,9 @@ export default function ProposalEditForm({ space }: { space: string }) {
     ) {
       setMiddleStepInfo({
         title: "Did you forget to add an action?",
-        description: "You mention doing something but didn't attach an action. Consider adding one!",
-        warning: true
+        description:
+          "You mention doing something but didn't attach an action. Consider adding one!",
+        warning: true,
       });
       setFormDataPayload(formData);
       return;
@@ -174,19 +175,41 @@ export default function ProposalEditForm({ space }: { space: string }) {
       setFormDataPayload(formData);
       setMiddleStepInfo({
         title: "Submit will fail, please check the following",
-        description: "You have some transactions may failed based on simulations.\n"
+        description:
+          "You have some transactions may failed based on simulations.\n",
       });
     }
   };
   const processAndUploadProposal: SubmitHandler<ProposalFormValues> = async (
-    formData,
+    formData
   ) => {
     let uuid;
-    if (!metadata.fork && metadata?.loadedProposal) {
+    if (!isNew && metadata?.loadedProposal) {
       uuid = metadata.loadedProposal.uuid;
     }
 
-    const body = `${formData.proposal.body}\n\n${actionsToYaml(formData.proposal.actions)}`;
+    // transform cycleStart and count to governanceCycles
+    const actions = formData.proposal.actions?.map((action) => {
+      const payloadForm = action.payload as any as {
+        count: number;
+        cycleStart: number;
+      };
+
+      const newAction = {
+        ...action,
+        governanceCycles: Array.from(
+          { length: payloadForm.count },
+          (_, i) => payloadForm.cycleStart + i
+        ),
+        payload: action.payload,
+      };
+      delete (action.payload as any).count;
+      delete (action.payload as any).cycleStart;
+      return newAction;
+    });
+    console.debug("actions", formData.proposal.actions, actions);
+
+    const body = `${formData.proposal.body}\n\n${actionsToYaml(actions)}`;
     const proposal = {
       ...formData.proposal,
       body,
@@ -215,6 +238,11 @@ export default function ProposalEditForm({ space }: { space: string }) {
       // address,
       // ==========================================
     };
+
+    console.debug("about to upload!", { formData, req });
+
+    return; //FIXME block for test
+
     trigger(req)
       .then(async (res) => {
         setSubmitted(true);
@@ -273,10 +301,10 @@ export default function ProposalEditForm({ space }: { space: string }) {
         description={`Saved ${formatDistance(
           fromUnixTime(proposalCache.timestamp),
           new Date(),
-          { addSuffix: true },
+          { addSuffix: true }
         )}. Title: ${proposalCache.title}, Content: ${proposalCache.body.slice(
           0,
-          140,
+          140
         )}...`}
         buttonText="Restore"
         onClick={() => {
@@ -407,7 +435,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
             <div
               className={classNames(
                 "flex w-full",
-                isNew ? "justify-between" : "justify-end",
+                isNew ? "justify-between" : "justify-end"
               )}
             >
               {isNew ? (
