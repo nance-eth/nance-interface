@@ -13,7 +13,8 @@ export default function UIntForm({
   defaultValue = 0,
   showType = true,
   tooltip = "",
-  step = 1
+  step = 1,
+  min = 0,
 }: {
   label: string;
   fieldName: any;
@@ -21,7 +22,8 @@ export default function UIntForm({
   defaultValue?: number;
   showType?: boolean;
   tooltip?: string;
-  step?: number
+  step?: number;
+  min?: number;
 }) {
   const {
     register,
@@ -43,7 +45,7 @@ export default function UIntForm({
         <input
           type="number"
           step={step}
-          min={0}
+          min={min}
           defaultValue={defaultValue}
           {...register(fieldName, {
             shouldUnregister: true,
@@ -52,7 +54,7 @@ export default function UIntForm({
           })}
           className={classNames(
             "block h-10 w-full flex-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-            showType ? "rounded-none rounded-r-md" : "rounded-md",
+            showType ? "rounded-none rounded-r-md" : "rounded-md"
           )}
         />
       </div>
