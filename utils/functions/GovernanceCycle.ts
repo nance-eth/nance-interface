@@ -22,14 +22,6 @@ export function dateRangesOfCycles({
     (cycle - currentCycle - 1) * CYCLE_LENGTH
   );
   const endDate = addDays(startDate, length * CYCLE_LENGTH);
-  console.debug("dateRanges", {
-    cycle,
-    length,
-    currentCycle,
-    currentCycleStartDate: nextCycleStartDate,
-    startDate,
-    endDate,
-  });
 
   return `${format(startDate, "MM/dd/yy")} - ${format(endDate, "MM/dd/yy")}`;
 }
