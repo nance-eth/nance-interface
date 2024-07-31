@@ -19,15 +19,9 @@ export default function TokenSymbol({
   const tokenSymbol = isETH ? "ETH" : data;
 
   return (
-    <a
-      href={
-        isETH
-          ? undefined
-          : `${chain.blockExplorers?.default.url}/address/${address}`
-      }
-      className={classNames("break-all", !isETH && "hover:underline")}
-    >
-      {isETH ? "" : "$"}{tokenSymbol || "TOKEN"}
-    </a>
+    <span className="break-all">
+      {isETH ? "" : "$"}
+      {tokenSymbol || "TOKEN"}
+    </span>
   );
 }
