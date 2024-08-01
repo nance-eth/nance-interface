@@ -239,10 +239,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
       // ==========================================
     };
 
-    console.debug("about to upload!", { formData, req });
-
-    return; //FIXME block for test
-
     trigger(req)
       .then(async (res) => {
         setSubmitted(true);
