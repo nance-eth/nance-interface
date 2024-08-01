@@ -51,10 +51,12 @@ export default function GenericListbox<T extends Includes>({
     <Listbox value={value} onChange={onChange} disabled={disabled}>
       {({ open }) => (
         <>
-          <Listbox.Label className={classNames(
-            "block text-sm font-medium leading-6 text-gray-900",
-            loading && "animate-pulse"
-          )}>
+          <Listbox.Label
+            className={classNames(
+              "block text-sm font-medium leading-6 text-gray-900",
+              loading && "animate-pulse"
+            )}
+          >
             {label}
           </Listbox.Label>
           <div className="relative">
@@ -91,11 +93,11 @@ export default function GenericListbox<T extends Includes>({
                   items.length > 0 &&
                   items.map((item) => (
                     <Listbox.Option
-                      key={item.id}
+                      key={item.id || "unknown"}
                       className={({ active }) =>
                         classNames(
                           active ? "bg-indigo-600 text-white" : "text-gray-900",
-                          "relative cursor-default select-none py-2 pl-3 pr-9",
+                          "relative cursor-default select-none py-2 pl-3 pr-9"
                         )
                       }
                       value={item}
@@ -115,7 +117,7 @@ export default function GenericListbox<T extends Includes>({
                             <span
                               className={classNames(
                                 selected ? "font-semibold" : "font-normal",
-                                "ml-3 block truncate",
+                                "ml-3 block truncate"
                               )}
                             >
                               {item.name}
@@ -126,7 +128,7 @@ export default function GenericListbox<T extends Includes>({
                             <span
                               className={classNames(
                                 active ? "text-#2ecc71" : "text-indigo-600",
-                                "absolute inset-y-0 right-0 flex items-center pr-4",
+                                "absolute inset-y-0 right-0 flex items-center pr-4"
                               )}
                             >
                               <CheckIcon
