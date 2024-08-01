@@ -119,7 +119,10 @@ export default function TransferActionForm({
           step={1e-18}
         />
         <span className="text-xs text-gray-400">
-          Total: {watch(genFieldName("count")) * watch(genFieldName("amount"))}
+          Total:{" "}
+          {(
+            watch(genFieldName("count")) * watch(genFieldName("amount"))
+          ).toFixed(4)}
         </span>
       </div>
 

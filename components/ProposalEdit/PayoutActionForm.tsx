@@ -88,7 +88,9 @@ export default function PayoutActionForm({
         />
         <span className="text-xs text-gray-400">
           Total:{" "}
-          {watch(genFieldName("count")) * watch(genFieldName("amountUSD"))}
+          {(
+            watch(genFieldName("count")) * watch(genFieldName("amountUSD"))
+          ).toFixed(2)}
         </span>
       </div>
 
