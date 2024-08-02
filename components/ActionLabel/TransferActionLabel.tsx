@@ -5,11 +5,7 @@ import { useReadContract } from "wagmi";
 import { erc20Abi } from "viem";
 import TokenSymbol from "../AddressCard/TokenSymbol";
 
-export default function TransferActionLabel({
-  action,
-}: {
-  action: Action;
-}) {
+export default function TransferActionLabel({ action }: { action: Action }) {
   const transfer = action.payload as Transfer;
   const { data } = useReadContract({
     address: transfer.contract as `0x${string}`,
@@ -18,12 +14,13 @@ export default function TransferActionLabel({
     chainId: action.chainId || 1,
   });
 
-  const fixed = transfer.amount.includes(".")
-    ? transfer.amount.split(".")[1].replace(/0+$/, "").length
+  const amount = transfer.amount.toString(); // transfer.amount can be number type, use toString to make sure it be string
+  const fixed = amount.includes(".")
+    ? amount.split(".")[1].replace(/0+$/, "").length
     : 0; // get mantissa length
   return (
     <span className="line-clamp-5">
-      {numToPrettyString(Number(transfer.amount), fixed)}
+      {numToPrettyString(Number(amount), fixed)}
       &nbsp;
       <TokenSymbol address={transfer.contract} />
       &nbsp;to
