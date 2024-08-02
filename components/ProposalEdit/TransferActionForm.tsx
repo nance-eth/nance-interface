@@ -40,7 +40,7 @@ export default function TransferActionForm({
   genFieldName: (field: string) => any;
   address: string;
 }) {
-  const { control, setValue, watch, getValues } = useFormContext();
+  const { control, watch } = useFormContext();
   const spaceInfo = useContext(SpaceContext);
 
   const { data, isLoading } = useSafeBalances(address, !!address);
@@ -57,17 +57,6 @@ export default function TransferActionForm({
     spaceInfo?.currentCycle || 1,
     spaceInfo?.currentEvent.title || "Unknown"
   );
-
-  // set tokenAddress to be first option in the list
-  useEffect(() => {
-    const tokenAddress = getValues(genFieldName("contract"));
-    if (tokenAddress === undefined && data && data.length > 0) {
-      setValue(
-        genFieldName("contract"),
-        data[0].tokenAddress || ETH_MOCK_CONTRACT
-      );
-    }
-  }, [data, setValue, genFieldName]);
 
   return (
     <div className="grid grid-cols-4 gap-6">
