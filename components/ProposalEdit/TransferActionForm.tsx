@@ -7,7 +7,12 @@ import { SafeBalanceUsdResponse } from "@/models/SafeTypes";
 import { formatUnits } from "ethers/lib/utils";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { ETH_MOCK_CONTRACT } from "@/constants/Nance";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import { SpaceContext } from "@/context/SpaceContext";
+import {
+  dateRangesOfCycles,
+  getEarliestStartCycle,
+} from "@/utils/functions/GovernanceCycle";
 
 type ListBoxItems = {
   id?: string;
@@ -16,14 +21,14 @@ type ListBoxItems = {
 
 const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItems[] => {
   return b.map((b) => {
-    const token = b.token?.symbol || 'ETH';
+    const token = b.token?.symbol || "ETH";
     const balance = numToPrettyString(
       formatUnits(b.balance, b.token?.decimals || 18),
       2
     );
     return {
       id: (b.tokenAddress as string) || ETH_MOCK_CONTRACT,
-      name: `${token} (${balance})`
+      name: `${token} (${balance})`,
     };
   });
 };
@@ -35,23 +40,23 @@ export default function TransferActionForm({
   genFieldName: (field: string) => any;
   address: string;
 }) {
-  const {
-    control,
-    formState: { errors },
-    setValue
-  } = useFormContext();
+  const { control, watch } = useFormContext();
+  const spaceInfo = useContext(SpaceContext);
 
-  const { data, isLoading, error } = useSafeBalances(address, !!address);
+  const { data, isLoading } = useSafeBalances(address, !!address);
   const items = data
     ? safeBalanceToItems(data)
-    : [{ id: undefined, name: isLoading ? "loading..." : "no tokens found in Safe" }];
-  console.debug("safe", data, items);
+    : [
+        {
+          id: undefined,
+          name: isLoading ? "loading..." : "no tokens found in Safe",
+        },
+      ];
 
-  useEffect(() => {
-    if (data && data.length > 0) {
-      setValue(genFieldName("contract"), data[0].tokenAddress || ETH_MOCK_CONTRACT);
-    }
-  }, [data, setValue, genFieldName]);
+  const earliestStartCycle = getEarliestStartCycle(
+    spaceInfo?.currentCycle || 1,
+    spaceInfo?.currentEvent.title || "Unknown"
+  );
 
   return (
     <div className="grid grid-cols-4 gap-6">
@@ -65,11 +70,51 @@ export default function TransferActionForm({
 
       <div className="col-span-4 sm:col-span-1">
         <UIntForm
+          label="Governance Cycle Start"
+          fieldName={genFieldName("cycleStart")}
+          defaultValue={earliestStartCycle}
+          min={earliestStartCycle}
+          showType={false}
+          tooltip="When should this action start to take effect?"
+        />
+        <span className="text-xs text-gray-400">
+          Current: GC-{spaceInfo?.currentCycle} (
+          {spaceInfo?.currentEvent.title || "Unknown"})
+        </span>
+      </div>
+      <div className="col-span-4 sm:col-span-1">
+        <UIntForm
+          label="Duration"
+          fieldName={genFieldName("count")}
+          fieldType="cycles"
+          defaultValue={1}
+          min={1}
+          tooltip="How many Juicebox funding cycles will this payout last?"
+        />
+        <span className="text-xs text-gray-400">
+          Date:{" "}
+          {dateRangesOfCycles({
+            cycle: watch(genFieldName("cycleStart")),
+            length: watch(genFieldName("count")),
+            currentCycle: spaceInfo?.currentCycle,
+            cycleStartDate: spaceInfo?.cycleStartDate,
+          })}
+        </span>
+      </div>
+
+      <div className="col-span-4 sm:col-span-1">
+        <UIntForm
           label="Amount"
           fieldName={genFieldName("amount")}
           showType={false}
-          step={1E-18}
+          step={1e-18}
         />
+        <span className="text-xs text-gray-400">
+          Total:{" "}
+          {(
+            watch(genFieldName("count")) * watch(genFieldName("amount"))
+          ).toFixed(4)}
+        </span>
       </div>
 
       <div className="col-span-4 sm:col-span-1">
@@ -82,7 +127,7 @@ export default function TransferActionForm({
               <GenericListbox<ListBoxItems>
                 value={
                   items.find((i) => i.id === value) ||
-                    items[0] || {
+                  items[0] || {
                     id: undefined,
                     name: "no tokens found in Safe",
                   }
