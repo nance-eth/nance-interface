@@ -23,14 +23,12 @@ export default function ProposalMetadata() {
   let retries = 0;
   const retryLimit = 2;
   const interval = setInterval(async () => {
-    if (!discussionThreadURL) {
+    if (!discussionThreadURL && commonProps.status !== "Draft" || commonProps.status !== "Archived") {
       if (retries >= retryLimit) {
         setDiscussionThreadURL("ERROR");
         clearInterval(interval);
       }
       try {
-        console.log(`retry ${retries}`);
-        console.log(discussionThreadURL);
         const res = await fetch(`${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`);
         const { data } = await res.json() as APIResponse<ProposalPacket>;
         const refreshedDiscussionURL = data?.discussionThreadURL;
@@ -112,7 +110,7 @@ export default function ProposalMetadata() {
             </>
           )}
 
-          {discussionThreadURL === "ERROR" && (
+          {discussionThreadURL === "ERROR" && commonProps.status === "Discussion" && (
             <>
               <span className="font-medium">Discussion:</span>
               <a
