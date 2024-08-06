@@ -191,15 +191,17 @@ export default function ProposalEditForm({ space }: { space: string }) {
     // transform cycleStart and count to governanceCycles
     const actions = formData.proposal.actions?.map((action) => {
       const payloadForm = action.payload as any as {
-        count: number;
-        cycleStart: number;
+        count: string;
+        cycleStart: string;
       };
+      const count = parseInt(payloadForm.count);
+      const cycleStart = parseInt(payloadForm.cycleStart);
 
       const newAction = {
         ...action,
         governanceCycles: Array.from(
-          { length: payloadForm.count },
-          (_, i) => payloadForm.cycleStart + i
+          { length: count },
+          (_, i) => cycleStart + i
         ),
         payload: action.payload,
       };
@@ -207,7 +209,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
       delete (action.payload as any).cycleStart;
       return newAction;
     });
-    console.debug("actions", formData.proposal.actions, actions);
 
     const body = `${formData.proposal.body}\n\n${actionsToYaml(actions)}`;
     const proposal = {
