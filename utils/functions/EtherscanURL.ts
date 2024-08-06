@@ -2,8 +2,7 @@ import { customChains } from "config/custom-chains";
 
 export function getAddressLink(address: string, network: string) {
   const findNetwork =
-    customChains.find((chain) => chain.name.toLowerCase() === network) ||
-    customChains[0];
+    customChains.find((chain) => chain.name === network) || customChains[0];
   return `${findNetwork?.blockExplorers?.default?.url}/address/${address}`;
 }
 
