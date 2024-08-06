@@ -9,7 +9,6 @@ import {
 } from "@/utils/functions/GovernanceCycle";
 import { useContext } from "react";
 import { SpaceContext } from "@/context/SpaceContext";
-import { GovernanceEventName } from "@nance/nance-sdk";
 
 export default function PayoutActionForm({
   genFieldName,

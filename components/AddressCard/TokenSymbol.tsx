@@ -1,4 +1,3 @@
-import { classNames } from "@/utils/functions/tailwind";
 import useChainConfigOfSpace from "@/utils/hooks/ChainOfSpace";
 import { erc20Abi } from "viem";
 import { useReadContract } from "wagmi";
