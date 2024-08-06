@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useEtherscanContract } from "@/utils/hooks/EtherscanHooks";
 import { classNames } from "@/utils/functions/tailwind";
 import { getAddressLink } from "@/utils/functions/EtherscanURL";
-import { NetworkContext } from "@/context/NetworkContext";
+import useChainConfigOfSpace from "@/utils/hooks/ChainOfSpace";
 
 interface Props {
   address: string;
@@ -26,11 +26,11 @@ export default function ResolvedContract({
   const [label, setLabel] = useState<string>(address);
   const { data: contractSources } = useEtherscanContract(addr, hasAddr);
 
-  const network = useContext(NetworkContext);
-  const urlPrefix = overrideURLPrefix || getAddressLink("", network);
+  const chain = useChainConfigOfSpace();
+  const urlPrefix = overrideURLPrefix || getAddressLink("", chain.name);
 
   useEffect(() => {
-    if (contractSources?.[0]) {
+    if (contractSources?.[0].ContractName) {
       setLabel(contractSources[0].ContractName);
     }
   }, [contractSources]);

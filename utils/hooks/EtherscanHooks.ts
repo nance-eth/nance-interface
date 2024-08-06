@@ -1,10 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import useSWR from "swr";
 import { usePublicClient } from "wagmi";
-import { mainnet } from "wagmi/chains";
 import { Interface } from "ethers/lib/utils";
-import { NetworkContext } from "../../context/NetworkContext";
 import { trim } from "viem";
+import useChainConfigOfSpace from "./ChainOfSpace";
 
 const API_KEY = process.env.NEXT_PUBLIC_ETHERSCAN_KEY;
 
@@ -25,16 +24,14 @@ const fetcher = (url: string) =>
     });
 
 export function useEtherscanAPIUrl() {
-  const network = useContext(NetworkContext);
-  return `https://api${
-    network === mainnet.name ? "" : `-${network}`
-  }.etherscan.io/api`;
+  const chain = useChainConfigOfSpace();
+  return chain.blockExplorers.default.apiUrl;
 }
 
 // supported proxy pattern: EIP-1967 Proxy Storage Slots, EIP-897 DelegateProxy and Gnosis Safe Proxy
 export function useEtherscanContractABI(
   address: string,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   const [implementationAddress, setImplementationAddress] = useState<string>();
   const client = usePublicClient();
@@ -49,7 +46,7 @@ export function useEtherscanContractABI(
           implementationAddress || address
         }&apikey=${API_KEY}`
       : null,
-    fetcher,
+    fetcher
     //{ shouldRetryOnError: false }
   );
 
@@ -63,7 +60,7 @@ export function useEtherscanContractABI(
           console.debug(
             "EtherscanHooks.proxy.slotType",
             address,
-            ethersInterface,
+            ethersInterface
           );
 
           // EIP-1967 Proxy Storage Slots
@@ -119,7 +116,7 @@ export function useEtherscanContractABI(
           console.debug(
             "EtherscanHooks.proxy.eip897",
             address,
-            ethersInterface,
+            ethersInterface
           );
           client
             .readContract({
@@ -182,13 +179,13 @@ interface EtherscanContractSource {
 
 export function useEtherscanContract(
   contract: string,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   const apiUrl = useEtherscanAPIUrl();
   return useSWR<[EtherscanContractSource]>(
     shouldFetch
       ? `${apiUrl}?module=contract&action=getsourcecode&address=${contract}&apikey=${API_KEY}`
       : null,
-    fetcher,
+    fetcher
   );
 }
