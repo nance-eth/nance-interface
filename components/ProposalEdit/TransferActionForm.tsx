@@ -122,7 +122,7 @@ export default function TransferActionForm({
           <Controller
             name={genFieldName("contract")}
             control={control}
-            defaultValue={items[0].id}
+            defaultValue={items[0].id || ETH_MOCK_CONTRACT}
             render={({ field: { onChange, value } }) => (
               <GenericListbox<ListBoxItems>
                 value={
