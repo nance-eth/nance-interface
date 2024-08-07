@@ -7,7 +7,7 @@ import { SafeBalanceUsdResponse } from "@/models/SafeTypes";
 import { formatUnits } from "ethers/lib/utils";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { ETH_MOCK_CONTRACT } from "@/constants/Nance";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { SpaceContext } from "@/context/SpaceContext";
 import {
   dateRangesOfCycles,
@@ -27,7 +27,7 @@ const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItems[] => {
       2
     );
     return {
-      id: (b.tokenAddress as string) || ETH_MOCK_CONTRACT,
+      id: b.tokenAddress || ETH_MOCK_CONTRACT,
       name: `${token} (${balance})`,
     };
   });
@@ -122,7 +122,7 @@ export default function TransferActionForm({
           <Controller
             name={genFieldName("contract")}
             control={control}
-            defaultValue={items[0]?.id}
+            defaultValue={items[0].id}
             render={({ field: { onChange, value } }) => (
               <GenericListbox<ListBoxItems>
                 value={
