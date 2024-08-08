@@ -13,6 +13,7 @@ import {
   dateRangesOfCycles,
   getEarliestStartCycle,
 } from "@/utils/functions/GovernanceCycle";
+import BooleanForm from "../form/BooleanForm";
 
 type ListBoxItems = {
   id?: string;
@@ -60,11 +61,11 @@ export default function TransferActionForm({
 
   return (
     <div className="grid grid-cols-4 gap-6">
-      <div className="col-span-4 sm:col-span-2">
-        <AddressForm
-          label="Receiver"
-          fieldName={genFieldName("to")}
-          showType={false}
+      <div className="col-span-4 sm:col-span-1">
+        <BooleanForm
+          label={`Milestone Based`}
+          fieldName={genFieldName("pollRequired")}
+          tooltip="It will only get executed after the milestone has been met"
         />
       </div>
 
@@ -100,6 +101,14 @@ export default function TransferActionForm({
             cycleStartDate: spaceInfo?.cycleStartDate,
           })}
         </span>
+      </div>
+
+      <div className="col-span-4 sm:col-span-2">
+        <AddressForm
+          label="Receiver"
+          fieldName={genFieldName("to")}
+          showType={false}
+        />
       </div>
 
       <div className="col-span-4 sm:col-span-1">

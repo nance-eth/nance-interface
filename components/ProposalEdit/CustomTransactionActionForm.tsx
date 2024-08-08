@@ -162,7 +162,15 @@ export default function CustomTransactionActionForm({
           onSimulated={onSimulated}
         />
 
-        <div className="col-span-4 sm:col-span-2">
+        <div className="col-span-4 sm:col-span-1">
+          <BooleanForm
+            label={`Milestone Based`}
+            fieldName={genFieldName("pollRequired")}
+            tooltip="It will only get executed after the milestone has been met"
+          />
+        </div>
+
+        <div className="col-span-4 sm:col-span-1">
           <UIntForm
             label="Governance Cycle Start"
             fieldName={genFieldName("cycleStart")}
@@ -176,7 +184,7 @@ export default function CustomTransactionActionForm({
             {spaceInfo?.currentEvent.title || "Unknown"})
           </span>
         </div>
-        <div className="col-span-4 sm:col-span-2">
+        <div className="col-span-4 sm:col-span-1">
           <UIntForm
             label="Duration"
             fieldName={genFieldName("count")}

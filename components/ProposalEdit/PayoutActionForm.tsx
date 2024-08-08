@@ -9,6 +9,7 @@ import {
 } from "@/utils/functions/GovernanceCycle";
 import { useContext } from "react";
 import { SpaceContext } from "@/context/SpaceContext";
+import BooleanForm from "../form/BooleanForm";
 
 export default function PayoutActionForm({
   genFieldName,
@@ -28,18 +29,11 @@ export default function PayoutActionForm({
   return (
     <div className="grid grid-cols-4 gap-6">
       <div className="col-span-4 sm:col-span-1">
-        <SelectForm
-          label="Receiver Type"
-          fieldName={genFieldName("type")}
-          options={[
-            { displayValue: "Address", value: "address" },
-            { displayValue: "Project", value: "project" },
-          ]}
-          defaultValue={
-            getValues(genFieldName("project")) > 0 ? "project" : "address"
-          }
+        <BooleanForm
+          label={`Milestone Based`}
+          fieldName={genFieldName("pollRequired")}
+          tooltip="It will only get executed after the milestone has been met"
           showType={false}
-          tooltip="Send funds to a Juicebox project or EOA?"
         />
       </div>
       <div className="col-span-4 sm:col-span-1">
@@ -91,6 +85,22 @@ export default function PayoutActionForm({
             watch(genFieldName("count")) * watch(genFieldName("amountUSD"))
           ).toFixed(2)}
         </span>
+      </div>
+
+      <div className="col-span-4 sm:col-span-1">
+        <SelectForm
+          label="Receiver Type"
+          fieldName={genFieldName("type")}
+          options={[
+            { displayValue: "Address", value: "address" },
+            { displayValue: "Project", value: "project" },
+          ]}
+          defaultValue={
+            getValues(genFieldName("project")) > 0 ? "project" : "address"
+          }
+          showType={false}
+          tooltip="Send funds to a Juicebox project or EOA?"
+        />
       </div>
 
       {watch(genFieldName("type")) === "project" && (
