@@ -193,6 +193,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
       const payloadForm = action.payload as any as {
         count: string;
         cycleStart: string;
+        pollRequired: boolean;
       };
       const count = parseInt(payloadForm.count);
       const cycleStart = parseInt(payloadForm.cycleStart);
@@ -203,10 +204,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
           { length: count },
           (_, i) => cycleStart + i
         ),
+        pollRequired: payloadForm.pollRequired,
         payload: action.payload,
       };
+      // These two values has been transformed to governanceCycles
       delete (action.payload as any).count;
       delete (action.payload as any).cycleStart;
+      // This value has been moved to upper level
+      delete (action.payload as any).pollRequired;
       return newAction;
     });
 
