@@ -61,8 +61,8 @@ export default function Actions({
             ...action,
             payload: {
               ...action.payload,
-              cycleStart: action.actionTracking?.[0].governanceCycle,
-              count: action.actionTracking?.length,
+              cycleStart: action.governanceCycles?.[0],
+              count: action.governanceCycles?.length,
             },
           };
         })
