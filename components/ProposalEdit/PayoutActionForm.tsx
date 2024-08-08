@@ -72,7 +72,7 @@ export default function PayoutActionForm({
       <div className="col-span-4 sm:col-span-1">
         <UIntForm
           label="Amount"
-          fieldName={genFieldName("amountUSD")}
+          fieldName={genFieldName("amount")}
           fieldType="$"
           defaultValue={1}
           min={1}
@@ -82,7 +82,7 @@ export default function PayoutActionForm({
         <span className="text-xs text-gray-400">
           Total:{" "}
           {(
-            watch(genFieldName("count")) * watch(genFieldName("amountUSD"))
+            watch(genFieldName("count")) * watch(genFieldName("amount"))
           ).toFixed(2)}
         </span>
       </div>
