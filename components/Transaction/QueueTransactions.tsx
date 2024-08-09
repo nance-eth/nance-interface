@@ -131,7 +131,7 @@ export default function QueueTransactionsModal({
       return {
         title: (
           <CustomTransactionActionLabel
-            customTransaction={customTransaction}
+            action={v.action}
             space={space}
             uuid={v.action.uuid}
           />

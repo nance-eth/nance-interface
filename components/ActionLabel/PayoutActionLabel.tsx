@@ -1,27 +1,10 @@
 import { payout2JBSplit } from "@/utils/functions/juicebox";
 import { Action, getPayoutCountAmount } from "@nance/nance-sdk";
 import JBSplitEntry from "@/components/JuiceboxCard/JBSplitEntry";
-import { useContext } from "react";
-import { ProposalContext } from "../Proposal/context/ProposalContext";
-import { dateRangesOfCycles } from "@/utils/functions/GovernanceCycle";
-import { SpaceContext } from "@/context/SpaceContext";
+import GovernanceCyclesInfoLabel from "./GovernanceCyclesInfoLabel";
 
 export default function PayoutActionLabel({ action }: { action: Action }) {
-  const { commonProps } = useContext(ProposalContext);
-  const spaceInfo = useContext(SpaceContext);
-
-  const proposalCycle = commonProps.governanceCycle || 0;
-  const actionCycleStart = action?.governanceCycles?.[0];
-  const cycle = actionCycleStart || proposalCycle + 1;
-
-  const cycleStartDate = spaceInfo?.cycleStartDate;
   const { amount, count } = getPayoutCountAmount(action);
-  const dateRanges = dateRangesOfCycles({
-    cycle,
-    length: count,
-    currentCycle: spaceInfo?.currentCycle,
-    cycleStartDate: cycleStartDate as string,
-  });
   const total = (amount * count).toLocaleString();
 
   return (
@@ -30,8 +13,7 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
         ${Number(amount).toLocaleString()}
         &nbsp;to
         <JBSplitEntry mod={payout2JBSplit(action)} />
-        {`for ${count} cycles`} (
-        <span className="font-mono text-sm">{dateRanges}</span>)
+        <GovernanceCyclesInfoLabel action={action} />
       </span>
       <div className="font-semibold italic text-emerald-600">
         Total Amount: ${total}

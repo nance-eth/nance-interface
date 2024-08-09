@@ -4,6 +4,7 @@ import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { useReadContract } from "wagmi";
 import { erc20Abi } from "viem";
 import TokenSymbol from "../AddressCard/TokenSymbol";
+import GovernanceCyclesInfoLabel from "./GovernanceCyclesInfoLabel";
 
 export default function TransferActionLabel({ action }: { action: Action }) {
   const transfer = action.payload as Transfer;
@@ -27,11 +28,12 @@ export default function TransferActionLabel({ action }: { action: Action }) {
       <div className="mx-1 inline-block">
         <FormattedAddress
           address={transfer.to}
-          style="inline ml-1"
+          style="inline"
           minified
           copyable
         />
       </div>
+      <GovernanceCyclesInfoLabel action={action} />
     </span>
   );
 }

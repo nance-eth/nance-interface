@@ -1,23 +1,25 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { BigNumber } from "ethers";
 import { NANCE_API_URL } from "@/constants/Nance";
-import { CustomTransaction } from "@nance/nance-sdk";
+import { Action, CustomTransaction } from "@nance/nance-sdk";
 import {
   extractFunctionName,
   parseFunctionAbiWithNamedArgs,
 } from "@/utils/functions/nance";
 import ResolvedContract from "../AddressCard/ResolvedContract";
 import { DEPLOY_CONTRACT_FAKE_ADDRESS } from "@/constants/Contract";
+import GovernanceCyclesInfoLabel from "./GovernanceCyclesInfoLabel";
 
 export default function CustomTransactionActionLabel({
-  customTransaction,
+  action,
   space,
   uuid,
 }: {
-  customTransaction: CustomTransaction;
+  action: Action;
   space: string;
   uuid: string | undefined;
 }) {
+  const customTransaction = action.payload as CustomTransaction;
   if (customTransaction.contract === DEPLOY_CONTRACT_FAKE_ADDRESS) {
     return (
       <span className="line-clamp-6">
@@ -34,6 +36,7 @@ export default function CustomTransactionActionLabel({
         <a href={`${NANCE_API_URL}/${space}/simulate/${uuid}`} className="ml-2">
           <ArrowTopRightOnSquareIcon className="inline h-4 w-4" />
         </a>
+        <GovernanceCyclesInfoLabel action={action} />
       </span>
     );
   }
@@ -59,7 +62,7 @@ export default function CustomTransactionActionLabel({
       <span>
         {parseFunctionAbiWithNamedArgs(
           customTransaction.functionName,
-          customTransaction.args,
+          customTransaction.args
         ).map((pair: any, index: number) => (
           <span
             key={index}
@@ -79,9 +82,13 @@ export default function CustomTransactionActionLabel({
           <span>{"}"}</span>
         </span>
       )}
-      <a href={`${NANCE_API_URL}/${space}/simulate/${uuid}`} className="ml-2">
+      <a
+        href={`${NANCE_API_URL}/${space}/simulate/${uuid}`}
+        className="ml-2 mr-2"
+      >
         <ArrowTopRightOnSquareIcon className="inline h-4 w-4" />
       </a>
+      <GovernanceCyclesInfoLabel action={action} />
     </span>
   );
 }
