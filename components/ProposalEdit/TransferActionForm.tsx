@@ -95,8 +95,8 @@ export default function TransferActionForm({
         <span className="text-xs text-gray-400">
           Date:{" "}
           {dateRangesOfCycles({
-            cycle: watch(genFieldName("cycleStart")),
-            length: watch(genFieldName("count")),
+            cycle: parseInt(watch(genFieldName("cycleStart"))),
+            length: parseInt(watch(genFieldName("count"))),
             currentCycle: spaceInfo?.currentCycle,
             cycleStartDate: spaceInfo?.cycleStartDate,
           })}

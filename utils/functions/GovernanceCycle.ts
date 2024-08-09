@@ -5,7 +5,7 @@ import { addDays, format } from "date-fns";
 const CYCLE_LENGTH = 14; // days
 
 export function dateRangesOfCycles({
-  cycle,
+  cycle: cycleStart,
   length,
   currentCycle,
   cycleStartDate: nextCycleStartDate,
@@ -15,11 +15,11 @@ export function dateRangesOfCycles({
   currentCycle?: number;
   cycleStartDate?: string;
 }) {
-  if (!cycle || !nextCycleStartDate || !length || !currentCycle) return "";
+  if (!cycleStart || !nextCycleStartDate || !length || !currentCycle) return "";
 
   const startDate = addDays(
     new Date(nextCycleStartDate),
-    (cycle - currentCycle - 1) * CYCLE_LENGTH
+    -(currentCycle - cycleStart + 1) * CYCLE_LENGTH
   );
   const endDate = addDays(startDate, length * CYCLE_LENGTH);
 

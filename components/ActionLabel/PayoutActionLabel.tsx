@@ -14,7 +14,7 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
   const cycleStartDate = spaceInfo?.cycleStartDate;
   const { amount, count } = getPayoutCountAmount(action);
   const dateRanges = dateRangesOfCycles({
-    cycle,
+    cycle: cycle + 1,
     length: count,
     currentCycle: spaceInfo?.currentCycle,
     cycleStartDate: cycleStartDate as string,
@@ -27,9 +27,12 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
         ${Number(amount).toLocaleString()}
         &nbsp;to
         <JBSplitEntry mod={payout2JBSplit(action)} />
-        {`for ${count} cycles`} (<span className="font-mono text-sm">{dateRanges}</span>)
+        {`for ${count} cycles`} (
+        <span className="font-mono text-sm">{dateRanges}</span>)
       </span>
-      <div className="font-semibold italic text-emerald-600">Total Amount: ${total}</div>
+      <div className="font-semibold italic text-emerald-600">
+        Total Amount: ${total}
+      </div>
     </div>
   );
 }
