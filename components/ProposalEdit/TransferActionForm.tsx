@@ -49,8 +49,8 @@ export default function TransferActionForm({
     ? safeBalanceToItems(data)
     : [
         {
-          id: undefined,
-          name: isLoading ? "loading..." : "no tokens found in Safe",
+          id: ETH_MOCK_CONTRACT,
+          name: "ETH",
         },
       ];
 
@@ -131,16 +131,10 @@ export default function TransferActionForm({
           <Controller
             name={genFieldName("contract")}
             control={control}
-            defaultValue={items[0].id || ETH_MOCK_CONTRACT}
+            defaultValue={items[0].id}
             render={({ field: { onChange, value } }) => (
               <GenericListbox<ListBoxItems>
-                value={
-                  items.find((i) => i.id === value) ||
-                  items[0] || {
-                    id: undefined,
-                    name: "no tokens found in Safe",
-                  }
-                }
+                value={items.find((i) => i.id === value) || items[0]}
                 onChange={(c) => onChange(c.id)}
                 label="Token (Balance)"
                 items={items}
