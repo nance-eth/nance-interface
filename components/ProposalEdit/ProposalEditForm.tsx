@@ -49,6 +49,7 @@ import { useAccount, useSignTypedData } from "wagmi";
 import "@nance/nance-editor/lib/css/editor.css";
 import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
+import ProposalLocalCache, { ProposalCache } from "./ProposalLocalCache";
 
 // Have to use dynamic import to avoid SSR issues (maybe theres a better way??)
 let getMarkdown: GetMarkdown;
@@ -84,13 +85,6 @@ type ProposalFormValues = Omit<ProposalUploadRequest, "signature">;
 
 type ICustomTransaction = CustomTransaction & { tenderlyStatus: string };
 
-interface ProposalCache {
-  version: number;
-  timestamp: number;
-  title: string;
-  body: string;
-}
-
 interface MiddleStepInfo {
   title: string;
   description: string;
@@ -121,9 +115,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
     CACHE_VERSION,
     { version: CACHE_VERSION, title: "", body: "", timestamp: 0 }
   );
-  const [cacheModalIsOpen, setCacheModalIsOpen] = useState(
-    !!(proposalCache.title || proposalCache.body)
-  );
+
   const {
     isMutating,
     error: uploadError,
@@ -298,35 +290,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
         />
       )}
 
-      <ResultModal
-        title="You have saved proposal content, do you wish to restore it?"
-        description={`Saved ${formatDistance(
-          fromUnixTime(proposalCache.timestamp),
-          new Date(),
-          { addSuffix: true }
-        )}. Title: ${proposalCache.title}, Content: ${proposalCache.body.slice(
-          0,
-          140
-        )}...`}
-        buttonText="Restore"
-        onClick={() => {
-          setValue("proposal.title", proposalCache.title);
-          setMarkdown(proposalCache.body);
-          setCacheModalIsOpen(false);
-        }}
-        cancelButtonText="Delete"
-        close={() => {
-          setProposalCache({
-            version: CACHE_VERSION,
-            title: "",
-            body: "",
-            timestamp: 0,
-          });
-          setCacheModalIsOpen(false);
-        }}
-        shouldOpen={cacheModalIsOpen}
-      />
-
       <UIGuide name="EditPage" steps={driverSteps} />
       {middleStepInfo && (
         <MiddleStepModal
@@ -354,21 +317,37 @@ export default function ProposalEditForm({ space }: { space: string }) {
         <div className="rounded-lg bg-white px-4 py-5 shadow sm:p-6">
           <div>
             <div>
-              <div className=" gap-6">
+              <div className="mb-2">
+                <ProposalLocalCache
+                  proposalCache={proposalCache}
+                  clearProposalCache={() => {
+                    setProposalCache({
+                      version: CACHE_VERSION,
+                      title: "",
+                      body: "",
+                      timestamp: 0,
+                    });
+                  }}
+                  restoreProposalCache={(title, body) => {
+                    setValue("proposal.title", title);
+                    setMarkdown(body);
+                  }}
+                />
+              </div>
+
+              <div className="gap-6">
                 <div id="proposal-title">
                   <input
                     type="text"
                     {...register("proposal.title", {
                       value: metadata.loadedProposal?.title || "Proposal Title",
                       onChange: async (e) => {
-                        if (!cacheModalIsOpen) {
-                          setProposalCache({
-                            version: CACHE_VERSION,
-                            title: e.target.value,
-                            body: getMarkdown() || "",
-                            timestamp: getUnixTime(new Date()),
-                          });
-                        }
+                        setProposalCache({
+                          version: CACHE_VERSION,
+                          title: e.target.value,
+                          body: getMarkdown() || "",
+                          timestamp: getUnixTime(new Date()),
+                        });
                       },
                     })}
                     className="mt-1 block w-full rounded-md border-gray-300 text-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -392,14 +371,13 @@ export default function ProposalEditForm({ space }: { space: string }) {
                           TEMPLATE
                         }
                         onEditorChange={(value) => {
-                          if (!cacheModalIsOpen) {
-                            setProposalCache({
-                              version: CACHE_VERSION,
-                              title: getValues("proposal.title"),
-                              body: value,
-                              timestamp: getUnixTime(new Date()),
-                            });
-                          }
+                          setProposalCache({
+                            version: CACHE_VERSION,
+                            title: getValues("proposal.title"),
+                            body: value,
+                            timestamp: getUnixTime(new Date()),
+                          });
+
                           onChange(value);
                         }}
                         fileUploadIPFS={fileUploadIPFS}
