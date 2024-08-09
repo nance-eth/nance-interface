@@ -10,11 +10,14 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
   const { commonProps } = useContext(ProposalContext);
   const spaceInfo = useContext(SpaceContext);
 
-  const cycle = commonProps.governanceCycle || 0;
+  const proposalCycle = commonProps.governanceCycle || 0;
+  const actionCycleStart = action?.governanceCycles?.[0];
+  const cycle = actionCycleStart || proposalCycle + 1;
+
   const cycleStartDate = spaceInfo?.cycleStartDate;
   const { amount, count } = getPayoutCountAmount(action);
   const dateRanges = dateRangesOfCycles({
-    cycle: cycle + 1,
+    cycle,
     length: count,
     currentCycle: spaceInfo?.currentCycle,
     cycleStartDate: cycleStartDate as string,
