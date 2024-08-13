@@ -2,9 +2,11 @@
 export function mapChoiceIndex(
   type: string | undefined,
   choices: string[] | undefined,
-  choice: number | number[] | { [key: string]: number } | undefined,
+  choice: number | number[] | { [key: string]: number } | undefined
 ) {
-  if (!type || !choices || !choice) return choice;
+  if (typeof choice === "string") return "🔐";
+
+  if (!type || !choices || !choice) return "Unknown";
 
   if (["approval", "ranked-choice"].includes(type)) {
     // choice = [1,2,3]
@@ -26,10 +28,10 @@ export function mapChoiceIndex(
 
 export function processChoices(
   type: string | undefined,
-  choice: any,
+  choice: any
 ): string | string[] {
   if (!choice || !type) return "";
-  if (choice.undefined) return ["🔐"]; // undefined entry appears with shutter voting
+  if (choice === "🔐") return ["🔐"]; // undefined entry appears with shutter voting
   if (type == "approval") {
     return choice as string[];
   } else if (type == "ranked-choice") {
@@ -39,7 +41,7 @@ export function processChoices(
     const obj = choice as { [key: string]: number };
     const totalUnits = Object.values(obj).reduce((a, b) => a + b, 0);
     return Object.entries(obj).map(
-      ([key, value]) => `${Math.round((value / totalUnits) * 100)}% for ${key}`,
+      ([key, value]) => `${Math.round((value / totalUnits) * 100)}% for ${key}`
     );
   } else {
     return choice as string;
