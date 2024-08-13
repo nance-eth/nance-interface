@@ -26,7 +26,12 @@ interface VotingProps {
   refetch: (option?: any) => void;
 }
 
-const SUPPORTED_VOTING_TYPES = ["single-choice", "basic", "weighted"];
+const SUPPORTED_VOTING_TYPES = [
+  "single-choice",
+  "basic",
+  "weighted",
+  "ranked-choice",
+];
 
 export default function VotingModal({
   modalIsOpen,
@@ -48,14 +53,14 @@ export default function VotingModal({
     spaceId,
     parseInt(proposal?.snapshot) || "latest",
     address,
-    spaceInfo,
+    spaceInfo
   );
   const { trigger, value, loading, error, reset } = useVote(
     spaceId,
     proposal?.id,
     proposal?.type,
     choice as any,
-    reason,
+    reason
   );
 
   // shorthand functions
@@ -257,6 +262,13 @@ export default function VotingModal({
                                 choices={proposal.choices}
                               />
                             )}
+                            {proposal.type == "ranked-choice" && (
+                              <RankedChoiceSelector
+                                value={choice || []}
+                                setValue={setChoice}
+                                choices={proposal.choices}
+                              />
+                            )}
                           </div>
                           <div className="mt-2">
                             <label
@@ -324,7 +336,7 @@ function BasicChoiceSelector({ value, setValue, choices }: SelectorProps) {
             className={({ active }) =>
               classNames(
                 active ? "ring-2 ring-indigo-500" : "",
-                "relative block cursor-pointer rounded-lg border border-gray-300 p-4 text-center focus:outline-none",
+                "relative block cursor-pointer rounded-lg border border-gray-300 p-4 text-center focus:outline-none"
               )
             }
           >
@@ -343,7 +355,7 @@ function BasicChoiceSelector({ value, setValue, choices }: SelectorProps) {
                   className={classNames(
                     active ? "border" : "border-2",
                     checked ? "border-indigo-500" : "border-transparent",
-                    "pointer-events-none absolute -inset-px rounded-lg",
+                    "pointer-events-none absolute -inset-px rounded-lg"
                   )}
                   aria-hidden="true"
                 />
@@ -408,9 +420,59 @@ function WeightedChoiceSelector({
             {isNaN(getValues((index + 1).toString())) || totalUnits == 0
               ? "0%"
               : `${Math.round(
-                  (getValues((index + 1).toString()) / totalUnits) * 100,
+                  (getValues((index + 1).toString()) / totalUnits) * 100
                 )}%`}
           </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RankedChoiceSelector({
+  value,
+  setValue,
+  choices,
+}: Omit<SelectorProps, "value"> & {
+  value: number[];
+}) {
+  function getOrderNumber(val: number) {
+    const index = value.findIndex((v) => v === val);
+    return index !== -1 ? `(No.${index + 1})` : "";
+  }
+
+  return (
+    <div className="space-y-2">
+      {choices.map((choice, index) => (
+        <div
+          key={choice}
+          aria-label={choice}
+          onClick={() => {
+            const choiceVal = index + 1;
+            if (value.includes(choiceVal)) {
+              const newValue = value.filter((val) => val !== choiceVal);
+              setValue(newValue);
+            } else {
+              const newValue = [...value, choiceVal];
+              setValue(newValue);
+            }
+          }}
+          className="group flex justify-between cursor-pointer rounded-lg border border-gray-300 px-6 py-4 shadow-sm focus:outline-none data-[focus]:border-indigo-600 data-[focus]:ring-2 data-[focus]:ring-indigo-600"
+        >
+          <p className="text-gray-500">{getOrderNumber(index + 1)}</p>
+
+          <p className="font-medium text-gray-900 dark:text-white">{choice}</p>
+
+          <p className="">
+            {value.findIndex((v) => v === index + 1) !== -1 && (
+              <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+            )}
+          </p>
+
+          <p
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-px rounded-lg border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-600"
+          />
         </div>
       ))}
     </div>
