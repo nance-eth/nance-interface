@@ -1,31 +1,16 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { BigNumber, utils } from "ethers";
-import { Reserve, getActionsFromBody } from "@nance/nance-sdk";
-import {
-  useCurrentPayouts,
-  useProposalsInfinite,
-} from "@/utils/hooks/NanceHooks";
+import { useReconfig } from "@/utils/hooks/NanceHooks";
 import {
   calcDiffTableData,
-  mergePayouts,
   compareReserves,
-  splitStruct2JBSplit,
-  encodedReconfigureFundingCyclesOf,
+  comparePayouts,
 } from "@/utils/functions/juicebox";
 import useControllerOfProject from "@/utils/hooks/juicebox/ControllerOfProject";
-import useTerminalOfProject from "@/utils/hooks/juicebox/TerminalOfProject";
 import useProjectInfo from "@/utils/hooks/juicebox/ProjectInfo";
 import { useReconfigurationOfProject } from "@/utils/hooks/juicebox/ReconfigurationOfProject";
 import parseSafeJuiceboxTx from "@/utils/functions/SafeJuiceboxParser";
-import { useRouter } from "next/router";
-import {
-  BooleanParam,
-  NumberParam,
-  StringParam,
-  useQueryParams,
-  withDefault,
-} from "next-query-params";
 import TransactionCreator from "@/components/Transaction/TransactionCreator";
 import DiffTableWithSection from "../form/DiffTableWithSection";
 
@@ -43,108 +28,52 @@ export default function QueueReconfigurationModal({
   currentCycle: number | undefined;
 }) {
   const cancelButtonRef = useRef(null);
-  const router = useRouter();
-  const [query, setQuery] = useQueryParams({
-    keyword: StringParam,
-    // potentioal bug: this limit can be smaller than the number of proposals in current cycle,
-    //   which can lead to missing actions while generating diff table
-    limit: withDefault(NumberParam, 5),
-    cycle: StringParam,
-    sortBy: withDefault(StringParam, ""),
-    sortDesc: withDefault(BooleanParam, true),
-  });
-  const { cycle, keyword, limit } = query;
 
   // Get configuration of current fundingCycle
   const projectId = juiceboxProjectId;
   const { data: projectInfo, loading: infoIsLoading } = useProjectInfo(
     3,
-    projectId,
+    projectId
   );
   const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : "";
-  const { value: controller, version } = useControllerOfProject(projectId);
-  const { value: terminal } = useTerminalOfProject(projectId);
+  const { value: controller } = useControllerOfProject(projectId);
   const { value: currentConfig, loading: configIsLoading } =
     useReconfigurationOfProject(projectId);
+  const { data: newConfigResponse } = useReconfig(space);
+
+  const encodeReconfiguration = newConfigResponse?.data.encoded || "";
+  const newConfig = parseSafeJuiceboxTx(
+    encodeReconfiguration,
+    "",
+    currentConfig.fundingCycle.fee,
+    BigNumber.from(Math.floor(Date.now() / 1000))
+  );
 
   // Get registered payouts
   const previousCycle = currentCycle
     ? (currentCycle - 1).toString()
     : undefined;
-  const { data: nancePayouts, isLoading: nancePayoutsLoading } =
-    useCurrentPayouts(space, previousCycle);
-
-  const { data: proposalDataArray, isLoading: proposalsLoading } =
-    useProposalsInfinite({ space, cycle, keyword, limit }, router.isReady);
-
-  // Gather all payout and reserve actions in current fundingCycle
-  const actionWithPIDArray = proposalDataArray
-    ?.map((r) => r.data?.proposals)
-    .flat()
-    // only gather approved actions
-    ?.filter(
-      (p) => {
-        p.actions = getActionsFromBody(p.body) || [];
-        return (
-          p.actions && p.actions.length > 0 &&
-          (p.status === "Voting" || p.status === "Approved")
-        );
-      }
-    )
-    .flatMap((p) => {
-      return p.actions?.map((action) => {
-        return {
-          pid: Number(p.proposalId) || 0,
-          action,
-        };
-      }) || [];
-    });
 
   // Splits with changes
-  const payoutsDiff = mergePayouts(
+  const payoutsDiff = comparePayouts(
     currentConfig,
-    currentCycle,
+    newConfig,
     currentConfig.payoutMods || [],
-    nancePayouts?.data || [],
-    actionWithPIDArray?.filter((v) => v.action.type === "Payout") || [],
+    newConfig?.payoutMods || []
   );
-  const actionReserve = actionWithPIDArray?.find(
-    (v) => v?.action.type === "Reserve",
-  );
+
   const reservesDiff = compareReserves(
-    currentConfig.ticketMods ?? [],
-    (actionReserve?.action.payload as Reserve)?.splits.map((splitStruct) =>
-      splitStruct2JBSplit(splitStruct),
-    ) ||
-      (currentConfig.ticketMods ?? []),
-    actionReserve?.pid ?? 0,
+    currentConfig.ticketMods || [],
+    newConfig?.ticketMods || []
   );
 
-  const loading =
-    infoIsLoading || configIsLoading || nancePayoutsLoading || proposalsLoading;
-
-  // Construct reconfiguration function data
-  const encodeReconfiguration = !loading
-    ? encodedReconfigureFundingCyclesOf(
-      currentConfig,
-      payoutsDiff,
-      reservesDiff,
-      projectId,
-      controller,
-      terminal?.address,
-    ) || ""
-    : "";
+  const loading = infoIsLoading || configIsLoading;
 
   const tableData = calcDiffTableData(
     currentConfig,
-    parseSafeJuiceboxTx(
-      encodeReconfiguration,
-      "",
-      currentConfig.fundingCycle.fee,
-      BigNumber.from(Math.floor(Date.now() / 1000)),
-    ),
+    newConfig,
     payoutsDiff,
-    reservesDiff,
+    reservesDiff
   );
 
   return (
