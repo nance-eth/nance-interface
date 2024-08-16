@@ -4,8 +4,9 @@ import { GraphQLClient, ClientContext } from "graphql-hooks";
 import memCache from "graphql-hooks-memcache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, http, fallback, useAccount } from "wagmi";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, http, fallback, useAccount, createConfig } from "wagmi";
+import { connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet } from "@rainbow-me/rainbowkit/wallets";
 import { gnosis, goerli, mainnet, optimism } from "wagmi/chains";
 
 import { NextQueryParamProvider } from "next-query-params";
@@ -40,22 +41,30 @@ const theme = {
   },
 };
 
-const wagmiConfig = getDefaultConfig({
-  appName: "Nance Interface",
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet],
+    },
+  ],
+  {
+    appName: "Nance Interface",
+    projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
+  }
+);
+
+const wagmiConfig = createConfig({
+  connectors,
   chains: customChains as any,
   transports: {
     [mainnet.id]: fallback([
       http("https://eth.llamarpc.com"),
-      http(
-        `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`,
-      ),
+      http(`https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
     ]),
     [optimism.id]: fallback([
       http("https://rpc.ankr.com/optimism"),
-      http(
-        `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`,
-      ),
+      http(`https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
     ]),
     [gnosis.id]: http("https://rpc.ankr.com/gnosis"),
     [goerli.id]: fallback([
