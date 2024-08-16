@@ -7,6 +7,7 @@ import { useEthersSigner } from "../ViemAdapter";
 import { SNAPSHOT_HUB, SNAPSHOT_HEADERS } from "@/constants/Snapshot";
 import { ALL_VOTES_OF_USER } from "./queries/Vote";
 import { AllVotes } from "@/models/SnapshotTypes";
+import toast from "react-hot-toast";
 
 export default function useVote(
   space: string, 
@@ -45,6 +46,7 @@ export default function useVote(
       setValue(receipt);
     } catch(err: any) {
       console.warn("🚨 useVote.trigger.error ->", err);
+      toast.error(`Snapshot error: ${err.error_description}` || err.message || "An error occurred");
       setError(err);
       setValue(undefined);
     } finally {
