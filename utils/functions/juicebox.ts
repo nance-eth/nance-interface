@@ -34,8 +34,8 @@ function mulDiv(a: BigNumber, b: BigNumber, denominator: BigNumberish) {
 function formatEtherCommify(wei: BigNumberish) {
   return utils.commify(
     Math.round(
-      BigNumber.from(wei).div(BigNumber.from("1000000000000000000")).toNumber(),
-    ),
+      BigNumber.from(wei).div(BigNumber.from("1000000000000000000")).toNumber()
+    )
   );
 }
 
@@ -127,7 +127,7 @@ const BIG_ZERO = BigNumber.from(0);
 function percentUpdaterFrom(
   newLimitBG: BigNumber,
   currency: BigNumber,
-  version: number,
+  version: number
 ) {
   return (entry: SplitDiffEntry) => {
     const newPercent = splitAmount2Percent(newLimitBG, entry.amount);
@@ -142,15 +142,15 @@ function percentUpdaterFrom(
 
 export function compareRules(
   config: FundingCycleConfigProps,
-  newConfig: FundingCycleConfigProps | undefined,
+  newConfig: FundingCycleConfigProps | undefined
 ): SectionTableData[] {
   if (!newConfig) return [];
 
   const discountRateDenominator = BigNumber.from(
-    JBConstants.TotalPercent.DiscountRate[2],
+    JBConstants.TotalPercent.DiscountRate[2]
   );
   const reservedRateDenominator = BigNumber.from(
-    JBConstants.TotalPercent.ReservedRate[2],
+    JBConstants.TotalPercent.ReservedRate[2]
   );
 
   const weight = config.fundingCycle.weight || BIG_ZERO;
@@ -162,21 +162,24 @@ export function compareRules(
   const newReservedRate = newConfig.metadata?.reservedRate || BIG_ZERO;
   const newRedemptionRate = newConfig.metadata?.redemptionRate || BIG_ZERO;
 
+  // weight 0 means inherit from last cycle
+  // weight 1 means set the weight to actually 0
   const weightSpecified = !newWeight.eq(0);
+  const weightNotChangeWithMagicOne = weight.eq(0) && newWeight.eq(1);
   newWeight = weightSpecified
     ? newWeight
     : mulDiv(
-      weight,
-      discountRateDenominator.sub(discountRate),
-      discountRateDenominator,
-    );
+        weight,
+        discountRateDenominator.sub(discountRate),
+        discountRateDenominator
+      );
 
   // Payer gets what left after reserved tokens are issued.
   const payerWeight = weight.sub(
-    mulDiv(weight, reservedRate, reservedRateDenominator),
+    mulDiv(weight, reservedRate, reservedRateDenominator)
   );
   const newPayerWeight = newWeight.sub(
-    mulDiv(newWeight, newReservedRate, reservedRateDenominator),
+    mulDiv(newWeight, newReservedRate, reservedRateDenominator)
   );
 
   // For display, 0.01 % precision
@@ -225,7 +228,7 @@ export function compareRules(
             newConfig.fundingCycle.duration?.div(86400).toString() + " days",
           status: compareBN(
             config.fundingCycle.duration,
-            newConfig.fundingCycle.duration,
+            newConfig.fundingCycle.duration
           ),
           valueToBeSorted: 0,
         },
@@ -235,11 +238,11 @@ export function compareRules(
           proposal: 0,
           oldVal: formatCurrency(
             config.fundingCycle.currency,
-            config.fundingCycle.target,
+            config.fundingCycle.target
           ),
           newVal: formatCurrency(
             newConfig.fundingCycle.currency,
-            newConfig.fundingCycle.target,
+            newConfig.fundingCycle.target
           ),
           status:
             config.fundingCycle.currency.eq(newConfig.fundingCycle.currency) &&
@@ -271,7 +274,9 @@ export function compareRules(
           proposal: 0,
           oldVal: formatEtherCommify(weight),
           newVal: formatEtherCommify(newWeight),
-          status: compareBN(weight, newWeight),
+          status: weightNotChangeWithMagicOne
+            ? "Keep"
+            : compareBN(weight, newWeight),
           valueToBeSorted: 0,
         },
         {
@@ -280,7 +285,9 @@ export function compareRules(
           proposal: 0,
           oldVal: formatEtherCommify(payerWeight),
           newVal: formatEtherCommify(newPayerWeight),
-          status: compareBN(payerWeight, newPayerWeight),
+          status: weightNotChangeWithMagicOne
+            ? "Keep"
+            : compareBN(payerWeight, newPayerWeight),
           valueToBeSorted: 0,
         },
         {
@@ -318,7 +325,7 @@ export function compareRules(
           newVal: getBooleanLabel(newConfig.metadata?.allowMinting),
           status: compareBoolean(
             config.metadata?.allowMinting,
-            newConfig.metadata?.allowMinting,
+            newConfig.metadata?.allowMinting
           ),
           valueToBeSorted: 0,
         },
@@ -334,7 +341,7 @@ export function compareRules(
             // @ts-ignore
             config.metadata?.global.pauseTransfers,
             // @ts-ignore
-            newConfig.metadata?.global.pauseTransfers,
+            newConfig.metadata?.global.pauseTransfers
           ),
           valueToBeSorted: 0,
         },
@@ -351,7 +358,7 @@ export function compareRules(
           newVal: getBooleanLabel(!newConfig.metadata?.pausePay),
           status: compareBoolean(
             config.metadata?.pausePay,
-            newConfig.metadata?.pausePay,
+            newConfig.metadata?.pausePay
           ),
           valueToBeSorted: 0,
         },
@@ -363,7 +370,7 @@ export function compareRules(
           newVal: getBooleanLabel(newConfig.metadata?.holdFees),
           status: compareBoolean(
             config.metadata?.holdFees,
-            newConfig.metadata?.holdFees,
+            newConfig.metadata?.holdFees
           ),
           valueToBeSorted: 0,
         },
@@ -375,7 +382,7 @@ export function compareRules(
           newVal: getBooleanLabel(newConfig.metadata?.global.allowSetTerminals),
           status: compareBoolean(
             config.metadata?.global.allowSetTerminals,
-            newConfig.metadata?.global.allowSetTerminals,
+            newConfig.metadata?.global.allowSetTerminals
           ),
           valueToBeSorted: 0,
         },
@@ -385,11 +392,11 @@ export function compareRules(
           proposal: 0,
           oldVal: getBooleanLabel(config.metadata?.global.allowSetController),
           newVal: getBooleanLabel(
-            newConfig.metadata?.global.allowSetController,
+            newConfig.metadata?.global.allowSetController
           ),
           status: compareBoolean(
             config.metadata?.global.allowSetController,
-            newConfig.metadata?.global.allowSetController,
+            newConfig.metadata?.global.allowSetController
           ),
           valueToBeSorted: 0,
         },
@@ -401,7 +408,7 @@ export function compareRules(
           newVal: getBooleanLabel(newConfig.metadata?.allowTerminalMigration),
           status: compareBoolean(
             config.metadata?.allowTerminalMigration,
-            newConfig.metadata?.allowTerminalMigration,
+            newConfig.metadata?.allowTerminalMigration
           ),
           valueToBeSorted: 0,
         },
@@ -413,7 +420,7 @@ export function compareRules(
           newVal: getBooleanLabel(newConfig.metadata?.allowControllerMigration),
           status: compareBoolean(
             config.metadata?.allowControllerMigration,
-            newConfig.metadata?.allowControllerMigration,
+            newConfig.metadata?.allowControllerMigration
           ),
           valueToBeSorted: 0,
         },
@@ -426,7 +433,7 @@ export function comparePayouts(
   config: FundingCycleConfigProps,
   newConfig: FundingCycleConfigProps | undefined,
   oldPayouts: JBSplit[],
-  newPayouts: JBSplit[],
+  newPayouts: JBSplit[]
 ) {
   const diff: SplitDiff = {
     expire: {},
@@ -454,7 +461,7 @@ export function comparePayouts(
           split.percent || BIG_ZERO,
           config.fundingCycle.currency,
           config.fundingCycle.target,
-          config.version,
+          config.version
         ) || "",
       newVal: "",
       amount: 0,
@@ -468,7 +475,7 @@ export function comparePayouts(
         config.fundingCycle.target,
         newSplit.percent,
         newConfig.fundingCycle.currency,
-        newConfig.fundingCycle.target,
+        newConfig.fundingCycle.target
       );
 
       if (equal) {
@@ -479,11 +486,11 @@ export function comparePayouts(
               split.percent || BIG_ZERO,
               config.fundingCycle.currency,
               config.fundingCycle.target,
-              config.version,
+              config.version
             ) || "",
           amount: calculateSplitAmount(
             split.percent,
-            config.fundingCycle.target,
+            config.fundingCycle.target
           ),
         };
       } else {
@@ -494,11 +501,11 @@ export function comparePayouts(
               newSplit.percent || BIG_ZERO,
               newConfig.fundingCycle.currency,
               newConfig.fundingCycle.target,
-              newConfig.version,
+              newConfig.version
             ) || "",
           amount: calculateSplitAmount(
             newSplit.percent,
-            newConfig.fundingCycle.target,
+            newConfig.fundingCycle.target
           ),
         };
       }
@@ -515,7 +522,7 @@ export function comparePayouts(
     // New entry
     const amount = calculateSplitAmount(
       split.percent,
-      newConfig.fundingCycle.target,
+      newConfig.fundingCycle.target
     );
     diff.new[key] = {
       split,
@@ -526,7 +533,7 @@ export function comparePayouts(
           split.percent || BIG_ZERO,
           newConfig.fundingCycle.currency,
           newConfig.fundingCycle.target,
-          newConfig.version,
+          newConfig.version
         ) || "",
       amount,
     };
@@ -541,7 +548,7 @@ export function mergePayouts(
   currentCycle: number | undefined,
   onchainPayouts: JBSplit[],
   registeredPayouts: SQLPayout[],
-  actionPayouts: { pid: number; action: Action }[] = [],
+  actionPayouts: { pid: number; action: Action }[] = []
 ) {
   const diff: SplitDiff = {
     expire: {},
@@ -555,13 +562,13 @@ export function mergePayouts(
   const registeredPayoutMap = new Map<string, SQLPayout>();
   const actionPayoutMap = new Map<string, { pid: number; action: Action }>();
   registeredPayouts.forEach((payout) =>
-    registeredPayoutMap.set(keyOfNancePayout2Split(payout), payout),
+    registeredPayoutMap.set(keyOfNancePayout2Split(payout), payout)
   );
   actionPayouts.forEach((action) =>
     actionPayoutMap.set(
       keyOfPayout2Split(action.action.payload as Payout),
-      action,
-    ),
+      action
+    )
   );
   //console.debug("payoutsDiffOf.start", onchainPayouts, registeredPayoutMap, actionPayoutMap);
 
@@ -583,7 +590,7 @@ export function mergePayouts(
           split.percent || BIG_ZERO,
           config.fundingCycle.currency,
           config.fundingCycle.target,
-          config.version,
+          config.version
         ) || "",
       newVal: "",
       amount: calculateSplitAmount(split.percent, config.fundingCycle.target),
@@ -613,7 +620,7 @@ export function mergePayouts(
         // Let's see if it matched
         const onchainAmount = calculateSplitAmount(
           split.percent,
-          config.fundingCycle.target,
+          config.fundingCycle.target
         );
         const registeredAmount = registeredPayout.amount;
         if (onchainAmount === registeredAmount) {
@@ -672,7 +679,7 @@ export function mergePayouts(
   Object.entries(diff.change).forEach((v) => {
     newLimit -= calculateSplitAmount(
       v[1].split.percent,
-      config.fundingCycle.target,
+      config.fundingCycle.target
     );
     newLimit += v[1].amount;
   });
@@ -683,7 +690,7 @@ export function mergePayouts(
   const updatePercentAndNewVal = percentUpdaterFrom(
     newLimitBG,
     config.fundingCycle.currency,
-    config.version,
+    config.version
   );
   Object.values(diff.keep).forEach(updatePercentAndNewVal);
   Object.values(diff.new).forEach(updatePercentAndNewVal);
@@ -692,7 +699,7 @@ export function mergePayouts(
     diff,
     newLimitBG,
     config.fundingCycle.currency,
-    config.version,
+    config.version
   );
 
   //console.debug("payoutsDiffOf.final", { diff, isInfiniteLimit, oldLimit, newLimit });
@@ -704,7 +711,7 @@ function ensureSplitsSumTo100Percent(
   diff: SplitDiff,
   newLimitBG: BigNumber,
   currency: BigNumber,
-  version: number,
+  version: number
 ) {
   // Calculate the percent total of the splits
   const allValues = Object.values(diff.keep)
@@ -726,7 +733,7 @@ function ensureSplitsSumTo100Percent(
   // Adjust each split
   allValues.forEach((entry) => {
     const newPercent = BigNumber.from(
-      Math.round(entry.split.percent.toNumber() * ratio),
+      Math.round(entry.split.percent.toNumber() * ratio)
     );
     //const oldPercent = entry.split.percent;
     entry.split.percent = newPercent;
@@ -748,7 +755,7 @@ function ensureSplitsSumTo100Percent(
   const largestSplitIndex = allValues.findIndex(
     (entry) =>
       entry.split.percent.toNumber() ===
-      Math.max(...allValues.map((e) => e.split.percent.toNumber())),
+      Math.max(...allValues.map((e) => e.split.percent.toNumber()))
   );
   if (allValues[largestSplitIndex]) {
     const newPercent =
@@ -777,7 +784,7 @@ export function splitStruct2JBSplit(v: JBSplitStruct) {
 export function compareReserves(
   oldReserves: JBSplit[],
   newReserves: JBSplit[],
-  pid: number = 0,
+  pid: number = 0
 ) {
   const newReserveMap = new Map<string, JBSplit>();
   newReserves.forEach((split) => newReserveMap.set(keyOfSplit(split), split));
@@ -883,7 +890,7 @@ export function calcDiffTableData(
   config: FundingCycleConfigProps,
   newConfig: FundingCycleConfigProps | undefined,
   payoutsDiff: SplitDiff,
-  reservesDiff: SplitDiff,
+  reservesDiff: SplitDiff
 ) {
   // Table data
   //console.debug("calcDiffTableData", { config, newConfig, payoutsDiff, reservesDiff });
@@ -904,35 +911,35 @@ export function calcDiffTableData(
   const reserveIndex = tableData.length - 1;
   // Payout Diff
   Object.values(payoutsDiff.new).forEach(
-    diff2TableEntry(payoutIndex, "Add", tableData),
+    diff2TableEntry(payoutIndex, "Add", tableData)
   );
   Object.values(payoutsDiff.change).forEach(
-    diff2TableEntry(payoutIndex, "Edit", tableData),
+    diff2TableEntry(payoutIndex, "Edit", tableData)
   );
   Object.values(payoutsDiff.expire).forEach(
-    diff2TableEntry(payoutIndex, "Remove", tableData),
+    diff2TableEntry(payoutIndex, "Remove", tableData)
   );
   Object.values(payoutsDiff.keep).forEach(
-    diff2TableEntry(payoutIndex, "Keep", tableData),
+    diff2TableEntry(payoutIndex, "Keep", tableData)
   );
   tableData[payoutIndex].entries.sort(
-    (a, b) => b.valueToBeSorted - a.valueToBeSorted,
+    (a, b) => b.valueToBeSorted - a.valueToBeSorted
   );
   // Reserve Diff
   Object.values(reservesDiff.new).forEach(
-    diff2TableEntry(reserveIndex, "Add", tableData),
+    diff2TableEntry(reserveIndex, "Add", tableData)
   );
   Object.values(reservesDiff.change).forEach(
-    diff2TableEntry(reserveIndex, "Edit", tableData),
+    diff2TableEntry(reserveIndex, "Edit", tableData)
   );
   Object.values(reservesDiff.expire).forEach(
-    diff2TableEntry(reserveIndex, "Remove", tableData),
+    diff2TableEntry(reserveIndex, "Remove", tableData)
   );
   Object.values(reservesDiff.keep).forEach(
-    diff2TableEntry(reserveIndex, "Keep", tableData),
+    diff2TableEntry(reserveIndex, "Keep", tableData)
   );
   tableData[reserveIndex].entries.sort(
-    (a, b) => b.valueToBeSorted - a.valueToBeSorted,
+    (a, b) => b.valueToBeSorted - a.valueToBeSorted
   );
 
   return tableData;
@@ -944,7 +951,7 @@ export function encodedReconfigureFundingCyclesOf(
   reservesDiff: SplitDiff,
   projectId: number,
   controller: Contract | undefined,
-  terminalAddress: string | undefined = ZERO_ADDRESS,
+  terminalAddress: string | undefined = ZERO_ADDRESS
 ) {
   const BIG_ZERO = BigNumber.from(0);
   const fc = config.fundingCycle;
@@ -997,6 +1004,6 @@ export function encodedReconfigureFundingCyclesOf(
 
   return controller?.interface?.encodeFunctionData(
     "reconfigureFundingCyclesOf",
-    reconfigurationRawData,
+    reconfigurationRawData
   );
 }
