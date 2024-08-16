@@ -29,6 +29,7 @@ import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
 import TransactionCycleNavigator from "./TransactionCycleNavigator";
+import { deepStringify } from "@/utils/functions/stringify";
 
 export default function QueueTransactionsModal({
   open,
@@ -228,7 +229,7 @@ export default function QueueTransactionsModal({
                           ?.filter((x) => x?.action !== undefined)
                           .map((x) => x!.action) || []
                       );
-                      downloadJSON(`${space}_GC${cycle}_safe_batch`, json);
+                      downloadJSON(`${space}_GC${cycle}_safe_batch`, deepStringify(json));
                     }}
                   >
                     Export
