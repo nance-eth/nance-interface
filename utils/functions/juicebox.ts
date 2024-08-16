@@ -34,7 +34,8 @@ function mulDiv(a: BigNumber, b: BigNumber, denominator: BigNumberish) {
 function formatEtherCommify(wei: BigNumberish) {
   return utils.commify(
     Math.round(
-      BigNumber.from(wei).div(BigNumber.from("1000000000000000000")).toNumber()
+      BigNumber.from(wei).div(BigNumber.from("10000000000000000")).toNumber() /
+        100
     )
   );
 }
