@@ -33,9 +33,6 @@ export default function CustomTransactionActionLabel({
             <span>{"}"}</span>
           </span>
         )}
-        <a href={`${NANCE_API_URL}/${space}/simulate/${uuid}`} className="ml-2">
-          <ArrowTopRightOnSquareIcon className="inline h-4 w-4" />
-        </a>
         <GovernanceCyclesInfoLabel action={action} />
       </span>
     );
@@ -82,13 +79,9 @@ export default function CustomTransactionActionLabel({
           <span>{"}"}</span>
         </span>
       )}
-      <a
-        href={`${NANCE_API_URL}/${space}/simulate/${uuid}`}
-        className="ml-2 mr-2"
-      >
-        <ArrowTopRightOnSquareIcon className="inline h-4 w-4" />
-      </a>
-      <GovernanceCyclesInfoLabel action={action} />
+      <div>
+        <GovernanceCyclesInfoLabel action={action} />
+      </div>
     </span>
   );
 }

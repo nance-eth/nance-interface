@@ -93,9 +93,10 @@ export default function QueueTransactionsModal({
   const transferEntries: TransactionEntry[] =
     transferActions?.map((v) => {
       const transfer = v.action.payload as Transfer;
+      const amount = String(transfer.amount);
       console.debug("Transfer", {
         transfer,
-        str: parseUnits(transfer.amount, transfer.decimals || 18).toString(),
+        str: parseUnits(amount, transfer.decimals || 18).toString(),
       });
       return {
         title: <TransferActionLabel action={v.action} />,
@@ -107,15 +108,15 @@ export default function QueueTransactionsModal({
               : transfer.contract,
           value:
             getContractLabel(transfer.contract) === "ETH"
-              ? parseUnits(transfer.amount, transfer.decimals || 18).toString()
+              ? parseUnits(amount, transfer.decimals || 18).toString()
               : "0",
           data:
             getContractLabel(transfer.contract) === "ETH"
               ? "0x"
               : erc20.encodeFunctionData("transfer", [
-                  transfer.to,
-                  parseUnits(transfer.amount, transfer.decimals || 18),
-                ]),
+                transfer.to,
+                parseUnits(amount, transfer.decimals || 18),
+              ]),
         },
       };
     }) || [];
@@ -229,7 +230,10 @@ export default function QueueTransactionsModal({
                           ?.filter((x) => x?.action !== undefined)
                           .map((x) => x!.action) || []
                       );
-                      downloadJSON(`${space}_GC${cycle}_safe_batch`, deepStringify(json));
+                      downloadJSON(
+                        `${space}_GC${cycle}_safe_batch`,
+                        deepStringify(json)
+                      );
                     }}
                   >
                     Export

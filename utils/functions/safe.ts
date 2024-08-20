@@ -47,9 +47,10 @@ export const safeBatchTransactionBuilder = (
   const safeBatchTransactions = actions.map((action) => {
     if (action.type === "Transfer") {
       const payload = action.payload as Transfer;
+      const amount = String(payload.amount);
       const value =
         getContractLabel(payload.contract) === "ETH"
-          ? parseUnits(payload.amount, payload.decimals || 18).toString()
+          ? parseUnits(amount, payload.decimals || 18).toString()
           : "0";
       const to =
         getContractLabel(payload.contract) === "ETH"
@@ -63,20 +64,20 @@ export const safeBatchTransactionBuilder = (
           getContractLabel(payload.contract) === "ETH"
             ? null
             : {
-                inputs: [
-                  { name: "to", type: "address", internalType: "address" },
-                  { name: "value", type: "uint256", internalType: "uint256" },
-                ],
-                name: "transfer",
-                payable: false,
-              },
+              inputs: [
+                { name: "to", type: "address", internalType: "address" },
+                { name: "value", type: "uint256", internalType: "uint256" },
+              ],
+              name: "transfer",
+              payable: false,
+            },
         contractInputsValues:
           getContractLabel(payload.contract) === "ETH"
             ? null
             : {
-                to: payload.to,
-                amount: parseUnits(payload.amount, payload.decimals).toString(),
-              },
+              to: payload.to,
+              amount: parseUnits(amount, payload.decimals).toString(),
+            },
       } as SafeTransactionBuilderTxn;
     } else if (action.type === "Custom Transaction") {
       const customTransaction = action.payload as CustomTransaction;

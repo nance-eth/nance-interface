@@ -35,6 +35,11 @@ const QueueTransactionsModal = dynamic(
   }
 );
 
+const reconfigurationEnabled = [
+  "juicebox",
+  "waterbox"
+]
+
 export default function SpaceAction() {
   const [showQueueReconfigurationModal, setShowQueueReconfigurationModal] =
     useState(false);
@@ -92,7 +97,7 @@ export default function SpaceAction() {
               href: `/review?project=${projectId}`,
               icon: ShieldCheckIcon,
             },
-            {
+            ...(reconfigurationEnabled.includes(spaceInfo.name) ? [{
               name: "Queue Reconfiguration",
               description:
                 "Queue a reconfiguration based on governance results and submit it to Safe.",
@@ -102,7 +107,7 @@ export default function SpaceAction() {
                 setQuery({ cycle: currentCycle });
                 setShowQueueReconfigurationModal(true);
               },
-            },
+            }] : []),
             {
               name: "Queue Transactions",
               description:
