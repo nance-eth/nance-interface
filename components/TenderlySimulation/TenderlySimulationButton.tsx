@@ -2,7 +2,7 @@ import { Tooltip } from "flowbite-react";
 import {
   TenderlySimulateArgs,
   TenderlySimulationAPIResponse,
-  useTendelySimulate,
+  useTenderlySimulate,
 } from "@/utils/hooks/TenderlyHooks";
 import { classNames } from "@/utils/functions/tailwind";
 import {
@@ -10,6 +10,7 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   CursorArrowRaysIcon,
+  ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
 
@@ -27,7 +28,7 @@ export default function TenderlySimulationButton({
     shouldSimulate: boolean,
   ) => void;
 }) {
-  const { data, isLoading, error } = useTendelySimulate(
+  const { data, isLoading, error } = useTenderlySimulate(
     simulationArgs,
     shouldSimulate,
   );
@@ -35,6 +36,10 @@ export default function TenderlySimulationButton({
   useEffect(() => {
     onSimulated?.(data, shouldSimulate);
   }, [data, shouldSimulate, onSimulated]);
+
+  const tenderlyUrl = data?.simulation?.id
+    ? `https://www.tdly.co/shared/simulation/${data.simulation.id}`
+    : null;
 
   return (
     <div className="isolate col-span-4 inline-flex rounded-md">
@@ -61,10 +66,22 @@ export default function TenderlySimulationButton({
               aria-hidden="true"
             />
           ) : data?.simulation?.status ? (
-            <CheckCircleIcon
-              className="-ml-0.5 h-5 w-5 text-green-400"
-              aria-hidden="true"
-            />
+            <div className="flex items-center">
+              <CheckCircleIcon
+                className="-ml-0.5 h-5 w-5 text-green-400"
+                aria-hidden="true"
+              />
+              {tenderlyUrl && (
+                <a
+                  href={tenderlyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-blue-500 hover:text-blue-600"
+                >
+                  <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                </a>
+              )}
+            </div>
           ) : (
             <Tooltip
               content={`Error: ${

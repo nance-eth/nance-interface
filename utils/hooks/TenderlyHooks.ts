@@ -53,7 +53,7 @@ async function fetchWithArgs([url, args]: [string, TenderlySimulateArgs]) {
   return json as TenderlySimulationAPIResponse;
 }
 
-export function useTendelySimulate(
+export function useTenderlySimulate(
   args: TenderlySimulateArgs,
   shouldFetch: boolean = false,
 ) {
