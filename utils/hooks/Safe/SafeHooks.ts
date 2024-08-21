@@ -171,14 +171,15 @@ export function useCreateTransaction(
 export function useQueueTransaction(
   safeAddress: string,
   safeTransactionData: MetaTransactionData[],
-  nonce?: number
+  nonce?: number,
+  refundGas: boolean = true
 ) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState<{ safeTxHash: string; nonce: string }>();
 
   const { data: walletClient } = useWalletClient();
-  const { address, isConnecting, isDisconnected } = useAccount();
+  const { address } = useAccount();
   const { value: safeApiKit } = useSafeAPIKit();
   const { value: safe } = useSafe(safeAddress);
   const chain = useChainConfigOfSpace();
@@ -198,7 +199,7 @@ export function useQueueTransaction(
     const { data: gasPrice } = await refetch(); // get newest gasPrice
     const options: SafeTransactionOptionalProps = {
       nonce, // Optional
-      gasPrice: gasPrice?.toString() || "0", // If gasPrice > 0, Safe contract will refund gasUsed.
+      gasPrice: refundGas ? gasPrice?.toString() || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
       // safeTxGas will be max tx gas can be used, should we set this?
     };
 
