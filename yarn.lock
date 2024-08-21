@@ -4194,30 +4194,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@safe-global/api-kit@npm:^2.4.3":
-  version: 2.4.3
-  resolution: "@safe-global/api-kit@npm:2.4.3"
+"@safe-global/api-kit@npm:^2.4.4":
+  version: 2.4.4
+  resolution: "@safe-global/api-kit@npm:2.4.4"
   dependencies:
-    "@safe-global/protocol-kit": ^4.0.3
+    "@safe-global/protocol-kit": ^4.0.4
     "@safe-global/safe-core-sdk-types": ^5.0.3
     ethers: ^6.13.1
     node-fetch: ^2.7.0
-  checksum: b4def772e19a539638006420a48293a61ff318f5c3b89ca12f507a59ff44518108e20c603deb8ab76cb0ecc6cf27d691df9445545cbbb3a951ecb5cb62a0c1fd
+  checksum: f4e319564531edc46dfe254fad3f0da219e0da989f76b113a193dfe1263fcc405cd82eb59382a3b47727f0670708ea67c0754ac00f594f7437766f1438bdda99
   languageName: node
   linkType: hard
 
-"@safe-global/protocol-kit@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "@safe-global/protocol-kit@npm:4.0.3"
+"@safe-global/protocol-kit@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "@safe-global/protocol-kit@npm:4.0.4"
   dependencies:
     "@noble/hashes": ^1.3.3
     "@safe-global/safe-core-sdk-types": ^5.0.3
-    "@safe-global/safe-deployments": ^1.37.1
+    "@safe-global/safe-deployments": ^1.37.3
     abitype: ^1.0.2
     ethereumjs-util: ^7.1.5
     ethers: ^6.13.1
     semver: ^7.6.2
-  checksum: 1194e021d3d48f6584011fef0158c50066587145863ac393228c02825924ff7472f62f5f7e25826fb44936cdfbf72f8a9da46b271cc887f04d4c85b4b5308fc1
+  checksum: 3fa1e4b1d305ca040851758bf01d4e3f0dceadb2b877e9bf66cb00704af9ff62468e3f762a9e826d66fdc86ef074706d71c88097baf8cb71a1a258b356aaaa21
   languageName: node
   linkType: hard
 
@@ -4250,12 +4250,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@safe-global/safe-deployments@npm:^1.37.1":
-  version: 1.37.2
-  resolution: "@safe-global/safe-deployments@npm:1.37.2"
+"@safe-global/safe-deployments@npm:^1.37.3":
+  version: 1.37.3
+  resolution: "@safe-global/safe-deployments@npm:1.37.3"
   dependencies:
     semver: ^7.6.2
-  checksum: 4396a8ba01a86a435543109dc6b7abc2a34cdfc0da71d4dade0acaa161fed48ef89e6b2eb59c137fad34e45579660c2547e8de8c1a68848dc102b1f3d4832f36
+  checksum: 8c83944822aea1468fc51944edb964a050065f0f7404ee138a34d74228d7f5113102ec4e10f1866798969624193a072f6d65f2b6c8b79dc76f03081cefc5f06a
   languageName: node
   linkType: hard
 
@@ -16448,8 +16448,8 @@ __metadata:
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": 2
     "@rainbow-me/rainbowkit-siwe-next-auth": ^0.3.1
-    "@safe-global/api-kit": ^2.4.3
-    "@safe-global/protocol-kit": ^4.0.3
+    "@safe-global/api-kit": ^2.4.4
+    "@safe-global/protocol-kit": ^4.0.4
     "@safe-global/safe-core-sdk-types": ^5.0.3
     "@snapshot-labs/snapshot.js": ^0.4.13
     "@storybook/addon-essentials": ^7.5.2
