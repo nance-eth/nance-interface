@@ -1,12 +1,44 @@
 import TenderlySimulationButton from "./TenderlySimulationButton";
-import { useCreateTransaction } from "@/utils/hooks/Safe/SafeHooks";
 import { TenderlySimulateArgs } from "@/utils/hooks/TenderlyHooks";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
-import { NetworkContext } from "@/context/NetworkContext";
-import { getChainByNetworkName } from "config/custom-chains";
+import { encodeFunctionData, zeroAddress } from "viem";
+import useChainConfigOfSpace from "@/utils/hooks/ChainOfSpace";
+import {
+  useCreateTransaction,
+  useSafeInfo,
+} from "@/utils/hooks/Safe/SafeHooks";
 
-const SAFE_SINGLETON_1_3_0 = "0xd9db270c1b5e3bd161e8c8503c55ceabee709552";
+const SafeExecTransactionAbi = [
+  {
+    constant: false,
+    inputs: [
+      { internalType: "address", name: "to", type: "address" },
+      { internalType: "uint256", name: "value", type: "uint256" },
+      { internalType: "bytes", name: "data", type: "bytes" },
+      {
+        internalType: "enum Enum.Operation",
+        name: "operation",
+        type: "uint8",
+      },
+      { internalType: "uint256", name: "safeTxGas", type: "uint256" },
+      { internalType: "uint256", name: "baseGas", type: "uint256" },
+      { internalType: "uint256", name: "gasPrice", type: "uint256" },
+      { internalType: "address", name: "gasToken", type: "address" },
+      {
+        internalType: "address payable",
+        name: "refundReceiver",
+        type: "address",
+      },
+      { internalType: "bytes", name: "signatures", type: "bytes" },
+    ],
+    name: "execTransaction",
+    outputs: [{ internalType: "bool", name: "success", type: "bool" }],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+] as const;
 
 export default function SafeTenderlySimulationButton({
   address,
@@ -17,21 +49,52 @@ export default function SafeTenderlySimulationButton({
 }) {
   const [shouldSimulate, setShouldSimulate] = useState<boolean>(false);
 
+  const chain = useChainConfigOfSpace();
+  const { data: safeInfo } = useSafeInfo(address, !!address);
+  const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
   const { value: safeTransaction } = useCreateTransaction(
     address,
-    transactions
+    transactions,
+    true
   );
 
-  const network = useContext(NetworkContext).toLowerCase() as string;
-  const networkId = getChainByNetworkName(network)?.id;
-  const isMultiSend = transactions.length > 1;
+  // safe tx gas not enough
+  const functionData = encodeFunctionData({
+    abi: SafeExecTransactionAbi,
+    functionName: "execTransaction",
+    args: [
+      safeTransaction?.data.to || zeroAddress, // to
+      BigInt(0), // value
+      safeTransaction?.data.data || "0x", //data
+      1, //operation
+      BigInt(safeTransaction?.data.safeTxGas || 0), //safeTxGas
+      BigInt(0), //baseGas
+      BigInt(safeTransaction?.data.gasPrice || 0), // gasPrice
+      zeroAddress, // gasToken
+      zeroAddress, // refundReceiver
+      `0x000000000000000000000000${
+        firstOwnerAddress.split("0x")[1]
+      }000000000000000000000000000000000000000000000000000000000000000001`, // include signature
+    ],
+  });
+
+  const state_objects: { [contract: string]: any } = {};
+  // override Safe slot 4 to be value 0x01,
+  //   so we can simulate with all signatures that Safe.execTransaction required
+  state_objects[address] = {
+    storage: {
+      "0x0000000000000000000000000000000000000000000000000000000000000004":
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+    },
+  };
 
   const simulationArgs: TenderlySimulateArgs = {
-    from: address,
-    to: isMultiSend ? SAFE_SINGLETON_1_3_0 : safeTransaction?.data.to || "",
-    value: parseInt(safeTransaction?.data.value || "0"),
-    input: safeTransaction?.data.data || "",
-    networkId,
+    from: firstOwnerAddress,
+    to: address || "",
+    value: 0,
+    input: functionData,
+    networkId: chain.id,
+    state_objects,
   };
 
   useEffect(() => {
