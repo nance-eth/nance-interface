@@ -25,12 +25,12 @@ export default function TenderlySimulationButton({
   setShouldSimulate: (shouldSimulate: boolean) => void;
   onSimulated?: (
     data: TenderlySimulationAPIResponse | undefined,
-    shouldSimulate: boolean,
+    shouldSimulate: boolean
   ) => void;
 }) {
   const { data, isLoading, error } = useTenderlySimulate(
     simulationArgs,
-    shouldSimulate,
+    shouldSimulate
   );
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function TenderlySimulationButton({
         type="button"
         className={classNames(
           "relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300",
-          shouldSimulate ? "" : "hover:bg-gray-50 focus:z-10",
+          shouldSimulate ? "" : "hover:bg-gray-50 focus:z-10"
         )}
         onClick={() => {
           if (shouldSimulate) {
@@ -83,18 +83,30 @@ export default function TenderlySimulationButton({
               )}
             </div>
           ) : (
-            <Tooltip
-              content={`Error: ${
-                error
-                  ? error.message
-                  : data?.simulation?.error_message || "Not enough args"
-              }`}
-            >
-              <XCircleIcon
-                className="-ml-0.5 h-5 w-5 text-red-400"
-                aria-hidden="true"
-              />
-            </Tooltip>
+            <div className="flex items-center">
+              <Tooltip
+                content={`Error: ${
+                  error
+                    ? error.message
+                    : data?.simulation?.error_message || "Not enough args"
+                }`}
+              >
+                <XCircleIcon
+                  className="-ml-0.5 h-5 w-5 text-red-400"
+                  aria-hidden="true"
+                />
+              </Tooltip>
+              {tenderlyUrl && (
+                <a
+                  href={tenderlyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-blue-500 hover:text-blue-600"
+                >
+                  <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                </a>
+              )}
+            </div>
           )
         ) : (
           <CursorArrowRaysIcon
