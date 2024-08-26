@@ -122,7 +122,8 @@ export function useSafe(safeAddress: string) {
 
 export function useCreateTransaction(
   safeAddress: string,
-  safeTransactionData: MetaTransactionData[]
+  safeTransactionData: MetaTransactionData[],
+  refundGas: boolean = true
 ) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -130,14 +131,14 @@ export function useCreateTransaction(
 
   const { value: safe } = useSafe(safeAddress);
 
-  const chain = useChainConfigOfSpace();
+  const chain: any = useChainConfigOfSpace();
   const { data: gasPrice } = useGasPrice({
     chainId: chain.id,
     query: { refetchInterval: 10000 }, // refetch every 10s
   });
 
   const options: SafeTransactionOptionalProps = {
-    gasPrice: gasPrice?.toString() || "0", // If gasPrice > 0, Safe contract will refund gasUsed.
+    gasPrice: refundGas ? gasPrice?.toString() || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
     // safeTxGas will be max tx gas can be used, should we set this?
   };
 
