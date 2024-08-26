@@ -28,7 +28,7 @@ export default function TenderlySimulationButton({
     shouldSimulate: boolean
   ) => void;
 }) {
-  const { data, isLoading, error } = useTenderlySimulate(
+  const { data, isLoading, error, mutate } = useTenderlySimulate(
     simulationArgs,
     shouldSimulate
   );
@@ -41,6 +41,21 @@ export default function TenderlySimulationButton({
     ? `https://www.tdly.co/shared/simulation/${data.simulation.id}`
     : null;
 
+  const hasSafeExecutionFailureEvent =
+    data?.transaction?.transaction_info.call_trace.logs.find((event) =>
+      event.raw.topics.includes(
+        // SafeContract.ExecutionFailure (bytes32 txHash, uint256 payment)
+        "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
+      )
+    ) !== undefined;
+  const isSuccess = data?.simulation?.status && !hasSafeExecutionFailureEvent;
+  let errorMessage = error ? error.message : data?.simulation?.error_message;
+  if (errorMessage === undefined && hasSafeExecutionFailureEvent) {
+    errorMessage = "ExecutionFailure";
+  } else {
+    errorMessage = "Not enough args";
+  }
+
   return (
     <div className="isolate col-span-4 inline-flex rounded-md">
       <button
@@ -51,9 +66,11 @@ export default function TenderlySimulationButton({
         )}
         onClick={() => {
           if (shouldSimulate) {
-            setShouldSimulate(false);
+            // revalidate
+            mutate();
+          } else {
+            setShouldSimulate(true);
           }
-          setShouldSimulate(true);
         }}
       >
         Simulate
@@ -65,7 +82,7 @@ export default function TenderlySimulationButton({
               className="-ml-0.5 h-5 w-5 text-gray-400"
               aria-hidden="true"
             />
-          ) : data?.simulation?.status ? (
+          ) : isSuccess ? (
             <div className="flex items-center">
               <CheckCircleIcon
                 className="-ml-0.5 h-5 w-5 text-green-400"
@@ -84,13 +101,7 @@ export default function TenderlySimulationButton({
             </div>
           ) : (
             <div className="flex items-center">
-              <Tooltip
-                content={`Error: ${
-                  error
-                    ? error.message
-                    : data?.simulation?.error_message || "Not enough args"
-                }`}
-              >
+              <Tooltip content={errorMessage}>
                 <XCircleIcon
                   className="-ml-0.5 h-5 w-5 text-red-400"
                   aria-hidden="true"

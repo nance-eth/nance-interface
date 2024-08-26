@@ -7,11 +7,25 @@ export interface TenderlySimulateArgs {
   input: string;
   value: number;
   networkId?: number;
+  state_objects?: {
+    [contractAddress: string]: { storage: { [slot: string]: string } };
+  };
 }
 
 export interface TenderlySimulationAPIResponse {
   transaction: {
     status: boolean;
+    transaction_info: {
+      call_trace: {
+        logs: {
+          raw: {
+            address: string;
+            topics: string[];
+            data: string;
+          };
+        }[];
+      };
+    };
   };
   simulation: {
     error_message: string;
@@ -39,6 +53,7 @@ async function fetchWithArgs([url, args]: [string, TenderlySimulateArgs]) {
     gas: 8000000,
     gas_price: 0,
     value: args.value,
+    state_objects: args.state_objects,
   };
 
   const resp = await fetch(url, {
@@ -55,17 +70,19 @@ async function fetchWithArgs([url, args]: [string, TenderlySimulateArgs]) {
 
 export function useTenderlySimulate(
   args: TenderlySimulateArgs,
-  shouldFetch: boolean = false,
+  shouldFetch: boolean = false
 ) {
-  const { data, isLoading, error } = useSWR<TenderlySimulationAPIResponse>(
-    shouldFetch ? ["/api/tenderly", args] : null,
-    fetchWithArgs,
-  );
+  const { data, isLoading, error, mutate } =
+    useSWR<TenderlySimulationAPIResponse>(
+      shouldFetch ? ["/api/tenderly", args] : null,
+      fetchWithArgs
+    );
 
   return {
     data,
     isLoading,
     error,
+    mutate,
   };
 }
 
