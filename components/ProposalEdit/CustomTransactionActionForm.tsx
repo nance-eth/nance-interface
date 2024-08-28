@@ -7,7 +7,6 @@ import {
   encodeTransactionInput,
 } from "@/utils/hooks/TenderlyHooks";
 import FunctionSelector from "./FunctionSelector";
-import TenderlySimulationButton from "@/components/TenderlySimulation/TenderlySimulationButton";
 import AddressForm from "../form/AddressForm";
 import UIntForm from "../form/UIntForm";
 import StringForm from "../form/StringForm";
@@ -16,8 +15,6 @@ import SafeInjectIframeCard from "../SafeInjectIframeCard";
 import { useSafeInject } from "../SafeInjectIframeCard/context/SafeInjectedContext";
 import { BigNumber } from "ethers";
 import { CustomTransactionArg } from "@nance/nance-sdk";
-import { NetworkContext } from "@/context/NetworkContext";
-import { getChainByNetworkName } from "config/custom-chains";
 import { DEPLOY_CONTRACT_FAKE_ADDRESS } from "@/constants/Contract";
 import { classNames } from "@/utils/functions/tailwind";
 import { SpaceContext } from "@/context/SpaceContext";
@@ -25,6 +22,8 @@ import {
   dateRangesOfCycles,
   getEarliestStartCycle,
 } from "@/utils/functions/GovernanceCycle";
+import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
+import { GenericTransactionData } from "../Transaction/TransactionCreator";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -33,9 +32,9 @@ export default function CustomTransactionActionForm({
   genFieldName: (field: string) => any;
   projectOwner: string | undefined;
 }) {
+  // FIXME: functionFragment and input is empty when loaded from proposal
   const [functionFragment, setFunctionFragment] = useState<FunctionFragment>();
   const [functionData, setFunctionData] = useState<string>();
-  const [shouldSimulate, setShouldSimulate] = useState<boolean>();
 
   const spaceInfo = useContext(SpaceContext);
   const earliestStartCycle = getEarliestStartCycle(
@@ -58,6 +57,8 @@ export default function CustomTransactionActionForm({
     getValues(genFieldName(`args.${index}.value`))
   );
   const to = getValues(genFieldName("contract")) as string;
+  // FIXME: Safe can use https://github.com/safe-global/safe-smart-account/blob/main/contracts/libraries/CreateCall.sol
+  //   to deploy contract on Safe behalf.
   const input =
     to === DEPLOY_CONTRACT_FAKE_ADDRESS
       ? (fields[0] as unknown as CustomTransactionArg)?.value || ""
@@ -65,23 +66,18 @@ export default function CustomTransactionActionForm({
           functionFragment?.format(FormatTypes.minimal) || "",
           args || []
         );
-  const networkName = useContext(NetworkContext);
-  const networkId = getChainByNetworkName(networkName).id;
 
-  const simulateArgs =
+  const transaction: GenericTransactionData =
     to === DEPLOY_CONTRACT_FAKE_ADDRESS
       ? {
-          from: projectOwner || "",
-          value: parseInt(getValues(genFieldName("value"))),
-          input,
-          networkId,
+          to: "",
+          value: getValues(genFieldName("value")),
+          data: input,
         }
       : {
-          from: projectOwner || "",
           to: getValues(genFieldName("contract")) as string,
-          value: parseInt(getValues(genFieldName("value"))),
-          input,
-          networkId,
+          value: getValues(genFieldName("value")),
+          data: input,
         };
 
   useEffect(() => {
@@ -112,14 +108,6 @@ export default function CustomTransactionActionForm({
       console.debug("latestTransaction", latestTransaction);
     }
   }, [latestTransaction, setValue]);
-
-  useEffect(() => {
-    // if the function input changed, we need to re-run simulation
-    setShouldSimulate(false);
-  }, [
-    getFieldState(genFieldName("args")).isDirty,
-    getValues(genFieldName("functionName")),
-  ]);
 
   // update address if project owner changed
   useEffect(() => {
@@ -155,12 +143,13 @@ export default function CustomTransactionActionForm({
   return (
     <div>
       <div className="mt-6 grid grid-cols-4 gap-6">
-        <TenderlySimulationButton
-          simulationArgs={simulateArgs}
-          shouldSimulate={!!projectOwner && !!input && !!shouldSimulate}
-          setShouldSimulate={setShouldSimulate}
-          onSimulated={onSimulated}
-        />
+        {!!projectOwner && !!input && (
+          <GenericTenderlySimulationButton
+            rawAddress={projectOwner || ""}
+            transactions={[transaction]}
+            onSimulated={onSimulated}
+          />
+        )}
 
         <div className="col-span-4 sm:col-span-1">
           <BooleanForm
