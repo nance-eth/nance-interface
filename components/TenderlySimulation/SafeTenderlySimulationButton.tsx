@@ -1,5 +1,8 @@
 import TenderlySimulationButton from "./TenderlySimulationButton";
-import { TenderlySimulateArgs } from "@/utils/hooks/TenderlyHooks";
+import {
+  TenderlySimulateArgs,
+  TenderlySimulationAPIResponse,
+} from "@/utils/hooks/TenderlyHooks";
 import { useEffect, useState } from "react";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
 import { encodeFunctionData, zeroAddress } from "viem";
@@ -43,9 +46,14 @@ const SafeExecTransactionAbi = [
 export default function SafeTenderlySimulationButton({
   address,
   transactions,
+  onSimulated,
 }: {
   address: string;
   transactions: GenericTransactionData[];
+  onSimulated?: (
+    data: TenderlySimulationAPIResponse | undefined,
+    shouldSimulate: boolean
+  ) => void;
 }) {
   const [shouldSimulate, setShouldSimulate] = useState<boolean>(false);
 
@@ -104,12 +112,11 @@ export default function SafeTenderlySimulationButton({
   }, [transactions]);
 
   return (
-    <div className="absolute left-14 top-0 flex h-12 items-center space-x-3 bg-white sm:left-12">
-      <TenderlySimulationButton
-        simulationArgs={simulationArgs}
-        shouldSimulate={shouldSimulate}
-        setShouldSimulate={setShouldSimulate}
-      />
-    </div>
+    <TenderlySimulationButton
+      simulationArgs={simulationArgs}
+      shouldSimulate={shouldSimulate}
+      setShouldSimulate={setShouldSimulate}
+      onSimulated={onSimulated}
+    />
   );
 }

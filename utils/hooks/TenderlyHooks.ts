@@ -18,13 +18,15 @@ export interface TenderlySimulationAPIResponse {
     status: boolean;
     transaction_info: {
       call_trace: {
-        logs: {
-          raw: {
-            address: string;
-            topics: string[];
-            data: string;
-          };
-        }[];
+        logs:
+          | {
+              raw: {
+                address: string;
+                topics: string[];
+                data: string;
+              };
+            }[]
+          | null;
       };
     };
   };

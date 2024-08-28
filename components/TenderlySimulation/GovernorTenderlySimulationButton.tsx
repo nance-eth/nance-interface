@@ -1,5 +1,8 @@
 import { useAccount } from "wagmi";
-import { TenderlySimulateArgs } from "@/utils/hooks/TenderlyHooks";
+import {
+  TenderlySimulateArgs,
+  TenderlySimulationAPIResponse,
+} from "@/utils/hooks/TenderlyHooks";
 import TenderlySimulationButton from "./TenderlySimulationButton";
 import { encodeFunctionData } from "viem";
 import { PROPOSE_ABI } from "@/utils/hooks/governor/Propose";
@@ -9,9 +12,14 @@ import { GenericTransactionData } from "../Transaction/TransactionCreator";
 export default function GovernorTenderlySimulationButton({
   address,
   transactions,
+  onSimulated,
 }: {
   address: string;
   transactions: GenericTransactionData[];
+  onSimulated?: (
+    data: TenderlySimulationAPIResponse | undefined,
+    shouldSimulate: boolean
+  ) => void;
 }) {
   const [shouldSimulate, setShouldSimulate] = useState<boolean>(false);
 
@@ -22,7 +30,7 @@ export default function GovernorTenderlySimulationButton({
     functionName: "propose",
     args: [
       transactions.map(
-        (transactionData) => transactionData.to as `0x${string}`,
+        (transactionData) => transactionData.to as `0x${string}`
       ),
       transactions.map((transactionData) => transactionData.value),
       transactions.map((transactionData) => transactionData.data),
@@ -33,7 +41,7 @@ export default function GovernorTenderlySimulationButton({
   const simulationArgs: TenderlySimulateArgs = {
     from: userAddress || "",
     to: address,
-    value: 0,
+    value: "0",
     input: proposeData || "",
   };
 
@@ -44,12 +52,11 @@ export default function GovernorTenderlySimulationButton({
   }, [transactions]);
 
   return (
-    <div className="absolute left-14 top-0 flex h-12 items-center space-x-3 bg-white sm:left-12">
-      <TenderlySimulationButton
-        simulationArgs={simulationArgs}
-        shouldSimulate={shouldSimulate}
-        setShouldSimulate={setShouldSimulate}
-      />
-    </div>
+    <TenderlySimulationButton
+      simulationArgs={simulationArgs}
+      shouldSimulate={shouldSimulate}
+      setShouldSimulate={setShouldSimulate}
+      onSimulated={onSimulated}
+    />
   );
 }

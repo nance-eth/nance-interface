@@ -65,12 +65,13 @@ export enum ContractType {
 
 export function useContractType(rawAddress: string) {
   const address = isAddress(rawAddress) ? getAddress(rawAddress) : undefined;
-  const { data: safeInfo, error: safeError } = useSafeInfo(
-    address as string,
-    address !== undefined
-  );
+  const {
+    data: safeInfo,
+    error: safeError,
+    isLoading,
+  } = useSafeInfo(address as string, address !== undefined);
 
-  if (address === undefined) {
+  if (address === undefined || isLoading) {
     return ContractType.Unknown;
   }
 

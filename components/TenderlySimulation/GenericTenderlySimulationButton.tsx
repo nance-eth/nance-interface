@@ -1,36 +1,27 @@
-import { getAddress } from "viem";
+import { getAddress, isAddress } from "viem";
 import { ContractType, useContractType } from "@/utils/hooks/ContractHooks";
 import SafeTenderlySimulationButton from "./SafeTenderlySimulationButton";
 import GovernorTenderlySimulationButton from "./GovernorTenderlySimulationButton";
 import { Tooltip } from "flowbite-react";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
+import { TenderlySimulationAPIResponse } from "@/utils/hooks/TenderlyHooks";
 
 export default function GenericTenderlySimulationButton({
   rawAddress,
   transactions,
+  onSimulated,
 }: {
   rawAddress: string;
   transactions: GenericTransactionData[];
+  onSimulated?: (
+    data: TenderlySimulationAPIResponse | undefined,
+    shouldSimulate: boolean
+  ) => void;
 }) {
-  const address = getAddress(rawAddress);
-  const contractType = useContractType(address);
+  const contractType = useContractType(rawAddress);
 
-  if (contractType === ContractType.Safe) {
-    return (
-      <SafeTenderlySimulationButton
-        address={address}
-        transactions={transactions}
-      />
-    );
-  } else if (contractType === ContractType.Governor) {
-    return (
-      <GovernorTenderlySimulationButton
-        address={address}
-        transactions={transactions}
-      />
-    );
-  } else {
+  if (contractType === ContractType.Unknown) {
     return (
       <div className="isolate col-span-4 inline-flex rounded-md">
         <button
@@ -48,6 +39,25 @@ export default function GenericTenderlySimulationButton({
           </Tooltip>
         </div>
       </div>
+    );
+  }
+
+  const address = getAddress(rawAddress);
+  if (contractType === ContractType.Safe) {
+    return (
+      <SafeTenderlySimulationButton
+        address={address}
+        transactions={transactions}
+        onSimulated={onSimulated}
+      />
+    );
+  } else if (contractType === ContractType.Governor) {
+    return (
+      <GovernorTenderlySimulationButton
+        address={address}
+        transactions={transactions}
+        onSimulated={onSimulated}
+      />
     );
   }
 }

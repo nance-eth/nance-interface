@@ -42,7 +42,7 @@ export default function TenderlySimulationButton({
     : null;
 
   const hasSafeExecutionFailureEvent =
-    data?.transaction?.transaction_info.call_trace.logs.find((event) =>
+    data?.transaction?.transaction_info.call_trace.logs?.find((event) =>
       event.raw.topics.includes(
         // SafeContract.ExecutionFailure (bytes32 txHash, uint256 payment)
         "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
