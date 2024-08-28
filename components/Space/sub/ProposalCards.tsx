@@ -25,8 +25,8 @@ const SortOptionsArr = ["status", "title", "approval", "participants", "voted"];
 const StatusValue: { [key: string]: number } = {
   Revoked: 0,
   Cancelled: 1,
-  Draft: 2,
-  Approved: 3,
+  Approved: 2,
+  Draft: 3,
   Implementation: 4,
   Finished: 5,
   Discussion: 6,
@@ -41,7 +41,7 @@ function getValueOfStatus(status: string) {
  */
 function mergeSnapshotVotes(
   proposals: Proposal[] | undefined,
-  snapshotProposalDict: { [id: string]: SnapshotProposal },
+  snapshotProposalDict: { [id: string]: SnapshotProposal }
 ) {
   return proposals?.map((p) => {
     const snapshotProposal = snapshotProposalDict[p.voteURL!];
@@ -66,39 +66,40 @@ function sortProposals(
   sortDesc: boolean | null | undefined,
   keyword: string | null | undefined,
   snapshotProposalDict: { [id: string]: SnapshotProposal },
-  votedData: { [id: string]: SnapshotVotedData } | undefined,
+  votedData: { [id: string]: SnapshotVotedData } | undefined
 ) {
   if (!sortBy || !SortOptionsArr.includes(sortBy)) {
     // fall back to default sorting
     // if no keyword
-    proposals.sort(
-      (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status),
-    );
     if (!keyword) {
       proposals.sort(
-        (a, b) => (b.governanceCycle ?? 0) - (a.governanceCycle ?? 0),
+        (a, b) => (b.governanceCycle ?? 0) - (a.governanceCycle ?? 0)
       );
     }
+
+    proposals.sort(
+      (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
+    );
   }
 
   switch (sortBy) {
     case "status":
       proposals.sort(
-        (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status),
+        (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
       );
       break;
     case "approval":
       const sumScores = (p: Proposal) => {
         return (p?.voteResults?.scores ?? []).reduce(
           (partialSum, a) => partialSum + a,
-          0,
+          0
         );
       };
       proposals.sort((a, b) => sumScores(b) - sumScores(a));
       break;
     case "participants":
       proposals.sort(
-        (a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0),
+        (a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0)
       );
       break;
     case "voted":
@@ -228,7 +229,7 @@ export default function ProposalCards({
   } = useProposalsByID(
     snapshotProposalIds,
     address ?? "",
-    snapshotProposalIds.length === 0,
+    snapshotProposalIds.length === 0
   );
 
   // convert proposalsData to dict with proposal id as key
@@ -237,7 +238,7 @@ export default function ProposalCards({
 
   const mergedProposals = mergeSnapshotVotes(
     proposalsPacket?.proposals,
-    snapshotProposalDict,
+    snapshotProposalDict
   );
   const votedData = data?.votedData;
 
@@ -250,7 +251,7 @@ export default function ProposalCards({
     query.sortDesc,
     query.keyword,
     snapshotProposalDict,
-    votedData,
+    votedData
   );
 
   const isLoading = snapshotLoading || proposalsLoading;
