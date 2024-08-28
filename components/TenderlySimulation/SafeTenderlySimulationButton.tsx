@@ -52,26 +52,25 @@ export default function SafeTenderlySimulationButton({
   const chain = useChainConfigOfSpace();
   const { data: safeInfo } = useSafeInfo(address, !!address);
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
-  const { value: safeTransaction } = useCreateTransaction(
+  const { value: safeTransaction, gasPrice } = useCreateTransaction(
     address,
     transactions,
     true
   );
 
-  // safe tx gas not enough
   const functionData = encodeFunctionData({
     abi: SafeExecTransactionAbi,
     functionName: "execTransaction",
     args: [
       safeTransaction?.data.to || zeroAddress, // to
-      BigInt(0), // value
+      BigInt(safeTransaction?.data.value || "0"), // value
       safeTransaction?.data.data || "0x", //data
-      1, //operation
+      safeTransaction?.data.operation || (transactions.length > 1 ? 1 : 0), //operation
       BigInt(safeTransaction?.data.safeTxGas || 0), //safeTxGas
-      BigInt(0), //baseGas
+      BigInt(safeTransaction?.data.baseGas || 0), //baseGas
       BigInt(safeTransaction?.data.gasPrice || 0), // gasPrice
-      zeroAddress, // gasToken
-      zeroAddress, // refundReceiver
+      safeTransaction?.data.gasToken || zeroAddress, // gasToken
+      safeTransaction?.data.refundReceiver || zeroAddress, // refundReceiver
       `0x000000000000000000000000${
         firstOwnerAddress.split("0x")[1]
       }000000000000000000000000000000000000000000000000000000000000000001`, // include signature
@@ -91,9 +90,10 @@ export default function SafeTenderlySimulationButton({
   const simulationArgs: TenderlySimulateArgs = {
     from: firstOwnerAddress,
     to: address || "",
-    value: 0,
+    value: "0",
     input: functionData,
-    networkId: chain.id,
+    networkId: chain.id.toString(),
+    gasPrice: gasPrice?.toString(),
     state_objects,
   };
 

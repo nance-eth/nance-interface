@@ -5,8 +5,9 @@ export interface TenderlySimulateArgs {
   from: string;
   to?: string;
   input: string;
-  value: number;
-  networkId?: number;
+  value: string;
+  gasPrice?: string;
+  networkId?: string;
   state_objects?: {
     [contractAddress: string]: { storage: { [slot: string]: string } };
   };
@@ -51,7 +52,7 @@ async function fetchWithArgs([url, args]: [string, TenderlySimulateArgs]) {
     to: args.to,
     input: args.input,
     gas: 8000000,
-    gas_price: 0,
+    gas_price: args.gasPrice || "0",
     value: args.value,
     state_objects: args.state_objects,
   };
