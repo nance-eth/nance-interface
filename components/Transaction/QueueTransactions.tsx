@@ -53,8 +53,10 @@ export default function QueueTransactionsModal({
   });
   const { cycle, keyword, limit } = query;
   const space = spaceInfo?.name || "";
-  const { data: proposalDataArray, isLoading: proposalsLoading } =
-    useProposalsInfinite({ space, cycle, keyword, limit }, router.isReady);
+  const { data: proposalDataArray, isLoading } = useProposalsInfinite(
+    { space, cycle, keyword, limit },
+    router.isReady
+  );
 
   // Gather all actions in current fundingCycle
   const actionWithPIDArray = proposalDataArray
@@ -114,9 +116,9 @@ export default function QueueTransactionsModal({
             getContractLabel(transfer.contract) === "ETH"
               ? "0x"
               : erc20.encodeFunctionData("transfer", [
-                transfer.to,
-                parseUnits(amount, transfer.decimals || 18),
-              ]),
+                  transfer.to,
+                  parseUnits(amount, transfer.decimals || 18),
+                ]),
         },
       };
     }) || [];
@@ -203,6 +205,7 @@ export default function QueueTransactionsModal({
                     <OrderCheckboxTable
                       address={transactorAddress || ""}
                       entries={entries}
+                      isLoading={isLoading}
                     />
                   </div>
                 </div>

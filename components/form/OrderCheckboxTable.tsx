@@ -14,9 +14,11 @@ export interface TransactionEntry {
 export default function OrderCheckboxTable({
   address,
   entries,
+  isLoading = false,
 }: {
   address: string;
   entries: TransactionEntry[];
+  isLoading: boolean;
 }) {
   const checkbox = useRef<HTMLInputElement>(null);
   const [checked, setChecked] = useState(false);
@@ -89,6 +91,32 @@ export default function OrderCheckboxTable({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
+                  {isLoading && entries.length === 0 && (
+                    <tr>
+                      <td className="relative px-7 sm:w-12 sm:px-6"></td>
+                      <td className="text-gray-900 max-w-[5rem] sm:max-w-sm py-4 pr-3 text-sm font-medium">
+                        <div className="h-6 w-10 animate-pulse rounded bg-slate-200 text-sm leading-6 text-gray-900"></div>
+                      </td>
+                      <td className="break-words px-3 py-4 text-sm text-gray-500">
+                        <div className="h-6 w-10 animate-pulse rounded bg-slate-200 text-sm leading-6 text-gray-900"></div>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500">
+                        <div className="h-6 w-10 animate-pulse rounded bg-slate-200 text-sm leading-6 text-gray-900"></div>
+                      </td>
+                    </tr>
+                  )}
+
+                  {!isLoading && entries.length === 0 && (
+                    <tr>
+                      <td className="relative px-7 sm:w-12 sm:px-6"></td>
+                      <td className="text-gray-900 max-w-[5rem] sm:max-w-sm py-4 pr-3 text-sm font-medium"></td>
+                      <td className="break-words px-3 py-4 text-sm text-gray-500">
+                        No data
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500"></td>
+                    </tr>
+                  )}
+
                   {entries.map((entry, index) => (
                     <tr
                       key={index}
