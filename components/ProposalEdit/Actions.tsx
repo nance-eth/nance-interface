@@ -63,6 +63,11 @@ export default function Actions({
               ...action.payload,
               cycleStart: action.governanceCycles?.[0],
               count: action.governanceCycles?.length,
+              // Noted: pollRequired is put to action payload level on frontend,
+              //   while it's on upper level on backend.
+              //   so here we need to inject pollRequired into action payload so it can be
+              //     loaded.
+              pollRequired: action.pollRequired,
             },
           };
         })
