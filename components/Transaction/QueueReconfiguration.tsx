@@ -13,6 +13,7 @@ import { useReconfigurationOfProject } from "@/utils/hooks/juicebox/Reconfigurat
 import parseSafeJuiceboxTx from "@/utils/functions/SafeJuiceboxParser";
 import TransactionCreator from "@/components/Transaction/TransactionCreator";
 import DiffTableWithSection from "../form/DiffTableWithSection";
+import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 
 export default function QueueReconfigurationModal({
   open,
@@ -116,6 +117,19 @@ export default function QueueReconfigurationModal({
                     >
                       Queue Juicebox Cycle
                     </Dialog.Title>
+
+                    <div className="flex h-12 items-center space-x-3 bg-white">
+                      <GenericTenderlySimulationButton
+                        rawAddress={owner}
+                        transactions={[
+                          {
+                            to: controller?.address || "",
+                            value: "0",
+                            data: encodeReconfiguration,
+                          },
+                        ]}
+                      />
+                    </div>
 
                     <DiffTableWithSection
                       space={space}
