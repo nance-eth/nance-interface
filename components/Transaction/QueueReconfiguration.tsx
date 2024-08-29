@@ -118,7 +118,7 @@ export default function QueueReconfigurationModal({
                       Queue Juicebox Cycle
                     </Dialog.Title>
 
-                    <div className="flex h-12 items-center space-x-3 bg-white">
+                    <div className="flex h-12 items-center space-x-3 bg-white sm:ml-3 justify-center sm:justify-start">
                       <GenericTenderlySimulationButton
                         rawAddress={owner}
                         transactions={[

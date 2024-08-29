@@ -76,7 +76,7 @@ export default function DiffTableWithSection({
 
   return (
     <div>
-      <div className="mt-6 overflow-hidden border-t border-gray-100">
+      <div className="mt-4 overflow-hidden border-t border-gray-100">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
             <div className="my-2 flex justify-center">
@@ -113,7 +113,7 @@ export default function DiffTableWithSection({
                       <tr
                         key={entry.id}
                         className={classNames(
-                          hideUnchanged && entry.status === "Keep" && "hidden",
+                          hideUnchanged && entry.status === "Keep" && "hidden"
                         )}
                       >
                         <td className="relative py-5 pr-6">
@@ -148,7 +148,7 @@ export default function DiffTableWithSection({
                           <div
                             className={classNames(
                               StatusStyle[entry.status],
-                              "max-w-[12rem] overflow-x-scroll rounded-md px-2 py-1 text-center text-xs font-medium",
+                              "max-w-[12rem] overflow-x-scroll rounded-md px-2 py-1 text-center text-xs font-medium"
                             )}
                           >
                             {entry.newVal || "---"}
