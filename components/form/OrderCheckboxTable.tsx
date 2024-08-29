@@ -46,12 +46,12 @@ export default function OrderCheckboxTable({
 
   return (
     <div className="px-2 sm:px-4 lg:px-6">
-      <div className="mt-8 flow-root">
+      <div className="mt-2 flow-root">
         <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="relative">
+            <div className="">
               {selectedEntry.length > 0 && (
-                <div className="absolute left-14 top-0 flex h-12 items-center space-x-3 bg-white sm:left-12">
+                <div className="flex ml-6 sm:ml-3 h-12 items-center space-x-3 bg-white">
                   <GenericTenderlySimulationButton
                     rawAddress={address}
                     transactions={selectedEntry.map((e) => e.transactionData)}
