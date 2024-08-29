@@ -24,6 +24,7 @@ import {
 } from "@/utils/functions/GovernanceCycle";
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
+import { extractFunctionName } from "@/utils/functions/nance";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -32,8 +33,6 @@ export default function CustomTransactionActionForm({
   genFieldName: (field: string) => any;
   projectOwner: string | undefined;
 }) {
-  // FIXME: functionFragment and input is empty when loaded from proposal
-  const [functionFragment, setFunctionFragment] = useState<FunctionFragment>();
   const [functionData, setFunctionData] = useState<string>();
 
   const spaceInfo = useContext(SpaceContext);
@@ -52,6 +51,18 @@ export default function CustomTransactionActionForm({
     setValue,
   } = useFormContext();
   const { replace, fields } = useFieldArray({ name: genFieldName("args") });
+
+  const functionName: string = getValues(genFieldName("functionName"));
+  let fragmentFromName = undefined;
+  try {
+    const _i = new Interface([functionName]);
+    fragmentFromName = _i.getFunction(extractFunctionName(functionName));
+  } catch (e) {
+    console.warn("fragmentFromName.parseError", e);
+  }
+  const [functionFragment, setFunctionFragment] = useState<
+    FunctionFragment | undefined
+  >(fragmentFromName);
 
   const args = functionFragment?.inputs?.map((param, index) =>
     getValues(genFieldName(`args.${index}.value`))
@@ -108,13 +119,6 @@ export default function CustomTransactionActionForm({
       console.debug("latestTransaction", latestTransaction);
     }
   }, [latestTransaction, setValue]);
-
-  // update address if project owner changed
-  useEffect(() => {
-    if (address !== projectOwner) {
-      setAddress(projectOwner);
-    }
-  }, [projectOwner, setAddress]);
 
   const onSimulated = useCallback(
     (

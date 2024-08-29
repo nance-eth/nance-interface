@@ -206,6 +206,7 @@ export default function Actions({
               <SafeInjectProvider
                 defaultAddress={projectOwner}
                 chainId={getChainIdFromName(spaceChainName)}
+                key={projectOwner}
               >
                 <CustomTransactionActionForm
                   genFieldName={genFieldName(index)}
