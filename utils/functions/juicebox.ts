@@ -471,36 +471,25 @@ export function comparePayouts(
         newConfig.fundingCycle.target
       );
 
+      const newEntry = {
+        ...entry,
+        newVal:
+          formattedSplit(
+            newSplit.percent || BIG_ZERO,
+            newConfig.fundingCycle.currency,
+            newConfig.fundingCycle.target,
+            newConfig.version
+          ) || "",
+        amount: calculateSplitAmount(
+          newSplit.percent,
+          newConfig.fundingCycle.target
+        ),
+      };
+
       if (equal) {
-        diff.keep[key] = {
-          ...entry,
-          newVal:
-            formattedSplit(
-              split.percent || BIG_ZERO,
-              config.fundingCycle.currency,
-              config.fundingCycle.target,
-              config.version
-            ) || "",
-          amount: calculateSplitAmount(
-            split.percent,
-            config.fundingCycle.target
-          ),
-        };
+        diff.keep[key] = newEntry;
       } else {
-        diff.change[key] = {
-          ...entry,
-          newVal:
-            formattedSplit(
-              newSplit.percent || BIG_ZERO,
-              newConfig.fundingCycle.currency,
-              newConfig.fundingCycle.target,
-              newConfig.version
-            ) || "",
-          amount: calculateSplitAmount(
-            newSplit.percent,
-            newConfig.fundingCycle.target
-          ),
-        };
+        diff.change[key] = newEntry;
       }
     } else {
       // expire
