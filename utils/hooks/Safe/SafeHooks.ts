@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { SafeBalanceUsdResponse, SafeInfoResponse } from "@/models/SafeTypes";
 import { useEffect, useState } from "react";
-import { useAccount, useGasPrice, useWalletClient } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import Safe, {
   EthSafeSignature,
   SafeTransactionOptionalProps,
@@ -9,7 +9,6 @@ import Safe, {
 import {
   MetaTransactionData,
   SafeSignature,
-  SafeTransaction,
 } from "@safe-global/safe-core-sdk-types";
 import {
   safeNetworkAPI,
@@ -141,6 +140,19 @@ function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
   return new EthSafeSignature(ownerAddress, signature);
 }
 
+function calculateBaseGas(signatureLength: number) {
+  // based on https://help.safe.global/en/articles/40828-gas-estimation
+  const baseTxGas = 21000;
+  // Each non-zero byte costs 16 gas and each zero byte 4 gas.
+  // const dataGas =
+  //   10 *
+  //   toBytes(data).reduce((sum, current) => (sum += current === 0 ? 4 : 16), 0);
+  const signatureCheckGas = 7000 * signatureLength;
+  const refundGas = 22000;
+
+  return baseTxGas + signatureCheckGas + refundGas;
+}
+
 export function useCreateTransactionForSimulation(
   safeAddress: string,
   safeTransactionData: MetaTransactionData[],
@@ -155,11 +167,6 @@ export function useCreateTransactionForSimulation(
   const { data: safeInfo } = useSafeInfo(safeAddress, !!safeAddress);
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
 
-  const options: SafeTransactionOptionalProps = {
-    gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-    baseGas: "65000", // to cover gas cost for operations other than execute, like signature check
-  };
-
   useEffect(() => {
     if (!safe) {
       setError(safeError || "Not connected to wallet or safe not found.");
@@ -169,6 +176,11 @@ export function useCreateTransactionForSimulation(
     setLoading(true);
     setError(undefined);
     setEncodedTransaction(undefined);
+
+    const options: SafeTransactionOptionalProps = {
+      gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+      baseGas: calculateBaseGas(1).toString(), // to cover gas cost for operations other than execute, like signature check
+    };
 
     safe
       .createTransaction({
@@ -208,6 +220,7 @@ export function useQueueTransaction(
   const { address } = useAccount();
   const { value: safeApiKit } = useSafeAPIKit();
   const { value: safe } = useSafe(safeAddress);
+  const { data: safeInfo } = useSafeInfo(safeAddress, !!safeAddress);
 
   const trigger = async () => {
     if (!safe || !walletClient || !safeApiKit || !address) {
@@ -222,7 +235,7 @@ export function useQueueTransaction(
     const options: SafeTransactionOptionalProps = {
       nonce, // Optional
       gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-      // safeTxGas will be max tx gas can be used, should we set this?
+      baseGas: calculateBaseGas(safeInfo?.threshold || 1).toString(), // to cover gas cost for operations other than execute, like signature check
     };
 
     try {
