@@ -5,43 +5,12 @@ import {
 } from "@/utils/hooks/TenderlyHooks";
 import { useEffect, useState } from "react";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
-import { encodeFunctionData, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 import useChainConfigOfSpace from "@/utils/hooks/ChainOfSpace";
 import {
-  useCreateTransaction,
+  useCreateTransactionForSimulation,
   useSafeInfo,
 } from "@/utils/hooks/Safe/SafeHooks";
-
-const SafeExecTransactionAbi = [
-  {
-    constant: false,
-    inputs: [
-      { internalType: "address", name: "to", type: "address" },
-      { internalType: "uint256", name: "value", type: "uint256" },
-      { internalType: "bytes", name: "data", type: "bytes" },
-      {
-        internalType: "enum Enum.Operation",
-        name: "operation",
-        type: "uint8",
-      },
-      { internalType: "uint256", name: "safeTxGas", type: "uint256" },
-      { internalType: "uint256", name: "baseGas", type: "uint256" },
-      { internalType: "uint256", name: "gasPrice", type: "uint256" },
-      { internalType: "address", name: "gasToken", type: "address" },
-      {
-        internalType: "address payable",
-        name: "refundReceiver",
-        type: "address",
-      },
-      { internalType: "bytes", name: "signatures", type: "bytes" },
-    ],
-    name: "execTransaction",
-    outputs: [{ internalType: "bool", name: "success", type: "bool" }],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-] as const;
 
 export default function SafeTenderlySimulationButton({
   address,
@@ -60,30 +29,11 @@ export default function SafeTenderlySimulationButton({
   const chain = useChainConfigOfSpace();
   const { data: safeInfo } = useSafeInfo(address, !!address);
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
-  const { value: safeTransaction, gasPrice } = useCreateTransaction(
+  const { encodedTransaction, error } = useCreateTransactionForSimulation(
     address,
     transactions,
     true
   );
-
-  const functionData = encodeFunctionData({
-    abi: SafeExecTransactionAbi,
-    functionName: "execTransaction",
-    args: [
-      safeTransaction?.data.to || zeroAddress, // to
-      BigInt(safeTransaction?.data.value || "0"), // value
-      safeTransaction?.data.data || "0x", //data
-      safeTransaction?.data.operation || (transactions.length > 1 ? 1 : 0), //operation
-      BigInt(safeTransaction?.data.safeTxGas || 0), //safeTxGas
-      BigInt(safeTransaction?.data.baseGas || 0), //baseGas
-      BigInt(safeTransaction?.data.gasPrice || 0), // gasPrice
-      safeTransaction?.data.gasToken || zeroAddress, // gasToken
-      safeTransaction?.data.refundReceiver || zeroAddress, // refundReceiver
-      `0x000000000000000000000000${
-        firstOwnerAddress.split("0x")[1]
-      }000000000000000000000000000000000000000000000000000000000000000001`, // include signature
-    ],
-  });
 
   const state_objects: { [contract: string]: any } = {};
   // override Safe slot 4 to be value 0x01,
@@ -99,9 +49,9 @@ export default function SafeTenderlySimulationButton({
     from: firstOwnerAddress,
     to: address || "",
     value: "0",
-    input: functionData,
+    input: encodedTransaction || "",
     networkId: chain.id.toString(),
-    gasPrice: gasPrice?.toString(),
+    gasPrice: "100000000", // 0.1 Gwei
     state_objects,
   };
 

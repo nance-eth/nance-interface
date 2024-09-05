@@ -13,6 +13,7 @@ import {
   ArrowTopRightOnSquareIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect } from "react";
+import { useAccount } from "wagmi";
 
 export default function TenderlySimulationButton({
   simulationArgs,
@@ -28,6 +29,7 @@ export default function TenderlySimulationButton({
     shouldSimulate: boolean
   ) => void;
 }) {
+  const { address } = useAccount();
   const { data, isLoading, error, mutate } = useTenderlySimulate(
     simulationArgs,
     shouldSimulate
@@ -61,9 +63,10 @@ export default function TenderlySimulationButton({
       <button
         type="button"
         className={classNames(
-          "relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300",
+          "relative inline-flex items-center gap-x-1.5 rounded-l-md disabled:opacity-50 bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300",
           shouldSimulate ? "" : "hover:bg-gray-50 focus:z-10"
         )}
+        disabled={!address}
         onClick={() => {
           if (shouldSimulate) {
             // revalidate
@@ -73,7 +76,7 @@ export default function TenderlySimulationButton({
           }
         }}
       >
-        Simulate
+        {address ? "Simulate" : "Wallet not connected"}
       </button>
       <div className="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300">
         {shouldSimulate ? (

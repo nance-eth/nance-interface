@@ -2,9 +2,13 @@ import useSWR from "swr";
 import { SafeBalanceUsdResponse, SafeInfoResponse } from "@/models/SafeTypes";
 import { useEffect, useState } from "react";
 import { useAccount, useGasPrice, useWalletClient } from "wagmi";
-import Safe, { SafeTransactionOptionalProps } from "@safe-global/protocol-kit";
+import Safe, {
+  EthSafeSignature,
+  SafeTransactionOptionalProps,
+} from "@safe-global/protocol-kit";
 import {
   MetaTransactionData,
+  SafeSignature,
   SafeTransaction,
 } from "@safe-global/safe-core-sdk-types";
 import {
@@ -22,7 +26,7 @@ import {
   fetchSafeWithAddress,
   basicFetcher,
 } from "./SafeFetchers";
-import useChainConfigOfSpace from "../ChainOfSpace";
+import { zeroAddress } from "viem";
 
 export function useMultisigTransactionOf(
   address: string,
@@ -104,7 +108,12 @@ export function useSafe(safeAddress: string) {
   const { address } = useAccount();
 
   useEffect(() => {
-    if (!address || !safeAddress) {
+    if (!address) {
+      setError("no wallet connected");
+      return;
+    }
+    if (!safeAddress) {
+      setError("safeAddress can't be empty");
       return;
     }
 
@@ -120,35 +129,46 @@ export function useSafe(safeAddress: string) {
   return { value, loading: !value, error };
 }
 
-export function useCreateTransaction(
+const MAX_REFUND_GAS_PRICE = "60000000000"; // 60 Gwei
+
+function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
+  const signature =
+    "0x000000000000000000000000" +
+    ownerAddress.slice(2) +
+    "0000000000000000000000000000000000000000000000000000000000000000" +
+    "01";
+
+  return new EthSafeSignature(ownerAddress, signature);
+}
+
+export function useCreateTransactionForSimulation(
   safeAddress: string,
   safeTransactionData: MetaTransactionData[],
   refundGas: boolean = true
 ) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const [value, setValue] = useState<SafeTransaction>();
+  //const [safeTransaction, setSafeTransaction] = useState<SafeTransaction>();
+  const [encodedTransaction, setEncodedTransaction] = useState<string>();
 
-  const { value: safe } = useSafe(safeAddress);
-
-  const chain: any = useChainConfigOfSpace();
-  const { data: gasPrice } = useGasPrice({
-    chainId: chain.id,
-    query: { refetchInterval: 10000 }, // refetch every 10s
-  });
+  const { value: safe, error: safeError } = useSafe(safeAddress);
+  const { data: safeInfo } = useSafeInfo(safeAddress, !!safeAddress);
+  const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
 
   const options: SafeTransactionOptionalProps = {
-    gasPrice: refundGas ? gasPrice?.toString() || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-    // safeTxGas will be max tx gas can be used, should we set this?
+    gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+    baseGas: "65000", // to cover gas cost for operations other than execute, like signature check
   };
 
   useEffect(() => {
     if (!safe) {
-      setError("Not connected to wallet or safe not found.");
+      setError(safeError || "Not connected to wallet or safe not found.");
       return;
     }
 
     setLoading(true);
+    setError(undefined);
+    setEncodedTransaction(undefined);
 
     safe
       .createTransaction({
@@ -156,16 +176,21 @@ export function useCreateTransaction(
         options,
         onlyCalls: true,
       })
-      .then((safeTransaction) => setValue(safeTransaction))
+      .then((safeTransaction) => {
+        safeTransaction.addSignature(
+          generatePreValidatedSignature(firstOwnerAddress)
+        );
+        return safe.getEncodedTransaction(safeTransaction);
+      })
+      .then((encoded) => setEncodedTransaction(encoded))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
   }, [safe, safeTransactionData]);
 
   return {
-    value,
+    encodedTransaction,
     error,
     loading,
-    gasPrice,
   };
 }
 
@@ -183,10 +208,6 @@ export function useQueueTransaction(
   const { address } = useAccount();
   const { value: safeApiKit } = useSafeAPIKit();
   const { value: safe } = useSafe(safeAddress);
-  const chain = useChainConfigOfSpace();
-  const { refetch } = useGasPrice({
-    chainId: chain.id,
-  });
 
   const trigger = async () => {
     if (!safe || !walletClient || !safeApiKit || !address) {
@@ -196,11 +217,11 @@ export function useQueueTransaction(
 
     setLoading(true);
     setError(undefined);
+    setValue(undefined);
 
-    const { data: gasPrice } = await refetch(); // get newest gasPrice
     const options: SafeTransactionOptionalProps = {
       nonce, // Optional
-      gasPrice: refundGas ? gasPrice?.toString() || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+      gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
       // safeTxGas will be max tx gas can be used, should we set this?
     };
 
