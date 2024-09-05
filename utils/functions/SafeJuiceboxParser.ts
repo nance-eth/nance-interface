@@ -293,6 +293,12 @@ export default function parseSafeJuiceboxTx(
 
     const txDate =
       getUnixTime(new Date(submissionDate)) || getUnixTime(new Date());
+    const payoutMods = _groupedSplits.find(
+      (s) => Number(s.group) == JBConstants.SplitGroup.ETH
+    )?.splits;
+    const ticketMods = _groupedSplits.find(
+      (s) => Number(s.group) == JBConstants.SplitGroup.RESERVED_TOKEN
+    )?.splits;
     const newConfig: FundingCycleConfigProps = {
       version: 3,
       fundingCycle: {
@@ -303,14 +309,8 @@ export default function parseSafeJuiceboxTx(
         target: fac?.distributionLimit || BigInt(0),
       },
       metadata: _metadata,
-      payoutMods:
-        _groupedSplits.find(
-          (s) => Number(s.group) == JBConstants.SplitGroup.ETH
-        )?.splits ?? [],
-      ticketMods:
-        _groupedSplits.find(
-          (s) => Number(s.group) == JBConstants.SplitGroup.RESERVED_TOKEN
-        )?.splits ?? [],
+      payoutMods: [...(payoutMods || [])],
+      ticketMods: [...(ticketMods || [])],
     };
     return newConfig;
   } catch (e) {
