@@ -22,13 +22,11 @@ export default function QueueReconfigurationModal({
   setOpen,
   juiceboxProjectId,
   space,
-  currentCycle,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
   juiceboxProjectId: number;
   space: string;
-  currentCycle: number | undefined;
 }) {
   const cancelButtonRef = useRef(null);
 
@@ -39,10 +37,12 @@ export default function QueueReconfigurationModal({
     projectId
   );
   const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : "";
-  const { value: controller } = useControllerOfProject(projectId);
+  const { value: controller, loading: controllerIsLoading } =
+    useControllerOfProject(projectId);
   const { value: currentConfig, loading: configIsLoading } =
     useReconfigurationOfProject(projectId);
-  const { data: newConfigResponse } = useReconfig(space);
+  const { data: newConfigResponse, isLoading: reconfigIsLoading } =
+    useReconfig(space);
 
   const encodeReconfiguration = newConfigResponse?.data.encoded || "";
   const newConfig = parseSafeJuiceboxTx(
@@ -51,11 +51,6 @@ export default function QueueReconfigurationModal({
     currentConfig.fundingCycle.fee,
     BigNumber.from(Math.floor(Date.now() / 1000))
   );
-
-  // Get registered payouts
-  const previousCycle = currentCycle
-    ? (currentCycle - 1).toString()
-    : undefined;
 
   // Splits with changes
   const payoutsDiff = comparePayouts(
@@ -70,7 +65,11 @@ export default function QueueReconfigurationModal({
     newConfig?.ticketMods || []
   );
 
-  const loading = infoIsLoading || configIsLoading;
+  const loading =
+    infoIsLoading ||
+    controllerIsLoading ||
+    configIsLoading ||
+    reconfigIsLoading;
 
   const tableData = calcDiffTableData(
     currentConfig,
