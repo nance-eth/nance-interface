@@ -25,7 +25,7 @@ import {
   fetchSafeWithAddress,
   basicFetcher,
 } from "./SafeFetchers";
-import { zeroAddress } from "viem";
+import { toBytes, zeroAddress } from "viem";
 
 export function useMultisigTransactionOf(
   address: string,
@@ -140,17 +140,15 @@ function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
   return new EthSafeSignature(ownerAddress, signature);
 }
 
-function calculateBaseGas(signatureLength: number) {
+function calculateBaseGas(signatureLength: number, data: string = "") {
   // based on https://help.safe.global/en/articles/40828-gas-estimation
   const baseTxGas = 21000;
-  // Each non-zero byte costs 16 gas and each zero byte 4 gas.
-  // const dataGas =
-  //   10 *
-  //   toBytes(data).reduce((sum, current) => (sum += current === 0 ? 4 : 16), 0);
+  //Each non-zero byte costs 16 gas and each zero byte 4 gas.
+  const dataGas = toBytes(data).length * 4;
   const signatureCheckGas = 7000 * signatureLength;
   const refundGas = 22000;
 
-  return baseTxGas + signatureCheckGas + refundGas;
+  return baseTxGas + dataGas + signatureCheckGas + refundGas;
 }
 
 export function useCreateTransactionForSimulation(
@@ -179,7 +177,12 @@ export function useCreateTransactionForSimulation(
 
     const options: SafeTransactionOptionalProps = {
       gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-      baseGas: calculateBaseGas(1).toString(), // to cover gas cost for operations other than execute, like signature check
+      baseGas: calculateBaseGas(
+        1,
+        safeTransactionData
+          .map((d) => d.data)
+          .reduce((sum, current) => sum + current, "")
+      ).toString(), // to cover gas cost for operations other than execute, like signature check
     };
 
     safe
@@ -235,7 +238,12 @@ export function useQueueTransaction(
     const options: SafeTransactionOptionalProps = {
       nonce, // Optional
       gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-      baseGas: calculateBaseGas(safeInfo?.threshold || 1).toString(), // to cover gas cost for operations other than execute, like signature check
+      baseGas: calculateBaseGas(
+        safeInfo?.threshold || 1,
+        safeTransactionData
+          .map((d) => d.data)
+          .reduce((sum, current) => sum + current, "")
+      ).toString(), // to cover gas cost for operations other than execute, like signature check
     };
 
     try {
