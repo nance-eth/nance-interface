@@ -11,7 +11,9 @@ import useControllerOfProject from "@/utils/hooks/juicebox/ControllerOfProject";
 import useProjectInfo from "@/utils/hooks/juicebox/ProjectInfo";
 import { useReconfigurationOfProject } from "@/utils/hooks/juicebox/ReconfigurationOfProject";
 import parseSafeJuiceboxTx from "@/utils/functions/SafeJuiceboxParser";
-import TransactionCreator from "@/components/Transaction/TransactionCreator";
+import TransactionCreator, {
+  GenericTransactionData,
+} from "@/components/Transaction/TransactionCreator";
 import DiffTableWithSection from "../form/DiffTableWithSection";
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 
@@ -77,6 +79,12 @@ export default function QueueReconfigurationModal({
     reservesDiff
   );
 
+  const reconfigTx: GenericTransactionData = {
+    to: controller?.address || "",
+    value: "0",
+    data: encodeReconfiguration,
+  };
+
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -121,13 +129,7 @@ export default function QueueReconfigurationModal({
                     <div className="flex h-12 items-center space-x-3 bg-white sm:ml-3 justify-center sm:justify-start">
                       <GenericTenderlySimulationButton
                         rawAddress={owner}
-                        transactions={[
-                          {
-                            to: controller?.address || "",
-                            value: "0",
-                            data: encodeReconfiguration,
-                          },
-                        ]}
+                        transactions={[reconfigTx]}
                       />
                     </div>
 
@@ -142,13 +144,7 @@ export default function QueueReconfigurationModal({
                   <div className="sm:ml-3 sm:w-auto">
                     <TransactionCreator
                       address={owner}
-                      transactions={[
-                        {
-                          to: controller?.address || "",
-                          value: "0",
-                          data: encodeReconfiguration,
-                        },
-                      ]}
+                      transactions={[reconfigTx]}
                     />
                   </div>
 
