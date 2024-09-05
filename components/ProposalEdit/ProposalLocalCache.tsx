@@ -48,11 +48,14 @@ export default function ProposalLocalCache({
   clearProposalCache: () => void;
   restoreProposalCache: (t: string, b: string) => void;
 }) {
+  const isCacheEmpty =
+    proposalCache === undefined || proposalCache.timestamp === 0;
+
   return (
     <div
       className={classNames(
         "text-xs text-gray-400 mb-1 flex flex-row space-x-2",
-        proposalCache ? "flex" : "invisible"
+        !isCacheEmpty ? "flex" : "hidden"
       )}
     >
       <div>
