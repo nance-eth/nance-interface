@@ -33,7 +33,7 @@ import MiddleStepModal from "../modal/MiddleStepModal";
 import Actions from "./Actions";
 import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "@/utils/hooks/LocalStorage";
-import { formatDistance, fromUnixTime, getUnixTime } from "date-fns";
+import { getUnixTime } from "date-fns";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 import {
   NANCE_DEFAULT_IPFS_GATEWAY,
@@ -106,6 +106,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const [formDataPayload, setFormDataPayload] = useState<ProposalFormValues>();
   const [authorDiscordId, setAuthorDiscordId] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<Error>();
 
   // hooks
   const { address } = useAccount();
@@ -139,37 +140,41 @@ export default function ProposalEditForm({ space }: { space: string }) {
     methods;
 
   const onSubmit: SubmitHandler<ProposalFormValues> = async (formData) => {
-    // check if actions all passed simulation
-    const _allSimulated =
-      getValues("proposal.actions")?.filter(
-        (a) =>
-          a.type === "Custom Transaction" &&
-          (a.payload as ICustomTransaction).tenderlyStatus !== "true"
-      ).length === 0;
+    try {
+      // check if actions all passed simulation
+      const _allSimulated =
+        getValues("proposal.actions")?.filter(
+          (a) =>
+            a.type === "Custom Transaction" &&
+            (a.payload as ICustomTransaction).tenderlyStatus !== "true"
+        ).length === 0;
 
-    if (
-      formData.proposal.body.toLowerCase().includes("pay" || "send") &&
-      formData.proposal?.actions?.length === 0
-    ) {
-      setMiddleStepInfo({
-        title: "Did you forget to add an action?",
-        description:
-          "You mention doing something but didn't attach an action. Consider adding one!",
-        warning: true,
-      });
-      setFormDataPayload(formData);
-      return;
-    }
+      if (
+        formData.proposal.body.toLowerCase().includes("pay" || "send") &&
+        formData.proposal?.actions?.length === 0
+      ) {
+        setMiddleStepInfo({
+          title: "Did you forget to add an action?",
+          description:
+            "You mention doing something but didn't attach an action. Consider adding one!",
+          warning: true,
+        });
+        setFormDataPayload(formData);
+        return;
+      }
 
-    if (_allSimulated) {
-      return await processAndUploadProposal(formData);
-    } else {
-      setFormDataPayload(formData);
-      setMiddleStepInfo({
-        title: "Submit will fail, please check the following",
-        description:
-          "You have some transactions may failed based on simulations.\n",
-      });
+      if (_allSimulated) {
+        return await processAndUploadProposal(formData);
+      } else {
+        setFormDataPayload(formData);
+        setMiddleStepInfo({
+          title: "Submit will fail, please check the following",
+          description:
+            "You have some transactions may failed based on simulations.\n",
+        });
+      }
+    } catch (e) {
+      setSubmitError(e as Error);
     }
   };
   const processAndUploadProposal: SubmitHandler<ProposalFormValues> = async (
@@ -218,7 +223,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
           : (selected.value as ProposalStatusType),
     };
 
-    if (!address || !spaceInfo?.snapshotSpace) return;
+    if (!address) {
+      throw new Error("Please connect the wallet first.");
+    }
+    if (!spaceInfo?.snapshotSpace) {
+      throw new Error(
+        "Please contact support to configure snapshotSpace for this space."
+      );
+    }
     // ===== SIGNATURE BASED AUTHENTICATION =====
     // const message = formatSnapshotProposalMessage(address, proposal, spaceInfo.snapshotSpace, new Date(), new Date());
     // signTypedDataAsync({
@@ -259,7 +271,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   };
 
   // shortcut
-  const error = uploadError;
+  const error = uploadError || submitError;
 
   useEffect(() => {
     if (formState.errors && Object.keys(formState.errors).length > 0) {
@@ -283,10 +295,16 @@ export default function ProposalEditForm({ space }: { space: string }) {
           title="Error"
           description={error.error_description || error.message || error}
           buttonText="Close"
-          onClick={reset}
+          onClick={() => {
+            reset();
+            setSubmitError(undefined);
+          }}
           isSuccessful={false}
           shouldOpen={true}
-          close={reset}
+          close={() => {
+            reset();
+            setSubmitError(undefined);
+          }}
         />
       )}
 
