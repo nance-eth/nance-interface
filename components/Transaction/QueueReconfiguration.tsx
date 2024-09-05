@@ -8,7 +8,6 @@ import {
   comparePayouts,
 } from "@/utils/functions/juicebox";
 import useControllerOfProject from "@/utils/hooks/juicebox/ControllerOfProject";
-import useProjectInfo from "@/utils/hooks/juicebox/ProjectInfo";
 import { useReconfigurationOfProject } from "@/utils/hooks/juicebox/ReconfigurationOfProject";
 import parseSafeJuiceboxTx from "@/utils/functions/SafeJuiceboxParser";
 import TransactionCreator, {
@@ -22,21 +21,19 @@ export default function QueueReconfigurationModal({
   setOpen,
   juiceboxProjectId,
   space,
+  transactorAddress,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
   juiceboxProjectId: number;
   space: string;
+  transactorAddress?: string;
 }) {
   const cancelButtonRef = useRef(null);
 
   // Get configuration of current fundingCycle
   const projectId = juiceboxProjectId;
-  const { data: projectInfo, loading: infoIsLoading } = useProjectInfo(
-    3,
-    projectId
-  );
-  const owner = projectInfo?.owner ? utils.getAddress(projectInfo.owner) : "";
+  const owner = transactorAddress ? utils.getAddress(transactorAddress) : "";
   const { value: controller, loading: controllerIsLoading } =
     useControllerOfProject(projectId);
   const { value: currentConfig, loading: configIsLoading } =
@@ -65,11 +62,7 @@ export default function QueueReconfigurationModal({
     newConfig?.ticketMods || []
   );
 
-  const loading =
-    infoIsLoading ||
-    controllerIsLoading ||
-    configIsLoading ||
-    reconfigIsLoading;
+  const loading = controllerIsLoading || configIsLoading || reconfigIsLoading;
 
   const tableData = calcDiffTableData(
     currentConfig,
