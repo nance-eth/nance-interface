@@ -5,8 +5,16 @@ import memCache from "graphql-hooks-memcache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, http, fallback, useAccount, createConfig } from "wagmi";
-import { connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet } from "@rainbow-me/rainbowkit/wallets";
+import {
+  connectorsForWallets,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
+import {
+  rainbowWallet,
+  walletConnectWallet,
+  safeWallet,
+  coinbaseWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import { gnosis, goerli, mainnet, optimism } from "wagmi/chains";
 
 import { NextQueryParamProvider } from "next-query-params";
@@ -44,7 +52,7 @@ const theme = {
 const connectors = connectorsForWallets(
   [
     {
-      groupName: 'Recommended',
+      groupName: "Recommended",
       wallets: [rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet],
     },
   ],
@@ -59,17 +67,21 @@ const wagmiConfig = createConfig({
   chains: customChains as any,
   transports: {
     [mainnet.id]: fallback([
-      http("https://eth.llamarpc.com"),
-      http(`https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
+      http(
+        `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+      ),
+      //http("https://eth.llamarpc.com"),
     ]),
     [optimism.id]: fallback([
-      http("https://rpc.ankr.com/optimism"),
-      http(`https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
+      http(
+        `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+      ),
+      //http("https://rpc.ankr.com/optimism"),
     ]),
     [gnosis.id]: http("https://rpc.ankr.com/gnosis"),
     [goerli.id]: fallback([
-      http("https://rpc.ankr.com/eth_goerli"),
       http(`https://goerli.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
+      //http("https://rpc.ankr.com/eth_goerli"),
     ]),
   },
 });
