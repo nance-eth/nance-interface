@@ -1,184 +1,104 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import { constants } from 'ethers';
-
-export type PayoutModV1 = {
-    preferUnstaked: boolean;
-    percent: number;
-    lockedUntil: number;
-    beneficiary: string;
-    allocator: string;
-    projectId: BigNumber;
-};
-
-export type TicketModV1 = {
-    preferUnstaked: boolean;
-    percent: number;
-    lockedUntil: number;
-    beneficiary: string;
-};
-
-export type FundingCycleV1 = {
-    id: BigNumber;
-    projectId: BigNumber;
-    number: BigNumber;
-    basedOn: BigNumber;
-    configured: BigNumber;
-    cycleLimit: BigNumber;
-    weight: BigNumber;
-    ballot: string;
-    start: BigNumber;
-    duration: BigNumber;
-    target: BigNumber;
-    currency: BigNumber;
-    fee: BigNumber;
-    discountRate: BigNumber;
-    tapped: BigNumber;
-    metadata: BigNumber;
-};
-
-export type FundingCycleMetadataV0 = {
-    version: 0
-    bondingCurveRate: number
-    reconfigurationBondingCurveRate: number
-    reservedRate: number
-    payIsPaused: null
-    ticketPrintingIsAllowed: null
-    treasuryExtension: null
-}
-  
-export type FundingCycleMetadataV1 = {
-    version: 1
-    bondingCurveRate: number
-    reconfigurationBondingCurveRate: number
-    reservedRate: number
-    payIsPaused: boolean
-    ticketPrintingIsAllowed: boolean
-    treasuryExtension: string
-}
-
-export type V1FundingCycleMetadata =
-  | FundingCycleMetadataV0
-  | FundingCycleMetadataV1
-
-function hexToBytes(hex: string) {
-  for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-  return bytes;
-}
-
-export function parseV1Metadata(raw: BigNumber): V1FundingCycleMetadata | undefined {
-  if(!raw) return;
-  const bytes = hexToBytes(raw.toHexString()).reverse();
-  let ret: V1FundingCycleMetadata = {
-    version: bytes[0] as any,
-    reservedRate: bytes[1],
-    bondingCurveRate: bytes[2],
-    reconfigurationBondingCurveRate: bytes[3],
-    payIsPaused: bytes[0] == 1 && !!bytes[4],
-    ticketPrintingIsAllowed: bytes[0] == 1 && !!bytes[5],
-    treasuryExtension: ''
-  };
-  return ret;
-}
+import { BigNumber } from "ethers";
+import { hexToBigInt } from "viem";
 
 // === V2 ===
 
 enum V2SplitGroup {
-    ETH = 1,
-    RESERVED_TOKEN = 2
+  ETH = 1,
+  RESERVED_TOKEN = 2,
 }
 
 export type JBGroupedSplits = {
-    group: BigNumber;
-    splits: JBSplit[];
-  }
+  group: bigint;
+  splits: JBSplit[];
+};
 
 export type JBSplit = {
-    preferClaimed: boolean;
-    preferAddToBalance: boolean;
-    percent: BigNumber;
-    lockedUntil: BigNumber;
-    beneficiary: string;
-    projectId: BigNumber;
-    allocator: string | undefined // address, If an allocator is specified, funds will be sent to the allocator contract along with the projectId, beneficiary, preferClaimed properties.
-}
+  preferClaimed: boolean;
+  preferAddToBalance: boolean;
+  percent: bigint;
+  lockedUntil: bigint;
+  beneficiary: string;
+  projectId: bigint;
+  allocator: string | undefined; // address, If an allocator is specified, funds will be sent to the allocator contract along with the projectId, beneficiary, preferClaimed properties.
+};
 
 export type JBFundingCycleData = {
-  duration: BigNumber;
-  weight: BigNumber;
-  discountRate: BigNumber;
+  duration: bigint;
+  weight: bigint;
+  discountRate: bigint;
   ballot: string;
-}
+};
 
 export type JBFundAccessConstraints = {
-    terminal: string;
-    token: string;
-    distributionLimit: BigNumber;
-    distributionLimitCurrency: BigNumber;
-    overflowAllowance: BigNumber;
-    overflowAllowanceCurrency: BigNumber;
-}
+  terminal: string;
+  token: string;
+  distributionLimit: bigint;
+  distributionLimitCurrency: bigint;
+  overflowAllowance: bigint;
+  overflowAllowanceCurrency: bigint;
+};
 
 export type V2V3FundingCycleData = {
-    duration: BigNumber
-    weight: BigNumber
-    discountRate: BigNumber
-    ballot: string // hex, contract address
-}
+  duration: bigint;
+  weight: bigint;
+  discountRate: bigint;
+  ballot: string; // hex, contract address
+};
 
 export type V2V3FundingCycle = V2V3FundingCycleData & {
-    number: BigNumber
-    configuration: BigNumber
-    basedOn: BigNumber
-    start: BigNumber
-    metadata: BigNumber // encoded FundingCycleMetadata
-}
+  number: bigint;
+  configuration: bigint;
+  basedOn: bigint;
+  start: bigint;
+  metadata: bigint; // encoded FundingCycleMetadata
+};
 
 export type BaseV2V3FundingCycleMetadata = {
-    version?: number
-    reservedRate: BigNumber
-    redemptionRate: BigNumber
-    ballotRedemptionRate: BigNumber
-    pausePay: boolean
-    pauseDistributions: boolean
-    pauseRedeem: boolean
-    pauseBurn: boolean
-    allowMinting: boolean
-    allowTerminalMigration: boolean
-    allowControllerMigration: boolean
-    holdFees: boolean
-    useTotalOverflowForRedemptions: boolean
-    useDataSourceForPay: boolean
-    useDataSourceForRedeem: boolean
-    dataSource: string // hex, contract address
-}
-  
-export type BaseV2V3FundingCycleMetadataGlobal = {
-    allowSetController: boolean
-    allowSetTerminals: boolean
-}
+  version?: number;
+  reservedRate: bigint;
+  redemptionRate: bigint;
+  ballotRedemptionRate: bigint;
+  pausePay: boolean;
+  pauseDistributions: boolean;
+  pauseRedeem: boolean;
+  pauseBurn: boolean;
+  allowMinting: boolean;
+  allowTerminalMigration: boolean;
+  allowControllerMigration: boolean;
+  holdFees: boolean;
+  useTotalOverflowForRedemptions: boolean;
+  useDataSourceForPay: boolean;
+  useDataSourceForRedeem: boolean;
+  dataSource: string; // hex, contract address
+};
 
-export type V2FundingCycleMetadataGlobal = BaseV2V3FundingCycleMetadataGlobal
+export type BaseV2V3FundingCycleMetadataGlobal = {
+  allowSetController: boolean;
+  allowSetTerminals: boolean;
+};
+
+export type V2FundingCycleMetadataGlobal = BaseV2V3FundingCycleMetadataGlobal;
 
 export type V2FundingCycleMetadata = BaseV2V3FundingCycleMetadata & {
-    global: BaseV2V3FundingCycleMetadataGlobal
-    allowChangeToken: boolean
-}
+  global: BaseV2V3FundingCycleMetadataGlobal;
+  allowChangeToken: boolean;
+};
 
 export type V3FundingCycleMetadataGlobal =
   BaseV2V3FundingCycleMetadataGlobal & {
-    pauseTransfers?: boolean
-  }
+    pauseTransfers?: boolean;
+  };
 
 export type V3FundingCycleMetadata = BaseV2V3FundingCycleMetadata & {
-  global: V3FundingCycleMetadataGlobal
-  preferClaimedTokenOverride?: boolean
-  metadata?: BigNumber
-}
+  global: V3FundingCycleMetadataGlobal;
+  preferClaimedTokenOverride?: boolean;
+  metadata?: bigint;
+};
 
 export type V2V3FundingCycleMetadata =
   | V2FundingCycleMetadata
-  | V3FundingCycleMetadata
+  | V3FundingCycleMetadata;
 
 // Generic
 
@@ -190,34 +110,12 @@ export const JBConstants = {
     RedemptionRate: [200, 10000, 10000],
     DiscountRate: [1000, 1000000000, 1000000000],
   },
-  UintMax: BigNumber.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-  DurationUnit: [1, 86400, 86400]
+  UintMax: hexToBigInt(
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  ),
+  DurationUnit: [1, 86400, 86400],
 };
 
-export const ETH_TOKEN_ADDRESS = '0x000000000000000000000000000000000000eeee';
+export const ETH_TOKEN_ADDRESS = "0x000000000000000000000000000000000000eeee";
 export const CURRENCY_ETH = BigNumber.from(1);
 export const CURRENCY_USD = BigNumber.from(2);
-
-export function payoutMod2Split(payoutMod: PayoutModV1): JBSplit {
-  return {
-    preferClaimed: payoutMod.preferUnstaked,
-    preferAddToBalance: false,
-    percent: BigNumber.from(payoutMod.percent),
-    lockedUntil: BigNumber.from(payoutMod.lockedUntil),
-    beneficiary: payoutMod.beneficiary,
-    projectId: payoutMod.projectId,
-    allocator: payoutMod.allocator
-  };
-}
-
-export function ticketMod2Split(ticketMod: TicketModV1): JBSplit {
-  return {
-    preferClaimed: ticketMod.preferUnstaked,
-    preferAddToBalance: true,
-    percent: BigNumber.from(ticketMod.percent),
-    lockedUntil: BigNumber.from(ticketMod.lockedUntil),
-    beneficiary: ticketMod.beneficiary,
-    projectId: BigNumber.from(0),
-    allocator: constants.AddressZero
-  };
-}

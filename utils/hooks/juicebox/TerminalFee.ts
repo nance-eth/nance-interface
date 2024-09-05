@@ -1,13 +1,33 @@
-import { useContractReadValue } from './ContractReadValue';
-import { BigNumber } from '@ethersproject/bignumber';
-import useTerminalOfProject from './TerminalOfProject';
+import useTerminalOfProject from "./TerminalOfProject";
+import { useReadContract } from "wagmi";
+
+const abi = [
+  {
+    inputs: [],
+    name: "fee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
 
 export default function useTerminalFee(projectId: number | undefined) {
-  const { value: terminal } = useTerminalOfProject(projectId);
+  const { data: terminalAddress } = useTerminalOfProject(projectId);
 
-  return useContractReadValue<BigNumber>({
-    contract: terminal,
-    functionName: 'fee',
-    args: undefined
+  const argsNotEnough = terminalAddress === undefined;
+
+  return useReadContract({
+    abi,
+    address: terminalAddress,
+    functionName: "fee",
+    query: {
+      enabled: !argsNotEnough,
+    },
   });
 }

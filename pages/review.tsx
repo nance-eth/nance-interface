@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { useState } from "react";
 import { Footer, SiteNav } from "@/components/Site";
 import {
@@ -122,25 +122,25 @@ function Compare({
   const newConfig = parseSafeJuiceboxTx(
     tx.data || "",
     tx?.submissionDate || "",
-    currentConfig.fundingCycle.fee || BigNumber.from(0),
-    currentConfig.fundingCycle.configuration || BigNumber.from(0),
+    currentConfig.fundingCycle.fee || BigInt(0),
+    currentConfig.fundingCycle.configuration || BigInt(0)
   );
 
   const payoutsDiff = comparePayouts(
     currentConfig,
     newConfig,
     currentConfig.payoutMods,
-    newConfig?.payoutMods || [],
+    newConfig?.payoutMods || []
   );
   const reservesDiff = compareReserves(
     currentConfig.ticketMods,
-    newConfig?.ticketMods || [],
+    newConfig?.ticketMods || []
   );
   const tableData = calcDiffTableData(
     currentConfig,
     newConfig,
     payoutsDiff,
-    reservesDiff,
+    reservesDiff
   );
 
   return (

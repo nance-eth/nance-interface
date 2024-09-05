@@ -1,6 +1,6 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { useReconfig } from "@/utils/hooks/NanceHooks";
 import {
   calcDiffTableData,
@@ -34,7 +34,7 @@ export default function QueueReconfigurationModal({
   // Get configuration of current fundingCycle
   const projectId = juiceboxProjectId;
   const owner = transactorAddress ? utils.getAddress(transactorAddress) : "";
-  const { value: controller, loading: controllerIsLoading } =
+  const { data: controllerAddress, isLoading: controllerIsLoading } =
     useControllerOfProject(projectId);
   const { value: currentConfig, loading: configIsLoading } =
     useReconfigurationOfProject(projectId);
@@ -46,21 +46,20 @@ export default function QueueReconfigurationModal({
     encodeReconfiguration,
     "",
     currentConfig.fundingCycle.fee,
-    BigNumber.from(Math.floor(Date.now() / 1000))
+    BigInt(Math.floor(Date.now() / 1000))
   );
 
   // Splits with changes
   const payoutsDiff = comparePayouts(
     currentConfig,
     newConfig,
-    currentConfig.payoutMods || [],
-    newConfig?.payoutMods || []
+    [...currentConfig.payoutMods] || [],
+    [...(newConfig?.payoutMods || [])]
   );
 
-  const reservesDiff = compareReserves(
-    currentConfig.ticketMods || [],
-    newConfig?.ticketMods || []
-  );
+  const reservesDiff = compareReserves([...currentConfig.ticketMods] || [], [
+    ...(newConfig?.ticketMods || []),
+  ]);
 
   const loading = controllerIsLoading || configIsLoading || reconfigIsLoading;
 
@@ -72,10 +71,12 @@ export default function QueueReconfigurationModal({
   );
 
   const reconfigTx: GenericTransactionData = {
-    to: controller?.address || "",
+    to: controllerAddress || "",
     value: "0",
     data: encodeReconfiguration,
   };
+
+  console.debug("tableData", { currentConfig, newConfig, tableData });
 
   return (
     <Transition.Root show={open} as={Fragment}>

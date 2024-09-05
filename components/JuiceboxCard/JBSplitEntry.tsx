@@ -15,25 +15,29 @@ export default function JBSplitEntry({
 }) {
   const { allocator, projectId, beneficiary } = mod;
 
-  const { data: ensName } = useEnsName({ address: beneficiary as `0x${string}`, chainId: 1 });
+  const { data: ensName } = useEnsName({
+    address: beneficiary as `0x${string}`,
+    chainId: 1,
+  });
 
   let splitMode = "address";
   if (allocator !== "0x0000000000000000000000000000000000000000") {
     splitMode = "allocator";
-  } else if (projectId.toNumber() !== 0) {
+  } else if (projectId !== BigInt(0)) {
     splitMode = "project";
   }
 
   const mainStyle = "text-base font-semibold";
 
-  
   if (splitMode === "project") {
     return (
       <div className="mx-1 inline-block">
         <ProjectLink
-          projectId={projectId.toNumber()}
+          projectId={Number(projectId)}
           style={`${mainStyle} text-amber-600`}
-          subText={`Beneficiary of project payment tokens: ${ensName || shortenAddress(beneficiary)}`}
+          subText={`Beneficiary of project payment tokens: ${
+            ensName || shortenAddress(beneficiary)
+          }`}
           minified
         />
       </div>
@@ -55,7 +59,13 @@ export default function JBSplitEntry({
 
   return (
     <div className="mx-1 inline-block">
-      <FormattedAddress address={beneficiary} style={`${mainStyle} text-blue-800`} minified link copyable={false} />
+      <FormattedAddress
+        address={beneficiary}
+        style={`${mainStyle} text-blue-800`}
+        minified
+        link
+        copyable={false}
+      />
     </div>
   );
 }
@@ -63,7 +73,7 @@ export default function JBSplitEntry({
 export function diff2TableEntry(
   index: number,
   status: Status,
-  tableData: SectionTableData[],
+  tableData: SectionTableData[]
 ) {
   return (v: SplitDiffEntry) => {
     tableData[index].entries.push({

@@ -3,24 +3,23 @@ import {
   JBSplit,
   V2V3FundingCycleMetadata,
 } from "@/models/JuiceboxTypes";
-import { BigNumber } from "ethers";
 import { formatCurrency } from "@/utils/functions/juicebox";
 
 export interface FundingCycleArgs {
-  configuration: BigNumber;
-  discountRate: BigNumber;
+  configuration: bigint;
+  discountRate: bigint;
   ballot: string;
-  currency: BigNumber;
-  target: BigNumber;
-  duration: BigNumber;
-  fee: BigNumber;
-  weight: BigNumber;
+  currency: bigint;
+  target: bigint;
+  duration: bigint;
+  fee: bigint;
+  weight: bigint;
 }
 
 export interface MetadataArgs {
   // also bonding curve
-  redemptionRate: BigNumber;
-  reservedRate: BigNumber;
+  redemptionRate: bigint;
+  reservedRate: bigint;
   // also payIsPaused
   pausePay: boolean;
   // also ticketPrintingIsAllowed
@@ -40,49 +39,46 @@ export interface FundingCycleConfigProps {
   ticketMods: JBSplit[];
 }
 
-export function calculateSplitAmount(percent: BigNumber, target: BigNumber) {
+export function calculateSplitAmount(percent: bigint, target: bigint) {
   const _totalPercent = JBConstants.TotalPercent.Splits[2];
-  const amount = target.mul(percent).div(_totalPercent);
-  const ret = amount.div(ETHER);
-  return ret.toNumber();
+  const amount = (target * percent) / BigInt(_totalPercent);
+  const ret = amount / ETHER;
+  return Number(ret);
 }
 
-const ETHER = BigNumber.from("1000000000000000000");
+const ETHER = BigInt("1000000000000000000");
 
-export function splitAmount2Percent(target: BigNumber, amount: number) {
+export function splitAmount2Percent(target: bigint, amount: number) {
   if (amount <= 0) {
-    return BigNumber.from(0);
+    return BigInt(0);
   }
-  const totalPercent = BigNumber.from(JBConstants.TotalPercent.Splits[2]);
-  const percent = ETHER.mul(totalPercent).mul(amount).div(target);
+  const totalPercent = BigInt(JBConstants.TotalPercent.Splits[2]);
+  const percent = (ETHER * totalPercent * BigInt(amount)) / target;
   return percent;
 }
 
 export function isEqualPayoutSplit(
-  percent: BigNumber,
-  currency: BigNumber,
-  target: BigNumber,
-  newPercent: BigNumber,
-  newCurrency: BigNumber,
-  newTarget: BigNumber,
+  percent: bigint,
+  currency: bigint,
+  target: bigint,
+  newPercent: bigint,
+  newCurrency: bigint,
+  newTarget: bigint
 ) {
   if (!percent || !newPercent) return undefined;
 
-  const _totalPercent = JBConstants.TotalPercent.Splits[2];
+  const _totalPercent = BigInt(JBConstants.TotalPercent.Splits[2]);
 
-  if (target.eq(JBConstants.UintMax) && newTarget.eq(JBConstants.UintMax)) {
-    return percent.eq(newPercent);
+  if (target == JBConstants.UintMax && newTarget == JBConstants.UintMax) {
+    return percent == newPercent;
   } else if (
-    !target.eq(JBConstants.UintMax) &&
-    !newTarget.eq(JBConstants.UintMax)
+    target != JBConstants.UintMax &&
+    newTarget != JBConstants.UintMax
   ) {
-    const amount = formatCurrency(
-      currency,
-      target.mul(percent).div(_totalPercent),
-    );
+    const amount = formatCurrency(currency, (target * percent) / _totalPercent);
     const newAmount = formatCurrency(
       newCurrency,
-      newTarget.mul(newPercent).div(_totalPercent),
+      (newTarget * newPercent) / _totalPercent
     );
     return amount === newAmount;
   } else {
@@ -90,24 +86,29 @@ export function isEqualPayoutSplit(
   }
 }
 
+function divAndToFixed2(a: bigint, b: bigint) {
+  const mul10k = a * BigInt(10000);
+  const divByB = Number(mul10k / b);
+  return (divByB / 100).toFixed(2);
+}
+
 export function formattedSplit(
-  percent: BigNumber,
-  currency: BigNumber,
-  target: BigNumber,
-  version: number,
+  percent: bigint,
+  currency: bigint,
+  target: bigint,
+  version: number
 ) {
   if (!percent) return undefined;
 
-  const _totalPercent = JBConstants.TotalPercent.Splits[version - 1];
-  const _percent = percent.toNumber();
+  const _totalPercent = BigInt(JBConstants.TotalPercent.Splits[version - 1]);
 
-  if (target.eq(JBConstants.UintMax)) {
-    return `${((_percent / _totalPercent) * 100).toFixed(2)}%`;
+  if (target == JBConstants.UintMax) {
+    return `${divAndToFixed2(percent, _totalPercent)}%`;
   }
 
-  const finalAmount = target.mul(percent).div(_totalPercent);
-  return `${((_percent / _totalPercent) * 100).toFixed(2)}% (${formatCurrency(
+  const finalAmount = (target * percent) / _totalPercent;
+  return `${divAndToFixed2(percent, _totalPercent)}% (${formatCurrency(
     currency,
-    finalAmount,
+    finalAmount
   )})`;
 }

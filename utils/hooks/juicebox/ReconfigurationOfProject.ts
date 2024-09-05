@@ -6,39 +6,39 @@ import { JBConstants } from "../../../models/JuiceboxTypes";
 import { FundingCycleConfigProps } from "@/utils/functions/fundingCycle";
 
 export function useReconfigurationOfProject(projectId: number) {
-  const { value: _fc, loading: fcIsLoading } =
+  const { data: _fc, isLoading: fcIsLoading } =
     useCurrentFundingCycle(projectId);
   const [fc, metadata] = _fc || [];
-  const { value: _limit, loading: targetIsLoading } = useDistributionLimit(
+
+  const { data: _limit, isLoading: targetIsLoading } = useDistributionLimit(
     projectId,
-    fc?.configuration,
+    fc?.configuration
   );
   const [target, currency] = _limit || [];
-  const { value: payoutMods, loading: payoutModsIsLoading } = useCurrentSplits(
+  const { data: payoutMods, isLoading: payoutModsIsLoading } = useCurrentSplits(
     projectId,
     fc?.configuration,
-    JBConstants.SplitGroup.ETH,
+    BigInt(JBConstants.SplitGroup.ETH)
   );
-  const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(
+  const { data: ticketMods, isLoading: ticketModsIsLoading } = useCurrentSplits(
     projectId,
     fc?.configuration,
-    JBConstants.SplitGroup.RESERVED_TOKEN,
+    BigInt(JBConstants.SplitGroup.RESERVED_TOKEN)
   );
 
-  const zero = BigNumber.from(0);
   const currentConfig: FundingCycleConfigProps = {
     version: 2,
     //@ts-ignore
     fundingCycle: {
       ...fc,
-      fee: zero,
-      currency: currency?.sub(1) || zero,
-      target: target || zero,
-      configuration: fc?.configuration || zero,
+      fee: BigInt(0),
+      currency: (currency || BigInt(0)) - BigInt(1),
+      target: target || BigInt(0),
+      configuration: fc?.configuration || BigInt(0),
     },
     metadata: metadata,
-    payoutMods: payoutMods || [],
-    ticketMods: ticketMods || [],
+    payoutMods: [...(payoutMods || [])],
+    ticketMods: [...(ticketMods || [])],
   };
 
   return {

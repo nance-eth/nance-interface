@@ -1,39 +1,70 @@
-import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
-import { useContractReadValue } from "./ContractReadValue";
-import { useEthersProvider } from '../ViemAdapter';
-import useControllerOfProject from './ControllerOfProject';
-import useTerminalOfProject from './TerminalOfProject';
-import { useContext } from 'react';
-import { NetworkContext } from '../../../context/NetworkContext';
-import { getJBFundAccessConstraintsStore } from '../../functions/JuiceboxContracts';
+import useTerminalOfProject from "./TerminalOfProject";
+import JBFundAccessConstraintsStore from "@jbx-protocol/juice-contracts-v3/deployments/mainnet/JBFundAccessConstraintsStore.json";
+import { useReadContract } from "wagmi";
+import { ETH_TOKEN_ADDRESS } from "@/models/JuiceboxTypes";
 
-const ETH_TOKEN_ADDRESS = '0x000000000000000000000000000000000000eeee';
+const abi = [
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_projectId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_configuration",
+        type: "uint256",
+      },
+      {
+        internalType: "contract IJBPaymentTerminal",
+        name: "_terminal",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+    ],
+    name: "distributionLimitOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
 
 export function useDistributionLimit(
-  projectId: BigNumberish | undefined,
-  configured: BigNumberish | undefined
+  projectId: number | undefined,
+  configured: bigint | undefined
 ) {
-  const provider = useEthersProvider();
-  const network = useContext(NetworkContext);
-  const { value: controller, version } = useControllerOfProject(projectId);
-  const { value: terminal } = useTerminalOfProject(projectId)
+  const { data: terminalAddress } = useTerminalOfProject(projectId);
 
-  // v3_1 introduced JBFundAccessConstraintsStore, which should be used instead of JB controller.
-  const contract =
-    version === "v3.1"
-      ? getJBFundAccessConstraintsStore(provider, network)
-      : controller;
+  const argsNotEnough =
+    terminalAddress === undefined ||
+    projectId === undefined ||
+    configured === undefined;
 
-  return useContractReadValue<[BigNumber, BigNumber]>({
-    contract,
-    functionName: 'distributionLimitOf',
-    args: projectId && configured && terminal?.address
-      ? [
-        BigNumber.from(projectId).toHexString(),
-        BigNumber.from(configured).toHexString(),
-        terminal.address,
-        ETH_TOKEN_ADDRESS
-      ]
-      : null,
+  return useReadContract({
+    abi,
+    address: JBFundAccessConstraintsStore.address,
+    functionName: "distributionLimitOf",
+    args: !argsNotEnough
+      ? [BigInt(projectId), configured, terminalAddress, ETH_TOKEN_ADDRESS]
+      : undefined,
+    query: {
+      enabled: !argsNotEnough,
+    },
   });
 }

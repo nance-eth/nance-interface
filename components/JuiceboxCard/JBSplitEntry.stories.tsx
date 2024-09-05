@@ -4,7 +4,6 @@ import * as wagmi from "wagmi";
 
 import JBSplitEntry from "./JBSplitEntry";
 import { ZERO_ADDRESS } from "@/constants/Contract";
-import { BigNumber } from "ethers";
 import { JBSplit } from "@/models/JuiceboxTypes";
 
 const meta: Meta<typeof JBSplitEntry> = {
@@ -17,19 +16,19 @@ type Story = StoryObj<typeof JBSplitEntry>;
 
 const DEFAULT_SPLIT: JBSplit = {
   allocator: ZERO_ADDRESS,
-  projectId: BigNumber.from(0),
+  projectId: BigInt(0),
   beneficiary: ZERO_ADDRESS,
-  percent: BigNumber.from(0),
+  percent: BigInt(0),
   preferAddToBalance: false,
   preferClaimed: false,
-  lockedUntil: BigNumber.from(0),
+  lockedUntil: BigInt(0),
 };
 
 export const Project: Story = {
   args: {
     mod: {
       ...DEFAULT_SPLIT,
-      projectId: BigNumber.from(1),
+      projectId: BigInt(1),
       beneficiary: "0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e",
     },
   },

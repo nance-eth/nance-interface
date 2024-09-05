@@ -33,14 +33,14 @@ export default function ReserveActionForm({
   }>({ name: genFieldName("splits") });
 
   const { data: spaceInfo } = useSpaceInfo({ space });
-  const projectId = spaceInfo?.data?.juiceboxProjectId;
-  const { value: _fc, loading: fcIsLoading } =
+  const projectId = parseInt(spaceInfo?.data?.juiceboxProjectId || "0");
+  const { data: _fc, isLoading: fcIsLoading } =
     useCurrentFundingCycle(projectId);
   const [fc, metadata] = _fc || [];
-  const { value: ticketMods, loading: ticketModsIsLoading } = useCurrentSplits(
+  const { data: ticketMods, isLoading: ticketModsIsLoading } = useCurrentSplits(
     projectId,
     fc?.configuration,
-    JBConstants.SplitGroup.RESERVED_TOKEN,
+    BigInt(JBConstants.SplitGroup.RESERVED_TOKEN)
   );
   // TODO: reserve rate, percent / total_percentage JBConstants
 
@@ -48,7 +48,15 @@ export default function ReserveActionForm({
     if (fields.length === 0) {
       // if no splits in proposal (not editing) then load from JB project
       const arr = ticketMods ? [...ticketMods] : [];
-      arr.sort((a, b) => b.percent.sub(a.percent).toNumber());
+      arr.sort((a, b) => {
+        if (a.percent > b.percent) {
+          return -1;
+        } else if (a.percent < b.percent) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
       arr.forEach((ticket) => {
         const split: JBSplitStruct = {
           preferClaimed: ticket.preferClaimed,
@@ -194,7 +202,7 @@ export default function ReserveActionForm({
               </div>
             </Disclosure.Panel>
           </Disclosure>
-        ),
+        )
       )}
     </div>
   );
