@@ -9,6 +9,7 @@ import Safe, {
 import {
   MetaTransactionData,
   SafeSignature,
+  SafeTransaction,
 } from "@safe-global/safe-core-sdk-types";
 import {
   safeNetworkAPI,
@@ -142,9 +143,12 @@ function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
 
 function calculateBaseGas(signatureLength: number, data: string = "") {
   // based on https://help.safe.global/en/articles/40828-gas-estimation
-  const baseTxGas = 21000;
+  const baseTxGas = 25000;
   //Each non-zero byte costs 16 gas and each zero byte 4 gas.
-  const dataGas = toBytes(data).length * 4;
+  const dataGas = toBytes(data).reduce(
+    (sum, cur) => (sum += cur === 0 ? 4 : 16),
+    0
+  );
   const signatureCheckGas = 7000 * signatureLength;
   const refundGas = 22000;
 
@@ -158,7 +162,7 @@ export function useCreateTransactionForSimulation(
 ) {
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
-  //const [safeTransaction, setSafeTransaction] = useState<SafeTransaction>();
+  const [safeTransaction, setSafeTransaction] = useState<SafeTransaction>();
   const [encodedTransaction, setEncodedTransaction] = useState<string>();
 
   const { value: safe, error: safeError } = useSafe(safeAddress);
@@ -166,43 +170,61 @@ export function useCreateTransactionForSimulation(
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
 
   useEffect(() => {
-    if (!safe) {
-      setError(safeError || "Not connected to wallet or safe not found.");
-      return;
-    }
+    const fetch = async () => {
+      // check
+      if (!safe) {
+        setError(safeError || "Not connected to wallet or safe not found.");
+        return;
+      }
 
-    setLoading(true);
-    setError(undefined);
-    setEncodedTransaction(undefined);
+      // reset state
+      setLoading(true);
+      setError(undefined);
+      setSafeTransaction(undefined);
+      setEncodedTransaction(undefined);
 
-    const options: SafeTransactionOptionalProps = {
-      gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-      baseGas: calculateBaseGas(
-        1,
-        safeTransactionData
-          .map((d) => d.data)
-          .reduce((sum, current) => sum + current, "")
-      ).toString(), // to cover gas cost for operations other than execute, like signature check
-    };
-
-    safe
-      .createTransaction({
+      // core logic
+      const optionsFirstPass: SafeTransactionOptionalProps = {
+        gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+      };
+      // this pass we can get safeTxGas
+      const transactionFirstPass = await safe.createTransaction({
+        transactions: safeTransactionData,
+        options: optionsFirstPass,
+        onlyCalls: true,
+      });
+      const options: SafeTransactionOptionalProps = {
+        ...optionsFirstPass,
+        // The final recommended gas limit is based on the total of the above plus a buffer.
+        // For the buffer we double the total, as some internal calls require a higher intermediate gas limit
+        //   as not all gas can be forwarded to the next internal call (“all but one 64th” of EIP-150)
+        safeTxGas: (
+          BigInt(2) * BigInt(transactionFirstPass.data.safeTxGas)
+        ).toString(),
+        baseGas: calculateBaseGas(1, transactionFirstPass.data.data).toString(), // to cover gas cost for operations other than execute, like signature check
+      };
+      const transaction = await safe.createTransaction({
         transactions: safeTransactionData,
         options,
         onlyCalls: true,
-      })
-      .then((safeTransaction) => {
-        safeTransaction.addSignature(
-          generatePreValidatedSignature(firstOwnerAddress)
-        );
-        return safe.getEncodedTransaction(safeTransaction);
-      })
-      .then((encoded) => setEncodedTransaction(encoded))
+      });
+      transaction.addSignature(
+        generatePreValidatedSignature(firstOwnerAddress)
+      );
+      const encoded = await safe.getEncodedTransaction(transaction);
+
+      // set state
+      setSafeTransaction(transaction);
+      setEncodedTransaction(encoded);
+    };
+
+    fetch()
       .catch((err) => setError(err))
       .finally(() => setLoading(false));
   }, [safe, safeTransactionData]);
 
   return {
+    safeTransaction,
     encodedTransaction,
     error,
     loading,
@@ -235,23 +257,33 @@ export function useQueueTransaction(
     setError(undefined);
     setValue(undefined);
 
-    const options: SafeTransactionOptionalProps = {
-      nonce, // Optional
-      gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-      baseGas: calculateBaseGas(
-        safeInfo?.threshold || 1,
-        safeTransactionData
-          .map((d) => d.data)
-          .reduce((sum, current) => sum + current, "")
-      ).toString(), // to cover gas cost for operations other than execute, like signature check
-    };
-
     try {
+      // core logic
+      const optionsFirstPass: SafeTransactionOptionalProps = {
+        gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+      };
+      // this pass we can get safeTxGas
+      const transactionFirstPass = await safe.createTransaction({
+        transactions: safeTransactionData,
+        options: optionsFirstPass,
+        onlyCalls: true,
+      });
+      const options: SafeTransactionOptionalProps = {
+        ...optionsFirstPass,
+        // The final recommended gas limit is based on the total of the above plus a buffer.
+        // For the buffer we double the total, as some internal calls require a higher intermediate gas limit
+        //   as not all gas can be forwarded to the next internal call (“all but one 64th” of EIP-150)
+        safeTxGas: (
+          BigInt(2) * BigInt(transactionFirstPass.data.safeTxGas)
+        ).toString(),
+        baseGas: calculateBaseGas(1, transactionFirstPass.data.data).toString(), // to cover gas cost for operations other than execute, like signature check
+      };
       const safeTransaction = await safe.createTransaction({
         transactions: safeTransactionData,
         options,
         onlyCalls: true,
       });
+
       const senderAddress = address;
       const safeTxHash = await safe.getTransactionHash(safeTransaction);
       const signature = await safe.signTypedData(safeTransaction);

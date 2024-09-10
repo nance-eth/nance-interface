@@ -11,6 +11,7 @@ export interface TenderlySimulateArgs {
   state_objects?: {
     [contractAddress: string]: { storage: { [slot: string]: string } };
   };
+  gasLimit?: number;
 }
 
 export interface TenderlySimulationAPIResponse {
@@ -53,7 +54,7 @@ async function fetchWithArgs([url, args]: [string, TenderlySimulateArgs]) {
     from: args.from,
     to: args.to,
     input: args.input,
-    gas: 8000000,
+    gas: args.gasLimit || 8000000,
     gas_price: args.gasPrice || "0",
     value: args.value,
     state_objects: args.state_objects,

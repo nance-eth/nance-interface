@@ -29,11 +29,8 @@ export default function SafeTenderlySimulationButton({
   const chain = useChainConfigOfSpace();
   const { data: safeInfo } = useSafeInfo(address, !!address);
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
-  const { encodedTransaction, error } = useCreateTransactionForSimulation(
-    address,
-    transactions,
-    true
-  );
+  const { encodedTransaction, safeTransaction } =
+    useCreateTransactionForSimulation(address, transactions, true);
 
   const state_objects: { [contract: string]: any } = {};
   // override Safe slot 4 to be value 0x01,
@@ -45,6 +42,11 @@ export default function SafeTenderlySimulationButton({
     },
   };
 
+  // calculate gas_limit like Safe UI does
+  const safeTxGas = Number(BigInt(safeTransaction?.data.safeTxGas || 0));
+  const baseGas = Number(BigInt(safeTransaction?.data.baseGas || 0));
+  const gasLimit = parseInt(((safeTxGas + baseGas) * 1.1).toFixed());
+
   const simulationArgs: TenderlySimulateArgs = {
     from: firstOwnerAddress,
     to: address || "",
@@ -53,6 +55,7 @@ export default function SafeTenderlySimulationButton({
     networkId: chain.id.toString(),
     gasPrice: "100000000", // 0.1 Gwei
     state_objects,
+    gasLimit,
   };
 
   useEffect(() => {
