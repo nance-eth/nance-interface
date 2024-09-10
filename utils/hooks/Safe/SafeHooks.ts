@@ -254,7 +254,7 @@ export function useQueueTransaction(
       });
       const senderAddress = address;
       const safeTxHash = await safe.getTransactionHash(safeTransaction);
-      const signature = await safe.signHash(safeTxHash);
+      const signature = await safe.signTypedData(safeTransaction);
 
       // Propose transaction to the service
       await safeApiKit.proposeTransaction({
