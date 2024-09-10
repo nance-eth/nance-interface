@@ -52,10 +52,12 @@ export default function TenderlySimulationButton({
     ) !== undefined;
   const isSuccess = data?.simulation?.status && !hasSafeExecutionFailureEvent;
   let errorMessage = error ? error.message : data?.simulation?.error_message;
-  if (errorMessage === undefined && hasSafeExecutionFailureEvent) {
-    errorMessage = "ExecutionFailure";
-  } else {
-    errorMessage = "Not enough args";
+  if (errorMessage === undefined) {
+    if (hasSafeExecutionFailureEvent) {
+      errorMessage = "ExecutionFailure";
+    } else {
+      errorMessage = "Not enough args";
+    }
   }
 
   return (
