@@ -30,7 +30,8 @@ const StatusValue: { [key: string]: number } = {
   Implementation: 4,
   Finished: 5,
   Discussion: 6,
-  Voting: 7,
+  "Temperature Check": 7,
+  Voting: 8,
 };
 function getValueOfStatus(status: string) {
   return StatusValue[status] ?? -1;
