@@ -1,4 +1,4 @@
-import { Fragment, useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
@@ -63,6 +63,17 @@ export default function QueueTransactionsModal({
     router.isReady
   );
 
+  const [selectAllActions, setSelectAllActions] = useState(false);
+
+  useEffect(() => {
+    let _window = window as any;
+    if (_window.Nance === undefined) {
+      _window.Nance = {};
+    }
+
+    _window.Nance.selectAllActions = setSelectAllActions;
+  }, []);
+
   // Gather all actions in current fundingCycle
   const actionWithPIDArray = proposalDataArray
     ?.map((r) => r.data?.proposals)
@@ -73,7 +84,7 @@ export default function QueueTransactionsModal({
       return (
         p.actions &&
         p.actions.length > 0 &&
-        (p.status === "Voting" || p.status === "Approved")
+        (selectAllActions || p.status === "Voting" || p.status === "Approved")
       );
     })
     .flatMap((p) => {
@@ -105,10 +116,6 @@ export default function QueueTransactionsModal({
       if (!decimals) {
         decimals = TOKEN_DECIMALS[transfer.contract] || 18;
       }
-      console.debug("Transfer", {
-        transfer,
-        str: parseUnits(amount, decimals).toString(),
-      });
       return {
         title: <TransferActionLabel action={v.action} />,
         proposal: v.pid.toString(),

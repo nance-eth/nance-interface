@@ -5,7 +5,10 @@ import { calculateRemainingTime } from "@/components/Space/sub/SpaceHeader";
 
 import { SpaceContext } from "@/context/SpaceContext";
 import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
+import { SpaceInfo } from "@nance/nance-sdk";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const SPACE_NOT_FOUND_IMAGE = "/images/character/Empty_Orange_2.png";
 const JBDAO_OPENGRAPH_IMAGE = "/images/opengraph/homepage.png";
@@ -13,8 +16,19 @@ const JBDAO_OPENGRAPH_IMAGE = "/images/opengraph/homepage.png";
 export default function SpacePage() {
   const params = useParams<{ space: string }>();
   const space = params?.space;
-  const { data, isLoading } = useSpaceInfo({ space }, !!space );
-  const spaceInfo = data?.data;
+  const [overrideSpaceInfo, setOverrideSpaceInfo] = useState<SpaceInfo>();
+  const { data, isLoading, mutate } = useSpaceInfo({ space }, !!space);
+  const spaceInfo = overrideSpaceInfo || data?.data;
+
+  useEffect(() => {
+    let _window = window as any;
+    if (_window.Nance === undefined) {
+      _window.Nance = {};
+    }
+
+    _window.Nance.updateSpaceInfo = setOverrideSpaceInfo;
+    _window.Nance.spaceInfo = spaceInfo;
+  }, [spaceInfo, mutate]);
 
   if (isLoading || !space) {
     return (
@@ -59,7 +73,7 @@ export default function SpacePage() {
   const pageTitle = `${spaceInfo.name} Governance`;
 
   const { formattedEndTime } = calculateRemainingTime(
-    spaceInfo.currentEvent?.end ?? "",
+    spaceInfo.currentEvent?.end ?? ""
   );
 
   return (
