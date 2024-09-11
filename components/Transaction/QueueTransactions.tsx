@@ -31,6 +31,11 @@ import { getChainByNetworkName } from "config/custom-chains";
 import TransactionCycleNavigator from "./TransactionCycleNavigator";
 import { deepStringify } from "@/utils/functions/stringify";
 
+const TOKEN_DECIMALS: { [contract: string]: number } = {
+  "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": 6, // USDC
+  "0xdAC17F958D2ee523a2206206994597C13D831ec7": 6, // USDT
+};
+
 export default function QueueTransactionsModal({
   open,
   setOpen,
@@ -96,9 +101,13 @@ export default function QueueTransactionsModal({
     transferActions?.map((v) => {
       const transfer = v.action.payload as Transfer;
       const amount = String(transfer.amount);
+      let decimals = transfer.decimals;
+      if (!decimals) {
+        decimals = TOKEN_DECIMALS[transfer.contract] || 18;
+      }
       console.debug("Transfer", {
         transfer,
-        str: parseUnits(amount, transfer.decimals || 18).toString(),
+        str: parseUnits(amount, decimals).toString(),
       });
       return {
         title: <TransferActionLabel action={v.action} />,
@@ -110,14 +119,14 @@ export default function QueueTransactionsModal({
               : transfer.contract,
           value:
             getContractLabel(transfer.contract) === "ETH"
-              ? parseUnits(amount, transfer.decimals || 18).toString()
+              ? parseUnits(amount, decimals).toString()
               : "0",
           data:
             getContractLabel(transfer.contract) === "ETH"
               ? "0x"
               : erc20.encodeFunctionData("transfer", [
                   transfer.to,
-                  parseUnits(amount, transfer.decimals || 18),
+                  parseUnits(amount, decimals),
                 ]),
         },
       };

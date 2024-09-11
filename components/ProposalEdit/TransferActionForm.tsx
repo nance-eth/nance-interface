@@ -15,12 +15,13 @@ import {
 } from "@/utils/functions/GovernanceCycle";
 import BooleanForm from "../form/BooleanForm";
 
-type ListBoxItems = {
-  id?: string;
-  name?: string;
+type ListBoxItem = {
+  id: string;
+  name: string;
+  decimals: number;
 };
 
-const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItems[] => {
+const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItem[] => {
   return b.map((b) => {
     const token = b.token?.symbol || "ETH";
     const balance = numToPrettyString(
@@ -30,6 +31,7 @@ const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItems[] => {
     return {
       id: b.tokenAddress || ETH_MOCK_CONTRACT,
       name: `${token} (${balance})`,
+      decimals: b.token?.decimals || 18,
     };
   });
 };
@@ -41,16 +43,17 @@ export default function TransferActionForm({
   genFieldName: (field: string) => any;
   address: string;
 }) {
-  const { control, watch } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
   const spaceInfo = useContext(SpaceContext);
 
   const { data, isLoading } = useSafeBalances(address, !!address);
-  const items = data
+  const items: ListBoxItem[] = data
     ? safeBalanceToItems(data)
     : [
         {
           id: ETH_MOCK_CONTRACT,
           name: "ETH",
+          decimals: 18,
         },
       ];
 
@@ -133,9 +136,12 @@ export default function TransferActionForm({
             control={control}
             defaultValue={items[0].id}
             render={({ field: { onChange, value } }) => (
-              <GenericListbox<ListBoxItems>
+              <GenericListbox<ListBoxItem>
                 value={items.find((i) => i.id === value) || items[0]}
-                onChange={(c) => onChange(c.id)}
+                onChange={(c) => {
+                  onChange(c.id);
+                  setValue(genFieldName("decimals"), c.decimals);
+                }}
                 label="Token (Balance)"
                 items={items}
                 disabled={isLoading || items.length === 0}
