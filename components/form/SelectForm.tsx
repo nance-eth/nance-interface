@@ -5,6 +5,7 @@ import TooltipInfo from "./TooltipInfo";
 
 export interface SelectOption {
   displayValue: string;
+  displayComponent?: JSX.Element;
   value: string;
 }
 
@@ -49,12 +50,12 @@ export default function SelectForm({
           })}
           className={classNames(
             "block w-full border border-gray-300 bg-white h-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm",
-            showType ? "rounded-none rounded-r-md" : "rounded-md",
+            showType ? "rounded-none rounded-r-md" : "rounded-md"
           )}
         >
           {options.map((o, i) => (
             <option key={i} value={o.value}>
-              {o.displayValue}
+              {o.displayComponent ? o.displayComponent : o.displayValue}
             </option>
           ))}
         </select>
