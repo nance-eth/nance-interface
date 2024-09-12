@@ -5,6 +5,7 @@ import { useAccount, useWalletClient } from "wagmi";
 import Safe, {
   EthSafeSignature,
   SafeTransactionOptionalProps,
+  estimateTxBaseGas,
 } from "@safe-global/protocol-kit";
 import {
   MetaTransactionData,
@@ -26,7 +27,7 @@ import {
   fetchSafeWithAddress,
   basicFetcher,
 } from "./SafeFetchers";
-import { toBytes, zeroAddress } from "viem";
+import { zeroAddress } from "viem";
 
 export function useMultisigTransactionOf(
   address: string,
@@ -141,19 +142,10 @@ function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
   return new EthSafeSignature(ownerAddress, signature);
 }
 
-function calculateBaseGas(signatureLength: number, data: string = "") {
-  // based on https://help.safe.global/en/articles/40828-gas-estimation
-  const baseTxGas = 22000;
-  //Each non-zero byte costs 16 gas and each zero byte 4 gas.
-  const dataGas = toBytes(data).reduce(
-    (sum, cur) => (sum += cur === 0 ? 4 : 16),
-    0
-  );
-  const signatureCheckGas = 7000 * signatureLength;
-  const refundGas = 22000;
+// check https://github.com/safe-global/safe-core-sdk/blob/a9e595af13d1b8b8190c7088dcedd8d90b003c27/packages/protocol-kit/src/utils/transactions/gas.ts#L44
+const GAS_COST_PER_SIGNATURE = 7040;
 
-  return baseTxGas + dataGas + signatureCheckGas + refundGas;
-}
+const BUFFER = 5000;
 
 export function useCreateTransactionForSimulation(
   safeAddress: string,
@@ -193,6 +185,11 @@ export function useCreateTransactionForSimulation(
         options: optionsFirstPass,
         onlyCalls: true,
       });
+      const baseGas = Number(
+        await estimateTxBaseGas(safe, transactionFirstPass)
+      );
+      const extraSignatureGas =
+        GAS_COST_PER_SIGNATURE * ((safeInfo?.threshold || 1) - 1);
       const options: SafeTransactionOptionalProps = {
         ...optionsFirstPass,
         // The final recommended gas limit is based on the total of the above plus a buffer.
@@ -201,10 +198,7 @@ export function useCreateTransactionForSimulation(
         safeTxGas: (
           BigInt(2) * BigInt(transactionFirstPass.data.safeTxGas)
         ).toString(),
-        baseGas: calculateBaseGas(
-          safeInfo?.threshold || 1,
-          transactionFirstPass.data.data
-        ).toString(), // to cover gas cost for operations other than execute, like signature check
+        baseGas: (baseGas - extraSignatureGas + BUFFER).toFixed(), // to cover gas cost for operations other than execute, like signature check
       };
       const transaction = await safe.createTransaction({
         transactions: safeTransactionData,
@@ -271,6 +265,9 @@ export function useQueueTransaction(
         options: optionsFirstPass,
         onlyCalls: true,
       });
+      const baseGas = Number(
+        await estimateTxBaseGas(safe, transactionFirstPass)
+      );
       const options: SafeTransactionOptionalProps = {
         ...optionsFirstPass,
         // The final recommended gas limit is based on the total of the above plus a buffer.
@@ -279,7 +276,7 @@ export function useQueueTransaction(
         safeTxGas: (
           BigInt(2) * BigInt(transactionFirstPass.data.safeTxGas)
         ).toString(),
-        baseGas: calculateBaseGas(1, transactionFirstPass.data.data).toString(), // to cover gas cost for operations other than execute, like signature check
+        baseGas: (baseGas + BUFFER).toFixed(), // to cover gas cost for operations other than execute, like signature check
       };
       const safeTransaction = await safe.createTransaction({
         transactions: safeTransactionData,
