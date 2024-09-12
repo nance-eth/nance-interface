@@ -5,6 +5,7 @@ import {
   CurrencyDollarIcon,
   BoltIcon,
   ArrowsUpDownIcon,
+  ArchiveBoxXMarkIcon,
 } from "@heroicons/react/24/solid";
 
 export interface ActionItem {
@@ -40,6 +41,14 @@ const items: ActionItem[] = [
     url: "#",
     color: "bg-blue-500",
     icon: BoltIcon,
+  },
+  {
+    id: 4,
+    name: "Cancel",
+    description: "Cancel previous action",
+    url: "#",
+    color: "bg-blue-500",
+    icon: ArchiveBoxXMarkIcon,
   },
   // More items...
 ];
@@ -89,7 +98,7 @@ export default function ActionPalettes({
                         className={({ active }) =>
                           classNames(
                             "flex cursor-default select-none rounded-xl p-3",
-                            active && "bg-gray-100",
+                            active && "bg-gray-100"
                           )
                         }
                       >
@@ -98,7 +107,7 @@ export default function ActionPalettes({
                             <div
                               className={classNames(
                                 "flex h-10 w-10 flex-none items-center justify-center rounded-lg",
-                                item.color,
+                                item.color
                               )}
                             >
                               <item.icon
@@ -110,7 +119,7 @@ export default function ActionPalettes({
                               <p
                                 className={classNames(
                                   "text-sm font-medium",
-                                  active ? "text-gray-900" : "text-gray-700",
+                                  active ? "text-gray-900" : "text-gray-700"
                                 )}
                               >
                                 {item.name}
@@ -118,7 +127,7 @@ export default function ActionPalettes({
                               <p
                                 className={classNames(
                                   "text-sm",
-                                  active ? "text-gray-700" : "text-gray-500",
+                                  active ? "text-gray-700" : "text-gray-500"
                                 )}
                               >
                                 {item.description}
