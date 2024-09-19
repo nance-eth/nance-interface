@@ -44,9 +44,9 @@ export default function SelectForm({
         )}
 
         <select
+          defaultValue={defaultValue}
           {...register(fieldName, {
             shouldUnregister: true,
-            value: defaultValue,
           })}
           className={classNames(
             "block w-full border border-gray-300 bg-white h-10 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm",
