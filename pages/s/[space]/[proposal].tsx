@@ -78,7 +78,7 @@ export default function NanceProposalPage() {
       ? Math.floor(new Date(proposal.createdTime).getTime() / 1000)
       : snapshotProposal?.start || 0,
     edited: Math.floor(
-      new Date(proposal?.lastEditedTime || "").getTime() / 1000,
+      new Date(proposal?.lastEditedTime || "").getTime() / 1000
     ),
     voteStart: snapshotProposal?.start || 0,
     voteEnd: snapshotProposal?.end || 0,
@@ -92,8 +92,6 @@ export default function NanceProposalPage() {
     proposalId: proposal.proposalId ? String(proposal.proposalId) : undefined,
     minTokenPassingAmount: proposal.proposalInfo.minTokenPassingAmount || 0,
   };
-
-  console.debug(getActionsFromBody(proposal.body));
 
   return (
     <>

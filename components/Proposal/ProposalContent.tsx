@@ -15,12 +15,18 @@ export default function ProposalContent() {
   const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
   const proposalId = commonProps.proposalId;
   const sourceSnapshot = commonProps.uuid === "snapshot"; // hack
-  const preTitleDisplay = (proposalIdPrefix && proposalId) ? `${proposalIdPrefix}${proposalId}: ` : "";
-  console.debug(commonProps);
+  const preTitleDisplay =
+    proposalIdPrefix && proposalId ? `${proposalIdPrefix}${proposalId}: ` : "";
   const { body } = commonProps;
 
-  const createdAt = format(toDate(commonProps.created * 1000), "MM/dd/yy hh:mm a");
-  const updatedAt = format(toDate(commonProps.edited * 1000), "MM/dd/yy hh:mm a");
+  const createdAt = format(
+    toDate(commonProps.created * 1000),
+    "MM/dd/yy hh:mm a"
+  );
+  const updatedAt = format(
+    toDate(commonProps.edited * 1000),
+    "MM/dd/yy hh:mm a"
+  );
 
   return (
     <div className="">
@@ -30,14 +36,18 @@ export default function ProposalContent() {
             <ProposalBadgeLabel status={commonProps.status} />
           </div>
           <div className="flex flex-row items-center space-x-5">
-            <Link href={`/s/${commonProps.space}`} className="text-sm flex flex-row">
+            <Link
+              href={`/s/${commonProps.space}`}
+              className="text-sm flex flex-row"
+            >
               <ArrowLongLeftIcon className="h-5 w-5" /> &nbsp; back
             </Link>
             <ProposalMenu />
           </div>
         </div>
         <h1 id="applicant-information-title" className="text-3xl font-medium">
-          {preTitleDisplay}{commonProps.title}
+          {preTitleDisplay}
+          {commonProps.title}
         </h1>
 
         <div className="mt-2 flex text-sm text-gray-500">
@@ -84,7 +94,11 @@ export default function ProposalContent() {
           {commonProps.voteStart > 0 && (
             <p>
               vote &nbsp; &nbsp;
-              {format(toDate(commonProps.voteStart * 1000), "MM/dd/yy hh:mm a")} - {format(toDate(commonProps.voteEnd * 1000), "MM/dd/yy hh:mm a")}
+              {format(
+                toDate(commonProps.voteStart * 1000),
+                "MM/dd/yy hh:mm a"
+              )}{" "}
+              - {format(toDate(commonProps.voteEnd * 1000), "MM/dd/yy hh:mm a")}
             </p>
           )}
         </div>
@@ -97,7 +111,7 @@ export default function ProposalContent() {
       </div>
 
       <div className="mt-4 px-4 py-5 sm:px-6">
-        { !sourceSnapshot && <ProposalNavigator /> }
+        {!sourceSnapshot && <ProposalNavigator />}
       </div>
     </div>
   );

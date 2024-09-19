@@ -76,8 +76,6 @@ export default function QueueReconfigurationModal({
     data: encodeReconfiguration,
   };
 
-  console.debug("tableData", { currentConfig, newConfig, tableData });
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
