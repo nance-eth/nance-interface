@@ -17,6 +17,8 @@ import {
   CreateFormValues,
   SpaceConfig,
   ProposalQueryResponse,
+  Action,
+  BaseRequest,
 } from "@nance/nance-sdk";
 import { FundingCycleArgs } from "../functions/fundingCycle";
 import { JBSplit, V2V3FundingCycleMetadata } from "@/models/JuiceboxTypes";
@@ -178,6 +180,32 @@ export function useProposal(
 ) {
   return useSWR<ProposalQueryResponse>(
     shouldFetch ? `${NANCE_API_URL}/${args.space}/proposal/${args.uuid}` : null,
+    jsonFetcher()
+  );
+}
+
+// TODO move these two types into nance-sdk
+interface ActionRequest extends BaseRequest {
+  aid: string;
+}
+interface ActionPayload {
+  action: Action;
+  proposal: {
+    id: string;
+    title: string;
+  };
+}
+
+export function useAction(args: ActionRequest, shouldFetch: boolean = true) {
+  return useSWR<APIResponse<ActionPayload>>(
+    shouldFetch ? `${NANCE_API_URL}/${args.space}/actions/${args.aid}` : null,
+    jsonFetcher()
+  );
+}
+
+export function useActions(args: BaseRequest, shouldFetch: boolean = true) {
+  return useSWR<APIResponse<ActionPayload[]>>(
+    shouldFetch ? `${NANCE_API_URL}/${args.space}/actions` : null,
     jsonFetcher()
   );
 }

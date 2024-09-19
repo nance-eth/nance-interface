@@ -1,8 +1,9 @@
-import { Action, CustomTransaction, Reserve } from "@nance/nance-sdk";
+import { Action, Cancel, CustomTransaction, Reserve } from "@nance/nance-sdk";
 import CustomTransactionActionLabel from "./CustomTransactionActionLabel";
 import PayoutActionLabel from "./PayoutActionLabel";
 import { ReserveActionLabel } from "./ReserveActionLabel";
 import TransferActionLabel from "./TransferActionLabel";
+import CancelActionLabel from "./CancelActionLabel";
 
 export default function ActionLabel({
   action,
@@ -38,6 +39,10 @@ export default function ActionLabel({
 
       {action.type === "Reserve" && (
         <ReserveActionLabel reserve={action.payload as Reserve} />
+      )}
+
+      {action.type === "Cancel" && (
+        <CancelActionLabel cancel={action.payload as Cancel} />
       )}
     </div>
   );

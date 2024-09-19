@@ -17,6 +17,7 @@ import { useSwitchChain } from "wagmi";
 import { getChainByNetworkName } from "config/custom-chains";
 import { getChainIdFromName } from "../SafeInjectIframeCard/helpers/utils";
 import { uuidGen } from "@/utils/functions/nance";
+import CancelActionForm from "./CancelActionForm";
 
 export default function Actions({
   loadedActions,
@@ -26,7 +27,7 @@ export default function Actions({
   const [open, setOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<ActionItem>();
 
-  const { register, watch } = useFormContext();
+  const { register } = useFormContext();
   const { fields, append, remove, replace } = useFieldArray<{
     actions: Action[];
     [key: string]: any;
@@ -218,6 +219,30 @@ export default function Actions({
                   projectOwner={projectOwner}
                 />
               </SafeInjectProvider>
+            </div>
+          );
+        } else if (field.type === "Cancel") {
+          return (
+            <div
+              key={field.id}
+              className="mt-4 bg-white px-4 py-5 shadow sm:rounded-lg sm:p-6"
+            >
+              <div className="mb-2 flex justify-between">
+                <h3 className="text-xl font-semibold">Cancel</h3>
+                <XMarkIcon
+                  className="h-5 w-5 cursor-pointer"
+                  onClick={() => remove(index)}
+                />
+              </div>
+              <input
+                type="text"
+                {...register(`proposal.actions.${index}.type`, {
+                  shouldUnregister: true,
+                  value: field.type,
+                })}
+                className="hidden"
+              />
+              <CancelActionForm genFieldName={genFieldName(index)} />
             </div>
           );
         } else {
