@@ -3150,13 +3150,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nance/nance-sdk@npm:^4.0.6":
-  version: 4.0.6
-  resolution: "@nance/nance-sdk@npm:4.0.6"
+"@nance/nance-sdk@npm:^4.0.7":
+  version: 4.0.7
+  resolution: "@nance/nance-sdk@npm:4.0.7"
   dependencies:
     tslib: ^2.6.2
     yaml: ^2.4.2
-  checksum: 45eb5f77a52d40df3588da7ba0c4ebc0f967cf749ac73f076aa58ea5bd3a42e60a300566bfd5f4c1c15ae069e82e56f70804e51eb904a52a6a5a825858eb4177
+  checksum: 930c12aed2f4d3471152e68992605977c038c4a16e929772db7e9899da1626a61e6439eb34994b9af025394c191d4a70f356b813691fb7f6371f61021bf7500d
   languageName: node
   linkType: hard
 
@@ -16444,7 +16444,7 @@ __metadata:
     "@hookform/error-message": ^2.0.1
     "@jbx-protocol/juice-contracts-v3": 5.0.0
     "@nance/nance-editor": ^1.7.0
-    "@nance/nance-sdk": ^4.0.6
+    "@nance/nance-sdk": ^4.0.7
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": 2
     "@rainbow-me/rainbowkit-siwe-next-auth": ^0.3.1
