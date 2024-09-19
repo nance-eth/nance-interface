@@ -210,6 +210,36 @@ export function useActions(args: BaseRequest, shouldFetch: boolean = true) {
   );
 }
 
+async function emptyCreator(url: RequestInfo | URL) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const json: APIResponse<string> = await res.json();
+  if (json.success === false) {
+    throw new Error(
+      `An error occurred while uploading the data: ${JSON.stringify(
+        json?.error
+      )}`
+    );
+  }
+
+  return json;
+}
+export function useCreateActionPoll(
+  args: ActionRequest,
+  shouldFetch: boolean = true
+) {
+  return useSWRMutation(
+    shouldFetch
+      ? `${NANCE_API_URL}/${args.space}/actions/${args.aid}/poll`
+      : null,
+    emptyCreator
+  );
+}
+
 async function uploader(
   url: RequestInfo | URL,
   { arg }: { arg: ProposalUploadRequest }

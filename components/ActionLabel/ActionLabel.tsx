@@ -1,9 +1,10 @@
-import { Action, Cancel, CustomTransaction, Reserve } from "@nance/nance-sdk";
+import { Action, Cancel, Reserve } from "@nance/nance-sdk";
 import CustomTransactionActionLabel from "./CustomTransactionActionLabel";
 import PayoutActionLabel from "./PayoutActionLabel";
 import { ReserveActionLabel } from "./ReserveActionLabel";
 import TransferActionLabel from "./TransferActionLabel";
 import CancelActionLabel from "./CancelActionLabel";
+import MilestonePollLink from "./MilestonePollLink";
 
 export default function ActionLabel({
   action,
@@ -25,25 +26,37 @@ export default function ActionLabel({
         )} */}
       </span>
 
-      {action.type === "Transfer" && <TransferActionLabel action={action} />}
+      <div className="flex flex-col">
+        <div>
+          {action.type === "Transfer" && (
+            <TransferActionLabel action={action} />
+          )}
 
-      {action.type === "Payout" && <PayoutActionLabel action={action} />}
+          {action.type === "Payout" && <PayoutActionLabel action={action} />}
 
-      {action.type === "Custom Transaction" && (
-        <CustomTransactionActionLabel
-          action={action}
-          space={space}
-          uuid={action.uuid}
-        />
-      )}
+          {action.type === "Custom Transaction" && (
+            <CustomTransactionActionLabel
+              action={action}
+              space={space}
+              uuid={action.uuid}
+            />
+          )}
 
-      {action.type === "Reserve" && (
-        <ReserveActionLabel reserve={action.payload as Reserve} />
-      )}
+          {action.type === "Reserve" && (
+            <ReserveActionLabel reserve={action.payload as Reserve} />
+          )}
 
-      {action.type === "Cancel" && (
-        <CancelActionLabel cancel={action.payload as Cancel} />
-      )}
+          {action.type === "Cancel" && (
+            <CancelActionLabel cancel={action.payload as Cancel} />
+          )}
+        </div>
+
+        {action.pollRequired && (
+          <div>
+            <MilestonePollLink action={action} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

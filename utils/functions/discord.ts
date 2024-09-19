@@ -34,6 +34,12 @@ export function openInDiscord(url: string) {
   }
 }
 
+export function getDomain(url: string) {
+  // parse data between https:// and .<ending> to get name of domain, dont include www. or .<ending> in the name
+  const domain = url.replace(/(https?:\/\/)?(www\.)?/i, "").split(".")[0];
+  return domain;
+}
+
 export function discordContactMessage(form: {
   name: string;
   email: string;
@@ -72,7 +78,7 @@ export const discordAuthWindow = (csrf: string, address: string) => {
   return window.open(
     discordAuthUrl(csrf, address),
     "_blank",
-    "width=400,height=700,noopener,noreferrer",
+    "width=400,height=700,noopener,noreferrer"
   );
 };
 
@@ -87,7 +93,7 @@ export const managedGuildsOf = (guilds?: DiscordGuild[]): DiscordGuild[] => {
   if (!guilds || guilds.length === 0 || (guilds as any).message) return []; // error from Discord API
   return guilds
     .filter(
-      (guild) => (Number(guild.permissions) & MANAGE_GUILD) === MANAGE_GUILD,
+      (guild) => (Number(guild.permissions) & MANAGE_GUILD) === MANAGE_GUILD
     )
     .map((guild) => {
       return { ...guild, icon: getGuildIconUrl(guild) };
@@ -104,7 +110,7 @@ export const formatRoles = (roles?: DiscordRole[]): DiscordRole[] => {
 };
 
 export const formatChannels = (
-  channels?: DiscordChannel[],
+  channels?: DiscordChannel[]
 ): DiscordChannel[] => {
   if (!channels || channels.length === 0 || (channels as any).message)
     // error from Discord API
@@ -113,7 +119,7 @@ export const formatChannels = (
     .filter(
       (channel) =>
         channel.type === GUILD_TEXT_CHANNEL ||
-        channel.type === GUILD_ANNOUNCEMENT_CHANNEL,
+        channel.type === GUILD_ANNOUNCEMENT_CHANNEL
     )
     .map((channel) => {
       return { ...channel, name: appendSymbol(channel.name, "# ") };
@@ -133,26 +139,26 @@ export async function fetchDiscordInitialValues(args: {
 
   const channelsCommand = BOT_COMMANDS.channels.replace("{guildId}", guildId);
   const channels: DiscordChannel[] = await fetch(
-    `${DISCORD_PROXY_BOT_URL}?command=${channelsCommand}`,
+    `${DISCORD_PROXY_BOT_URL}?command=${channelsCommand}`
   ).then((res) => res.json());
   let proposalChannel = channels.find(
-    (channel) => channel.id === args?.discordConfig.channelIds.proposals,
+    (channel) => channel.id === args?.discordConfig.channelIds.proposals
   );
   if (proposalChannel)
     proposalChannel = { ...proposalChannel, name: `# ${proposalChannel.name}` };
 
   let alertChannel = channels.find(
-    (channel) => channel.id === args?.discordConfig.reminder.channelIds[0],
+    (channel) => channel.id === args?.discordConfig.reminder.channelIds[0]
   );
   if (alertChannel)
     alertChannel = { ...alertChannel, name: `# ${alertChannel.name}` };
 
   const rolesCommand = BOT_COMMANDS.roles.replace("{guildId}", guildId);
   const roles: DiscordRole[] = await fetch(
-    `${DISCORD_PROXY_BOT_URL}?command=${rolesCommand}`,
+    `${DISCORD_PROXY_BOT_URL}?command=${rolesCommand}`
   ).then((res) => res.json());
   let role = roles.find(
-    (role) => role.id === args?.discordConfig.roles.governance,
+    (role) => role.id === args?.discordConfig.roles.governance
   );
   if (role) role = formatRoles([role])[0];
 
