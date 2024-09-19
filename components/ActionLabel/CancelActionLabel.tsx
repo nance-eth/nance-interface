@@ -1,18 +1,18 @@
 import { SpaceContext } from "@/context/SpaceContext";
-import { Action, Cancel } from "@nance/nance-sdk";
+import { Cancel } from "@nance/nance-sdk";
 import { useContext } from "react";
 import ActionLabel from "./ActionLabel";
-import { useActions } from "@/utils/hooks/NanceHooks";
+import { useAction } from "@/utils/hooks/NanceHooks";
 
 export default function CancelActionLabel({ cancel }: { cancel: Cancel }) {
   const spaceInfo = useContext(SpaceContext);
   const spaceName = spaceInfo?.name || "";
 
-  const { data } = useActions({ space: spaceName }, !!spaceName);
-  const actions = data?.data || [];
-  const targetAction = actions.find(
-    (v) => v.action.uuid === cancel.targetActionUuid
+  const { data } = useAction(
+    { space: spaceName, aid: cancel.targetActionUuid },
+    !!spaceName
   );
+  const targetAction = data?.data;
 
   return (
     <div className="flex flex-col">
