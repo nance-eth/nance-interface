@@ -9,6 +9,7 @@ export interface SelectOption {
   value: string;
 }
 
+// FIXME the option selected is wrong when first load
 export default function SelectForm({
   label,
   fieldName,
