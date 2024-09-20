@@ -7,23 +7,61 @@ import { useProposal, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useParams } from "next/navigation";
 
-export default function NanceEditProposal(){
+export default function NanceEditProposal() {
   const params = useParams<{ space: string }>();
   const space = params?.space;
-  const [{ proposalId, fork: forkString }] = useQueryParams({ proposalId: StringParam, fork: StringParam});
+  const [{ proposalId, fork: forkString }] = useQueryParams({
+    proposalId: StringParam,
+    fork: StringParam,
+  });
   const args = { space, uuid: proposalId || "" };
   const shouldFetch = !!proposalId && !!space;
-  const { data, isLoading: proposalLoading } = useProposal(args, shouldFetch);
+  const {
+    data,
+    isLoading: proposalLoading,
+    error: proposalError,
+  } = useProposal(args, shouldFetch);
   const loadedProposal = data?.data;
   const fork = forkString === "true";
 
-  const { data: spaceInfoResponse } = useSpaceInfo({ space });
+  const {
+    data: spaceInfoResponse,
+    isLoading: spaceInfoLoading,
+    error: spaceInfoError,
+  } = useSpaceInfo({ space });
   const spaceInfo = spaceInfoResponse?.data;
 
-  if (proposalLoading || !spaceInfo) {
+  if (proposalError || spaceInfoError) {
+    console.warn("ProposalEdit.error", proposalError || spaceInfoError);
     return (
       <>
-        <SiteNav pageTitle="Edit Proposal" description="Create or edit proposal on Nance." space={space} withWallet withProposalButton={false} />
+        <SiteNav
+          pageTitle="Edit Proposal"
+          description="Create or edit proposal on Nance."
+          space={space}
+          withWallet
+          withProposalButton={false}
+        />
+        <div className="m-4 flex items-center justify-center lg:m-6">
+          <div className="w-full max-w-7xl">
+            <p>Error</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (proposalLoading || spaceInfoLoading) {
+    return (
+      <>
+        <SiteNav
+          pageTitle="Edit Proposal"
+          description="Create or edit proposal on Nance."
+          space={space}
+          withWallet
+          withProposalButton={false}
+        />
         <div className="m-4 flex items-center justify-center lg:m-6">
           <div className="w-full max-w-7xl">
             <p>Loading...</p>
