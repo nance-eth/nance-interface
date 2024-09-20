@@ -9,9 +9,11 @@ import MilestonePollLink from "./MilestonePollLink";
 export default function ActionLabel({
   action,
   space,
+  readonly = false,
 }: {
   action: Action;
   space: string;
+  readonly?: boolean;
 }) {
   return (
     <div className="ml-2 flex w-full space-x-2 break-words">
@@ -51,7 +53,7 @@ export default function ActionLabel({
           )}
         </div>
 
-        {action.pollRequired && (
+        {action.pollRequired && !readonly && (
           <div>
             <MilestonePollLink action={action} />
           </div>

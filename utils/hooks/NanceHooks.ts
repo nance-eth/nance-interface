@@ -188,7 +188,7 @@ export function useProposal(
 interface ActionRequest extends BaseRequest {
   aid: string;
 }
-interface ActionPayload {
+export interface ActionPayload {
   action: Action;
   proposal: {
     id: string;
