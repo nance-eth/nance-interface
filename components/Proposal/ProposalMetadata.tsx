@@ -1,4 +1,4 @@
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getDomain, openInDiscord } from "@/utils/functions/discord";
 import { useContext, useState } from "react";
@@ -8,16 +8,16 @@ import { ProposalContext } from "./context/ProposalContext";
 import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { SpaceContext } from "@/context/SpaceContext";
 import { Spinner } from "flowbite-react";
-import { APIResponse, ProposalPacket } from "@nance/nance-sdk";
+import { APIResponse, ProposalPacket, getOrRefreshProposalDiscussion } from "@nance/nance-sdk";
 import toast from "react-hot-toast";
+import { useAccount } from "wagmi";
+import { canEditProposal } from "@/utils/functions/nance";
 
 export default function ProposalMetadata() {
+  const { address } = useAccount();
   const { commonProps } = useContext(ProposalContext);
-  const shouldFetchSpaceInfo = commonProps?.actions?.length > 0;
-  const { data } = useSpaceInfo(
-    { space: commonProps.space },
-    shouldFetchSpaceInfo
-  );
+  const { data } = useSpaceInfo({ space: commonProps.space });
+  const spaceInfo = data?.data;
 
   // refresh discussion link
   const [discussionThreadURL, setDiscussionThreadURL] = useState<
@@ -71,7 +71,7 @@ export default function ProposalMetadata() {
             <p className="col-span-2 font-medium">Actions:</p>
 
             <div className="col-span-2 mt-2 flex w-full flex-col space-y-2">
-              <SpaceContext.Provider value={data?.data}>
+              <SpaceContext.Provider value={spaceInfo}>
                 {commonProps.actions.map((action, index) => (
                   <ActionLabel
                     action={action}
@@ -94,7 +94,7 @@ export default function ProposalMetadata() {
                   href={`/s/${commonProps.space}/?cycle=${commonProps.governanceCycle}`}
                 >
                   {commonProps.governanceCycle}
-                  <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+                  <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3" />
                 </Link>
               </span>
             </>
@@ -110,44 +110,62 @@ export default function ProposalMetadata() {
           {discussionThreadURL && discussionThreadURL !== "ERROR" && (
             <>
               <span className="font-medium">Discussion:</span>
-              <a
-                className="col-span-2 w-fit"
-                target="_blank"
-                rel="noreferrer"
-                href={openInDiscord(discussionThreadURL)}
-              >
-                {getDomain(discussionThreadURL)}
-                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-              </a>
+              <div className="flex flex-row items-center space-x-1">
+                <a
+                  className="col-span-2 w-fit"
+                  target="_blank"
+                  rel="noreferrer"
+                  href={openInDiscord(discussionThreadURL)}
+                >
+                  {getDomain(discussionThreadURL)}
+                  <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
+                </a>
+                {address
+                  && spaceInfo?.spaceOwners.includes(address)
+                  && canEditProposal(commonProps.status)
+                  && (
+                    <ArrowPathIcon className="h-3 w-3 hover:cursor-pointer"
+                      onClick={async () => {
+                        toast.promise(
+                          getOrRefreshProposalDiscussion(
+                            commonProps.space, commonProps.uuid, NANCE_API_URL
+                          ), {
+                            loading: "Updating Discord",
+                            success: "Discord updated!",
+                            error: (err) => `${err.toString()}`
+                          });
+                      }}
+                    />
+                  )}
+              </div>
+              <div></div>
             </>
           )}
 
           {discussionThreadURL === "ERROR" &&
             commonProps.status === "Discussion" && (
-              <>
-                <span className="font-medium">Discussion:</span>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  className="col-span-2 cursor-pointer text-sky-800"
-                  onClick={async () => {
-                    try {
-                      setDiscussionThreadURL(undefined);
-                      await fetch(
-                        `${NANCE_API_URL}/${commonProps!.space}/discussion/${
-                          commonProps?.uuid
-                        }`
-                      );
-                    } catch (e: any) {
-                      toast.error(e.toString());
-                    }
-                  }}
-                >
-                  start discussion
-                  <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-                </a>
-              </>
-            )}
+            <>
+              <span className="font-medium">Discussion:</span>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                className="col-span-2 cursor-pointer text-sky-800"
+                onClick={async () => {
+                  try {
+                    setDiscussionThreadURL(undefined);
+                    await getOrRefreshProposalDiscussion(
+                      commonProps.space, commonProps.uuid, NANCE_API_URL
+                    )
+                  } catch (e: any) {
+                    toast.error(e.toString());
+                  }
+                }}
+              >
+                start discussion
+                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+              </a>
+            </>
+          )}
 
           {commonProps.snapshotSpace && commonProps.snapshotHash && (
             <>
@@ -159,7 +177,7 @@ export default function ProposalMetadata() {
                 href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}
               >
                 {commonProps.snapshotHash.substring(0, 8)}
-                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+                <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
               </a>
             </>
           )}
