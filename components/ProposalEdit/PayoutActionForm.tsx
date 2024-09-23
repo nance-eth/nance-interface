@@ -10,6 +10,7 @@ import {
 import { useContext } from "react";
 import { SpaceContext } from "@/context/SpaceContext";
 import BooleanForm from "../form/BooleanForm";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
 export default function PayoutActionForm({
   genFieldName,
@@ -21,9 +22,11 @@ export default function PayoutActionForm({
   const { watch, getValues } = useFormContext();
   const spaceInfo = useContext(SpaceContext);
 
+  const metadata = useContext(ProposalMetadataContext);
+  const isNew = metadata.fork || metadata.loadedProposal === undefined;
   const earliestStartCycle = getEarliestStartCycle(
     spaceInfo?.currentCycle || 1,
-    spaceInfo?.currentEvent.title || "Unknown"
+    !isNew
   );
 
   return (

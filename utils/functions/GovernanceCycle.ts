@@ -28,10 +28,11 @@ export function dateRangesOfCycles({
 
 export function getEarliestStartCycle(
   currentCycle: number,
-  currentDateEvent: GovernanceEvent
+  isEdit: boolean = false
 ) {
   // we may still get proposal passed this cycle if we are still at Temp-check stage
   //   otherwise the proposal may only passed next cycle and take effect next next cycle
   // jigglyjams: governanceCycle should always be current cycle + 1. leaving function here in case we need to do anything different
-  return currentCycle + 1;
+  // user should be able to leave cycleStart unchanged if editing
+  return isEdit ? currentCycle : currentCycle + 1;
 }

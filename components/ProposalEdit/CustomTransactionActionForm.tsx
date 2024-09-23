@@ -25,6 +25,7 @@ import {
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 import { GenericTransactionData } from "../Transaction/TransactionCreator";
 import { extractFunctionName } from "@/utils/functions/nance";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
 export default function CustomTransactionActionForm({
   genFieldName,
@@ -36,9 +37,12 @@ export default function CustomTransactionActionForm({
   const [functionData, setFunctionData] = useState<string>();
 
   const spaceInfo = useContext(SpaceContext);
+
+  const metadata = useContext(ProposalMetadataContext);
+  const isNew = metadata.fork || metadata.loadedProposal === undefined;
   const earliestStartCycle = getEarliestStartCycle(
     spaceInfo?.currentCycle || 1,
-    spaceInfo?.currentEvent.title || "Unknown"
+    !isNew
   );
 
   const { latestTransaction, setAddress, address } = useSafeInject();

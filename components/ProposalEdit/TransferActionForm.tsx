@@ -14,6 +14,7 @@ import {
   getEarliestStartCycle,
 } from "@/utils/functions/GovernanceCycle";
 import BooleanForm from "../form/BooleanForm";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
 type ListBoxItem = {
   id: string;
@@ -57,9 +58,11 @@ export default function TransferActionForm({
         },
       ];
 
+  const metadata = useContext(ProposalMetadataContext);
+  const isNew = metadata.fork || metadata.loadedProposal === undefined;
   const earliestStartCycle = getEarliestStartCycle(
     spaceInfo?.currentCycle || 1,
-    spaceInfo?.currentEvent.title || "Unknown"
+    !isNew
   );
 
   return (

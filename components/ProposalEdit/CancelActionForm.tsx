@@ -5,6 +5,7 @@ import { getEarliestStartCycle } from "@/utils/functions/GovernanceCycle";
 import UIntForm from "../form/UIntForm";
 import { useFormContext } from "react-hook-form";
 import ActionForm from "../form/ActionForm";
+import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 
 export default function CancelActionForm({
   genFieldName,
@@ -14,9 +15,11 @@ export default function CancelActionForm({
   const { setValue } = useFormContext();
   const spaceInfo = useContext(SpaceContext);
 
+  const metadata = useContext(ProposalMetadataContext);
+  const isNew = metadata.fork || metadata.loadedProposal === undefined;
   const earliestStartCycle = getEarliestStartCycle(
     spaceInfo?.currentCycle || 1,
-    spaceInfo?.currentEvent.title || "Unknown"
+    !isNew
   );
 
   useEffect(() => {
