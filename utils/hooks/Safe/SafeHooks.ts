@@ -258,6 +258,7 @@ export function useQueueTransaction(
       // core logic
       const optionsFirstPass: SafeTransactionOptionalProps = {
         gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
+        nonce
       };
       // this pass we can get safeTxGas
       const transactionFirstPass = await safe.createTransaction({
