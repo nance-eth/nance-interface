@@ -22,17 +22,10 @@ export function openInDiscord(url: string) {
   try {
     if (url.includes("discord")) {
       const splitUrl = url.split(discordLink)[1].split("/");
-      if (splitUrl.length === 3) {
-        // used to store URL with channel which doesn't open directly into thread
-        // split out channel so it does open correctly
-        splitUrl.splice(1, 1);
-        const newUrl = splitUrl.join("/");
-        return `${discordProtocol}${newUrl}`;
-      }
-      // now api stores direct open link
       const newUrl = splitUrl.join("/");
       return `${discordProtocol}${newUrl}`;
     }
+    return url;
   } catch (e) {
     console.error("Error opening Discord URL", e);
     return url;
