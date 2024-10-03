@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { NANCE_PROXY_API_URL } from "@/constants/Nance";
 import { SpaceConfig } from "@nance/nance-sdk";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
@@ -17,6 +18,7 @@ const tasks = [
   { name: "End Temperature Check", endpoint: "temperatureCheckClose" },
   { name: "Start Voting", endpoint: "voteSetup" },
   { name: "End Voting", endpoint: "voteClose" },
+  { name: "Reconfig Thread", endpoint: "thread/reconfig"}
 ];
 
 export default function Tasks({ spaceConfig }: { spaceConfig: SpaceConfig }) {
@@ -32,12 +34,15 @@ export default function Tasks({ spaceConfig }: { spaceConfig: SpaceConfig }) {
 
   const performTask = async (space: string, endpoint: string) => {
     const res = await fetch(
-      `${NANCE_PROXY_API_URL}/tasks/${space}/${endpoint}`
+      `${NANCE_PROXY_API_URL}/${space}/tasks/${endpoint}`
     );
-    const data = await res.json();
-    console.debug("Space tasks", data);
-    setTaskResult(data);
+    const json = await res.json();
+    console.debug("Space tasks", json);
+    setTaskResult(json);
     setTaskLoading(false);
+    if (json.error) {
+      toast.error(json.error)
+    }
   };
 
   return (
@@ -67,19 +72,19 @@ export default function Tasks({ spaceConfig }: { spaceConfig: SpaceConfig }) {
                 {/* Success */}
                 {selectedTask.name === task.name &&
                   taskResult.success === true && (
-                    <CheckCircleIcon
-                      className="inline ml-2 h-5 w-5 text-green-400"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <CheckCircleIcon
+                    className="inline ml-2 h-5 w-5 text-green-400"
+                    aria-hidden="true"
+                  />
+                )}
                 {/* Fail */}
                 {selectedTask.name === task.name &&
                   taskResult.success === false && (
-                    <ExclamationCircleIcon
-                      className="inline ml-2 h-5 w-5 text-red-400"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <ExclamationCircleIcon
+                    className="inline ml-2 h-5 w-5 text-red-400"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </div>
           ))}
