@@ -13,25 +13,27 @@ export default function MilestonePollLink({ action }: { action: Action }) {
   const { trigger } = useCreateActionPoll(payload, !!spaceName);
 
   const actionTracking = action.actionTracking?.find(
-    (t) => t.governanceCycle === spaceInfo?.currentCycle || 0
+    (t) =>
+      t.governanceCycle === 0 || // no polling before
+      t.governanceCycle === spaceInfo?.currentCycle // find current status
   );
 
-  if (actionTracking?.pollId) {
+  if (actionTracking?.pollId && actionTracking?.status === "Polling") {
     // polling
     return (
       <a
-        className="w-fit"
+        className="w-fit text-blue-800"
         target="_blank"
         rel="noreferrer"
         href={openInDiscord(actionTracking.pollId)}
       >
-        {getDomain(actionTracking.pollId)}
+        go to poll
         <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
       </a>
     );
   }
 
-  if (actionTracking?.status === "Active") {
+  if (actionTracking?.status === "Poll Required") {
     // no existed poll, can start a new one
     return (
       <a
@@ -41,7 +43,7 @@ export default function MilestonePollLink({ action }: { action: Action }) {
         onClick={async () => {
           toast.promise(trigger(), {
             loading: "Creating",
-            success: (data) => `Successfully created poll ${data}`,
+            success: (data) => `Successfully created poll ${data?.data}`,
             error: (err) => `${err.toString()}`,
           });
         }}
