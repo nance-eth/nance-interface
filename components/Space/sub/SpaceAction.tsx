@@ -65,7 +65,6 @@ export default function SpaceAction() {
 
   const spaceName = spaceInfo.name;
   const projectId = parseInt(spaceInfo.juiceboxProjectId || "1");
-  const currentCycle = spaceInfo.currentCycle.toString();
 
   return (
     <>
@@ -103,7 +102,6 @@ export default function SpaceAction() {
                     href: "#",
                     icon: BanknotesIcon,
                     onClick: () => {
-                      setQuery({ cycle: currentCycle });
                       setShowQueueReconfigurationModal(true);
                     },
                   },
@@ -116,7 +114,6 @@ export default function SpaceAction() {
               href: "#",
               icon: BoltIcon,
               onClick: () => {
-                setQuery({ cycle: currentCycle });
                 setShowQueueTransactionsModal(true);
               },
             },

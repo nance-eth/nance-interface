@@ -1,24 +1,11 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  CustomTransaction,
-  SpaceInfo,
-  Transfer,
-  getActionsFromBody,
-} from "@nance/nance-sdk";
+import { CustomTransaction, SpaceInfo, Transfer } from "@nance/nance-sdk";
 import { extractFunctionName } from "@/utils/functions/nance";
 import { getContractLabel } from "@/constants/Contract";
 import { Interface, parseUnits } from "ethers/lib/utils";
-import {
-  BooleanParam,
-  NumberParam,
-  StringParam,
-  useQueryParams,
-  withDefault,
-} from "next-query-params";
-import { useProposalsInfinite } from "@/utils/hooks/NanceHooks";
-import { useRouter } from "next/router";
+import { useActions } from "@/utils/hooks/NanceHooks";
 import OrderCheckboxTable, {
   TransactionEntry,
 } from "../form/OrderCheckboxTable";
@@ -28,7 +15,6 @@ import TransactionCreator from "./TransactionCreator";
 import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
-import TransactionCycleNavigator from "./TransactionCycleNavigator";
 import { deepStringify } from "@/utils/functions/stringify";
 
 const TOKEN_DECIMALS: { [contract: string]: number } = {
@@ -47,56 +33,29 @@ export default function QueueTransactionsModal({
   transactorAddress?: string;
   spaceInfo: SpaceInfo;
 }) {
-  const router = useRouter();
-  const [query] = useQueryParams({
-    // set cycle query in ./TransactionCycleNavigator
-    keyword: StringParam,
-    limit: withDefault(NumberParam, 10),
-    cycle: StringParam,
-    sortBy: withDefault(StringParam, ""),
-    sortDesc: withDefault(BooleanParam, true),
-  });
-  const { cycle, keyword, limit } = query;
   const space = spaceInfo?.name || "";
-  const { data: proposalDataArray, isLoading } = useProposalsInfinite(
-    { space, cycle, keyword, limit },
-    router.isReady
-  );
+  const cycle = spaceInfo?.currentCycle;
 
-  const [selectAllActions, setSelectAllActions] = useState(false);
+  //const [selectAllActions, setSelectAllActions] = useState(false);
 
-  useEffect(() => {
-    let _window = window as any;
-    if (_window.Nance === undefined) {
-      _window.Nance = {};
-    }
+  const { data: allActions, isLoading } = useActions({ space });
 
-    _window.Nance.selectAllActions = setSelectAllActions;
-  }, []);
+  // useEffect(() => {
+  //   let _window = window as any;
+  //   if (_window.Nance === undefined) {
+  //     _window.Nance = {};
+  //   }
+
+  //   _window.Nance.selectAllActions = setSelectAllActions;
+  // }, []);
 
   // Gather all actions in current fundingCycle
-  const actionWithPIDArray = proposalDataArray
-    ?.map((r) => r.data?.proposals)
-    .flat()
-    // only gather approved actions
-    ?.filter((p) => {
-      p.actions = getActionsFromBody(p.body) || [];
-      return (
-        p.actions &&
-        p.actions.length > 0 &&
-        (selectAllActions || p.status === "Voting" || p.status === "Approved")
-      );
-    })
-    .flatMap((p) => {
-      return (
-        p.actions?.map((action) => {
-          return {
-            pid: p.proposalId || 0,
-            action,
-          };
-        }) || []
-      );
-    });
+  const actionWithPIDArray = allActions?.data.map((p) => {
+    return {
+      pid: p.proposal.id,
+      action: p.action,
+    };
+  });
   const transferActions = actionWithPIDArray?.filter(
     (v) => v.action.type === "Transfer"
   );
@@ -203,7 +162,7 @@ export default function QueueTransactionsModal({
                         as="h3"
                         className="text-lg font-semibold leading-6 text-gray-900 px-2 md:px-4"
                       >
-                        Queue Transactions for GC#{cycle}
+                        Queue Transactions
                       </Dialog.Title>
 
                       <button
@@ -215,8 +174,6 @@ export default function QueueTransactionsModal({
                         <XMarkIcon aria-hidden="true" className="h-6 w-6" />
                       </button>
                     </div>
-
-                    <TransactionCycleNavigator />
 
                     <OrderCheckboxTable
                       address={transactorAddress || ""}
