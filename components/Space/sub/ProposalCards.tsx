@@ -70,6 +70,10 @@ function sortProposals(
   votedData: { [id: string]: SnapshotVotedData } | undefined
 ) {
   if (!sortBy || !SortOptionsArr.includes(sortBy)) {
+    proposals.sort(
+      (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
+    );
+
     // fall back to default sorting
     // if no keyword
     if (!keyword) {
@@ -77,10 +81,6 @@ function sortProposals(
         (a, b) => (b.governanceCycle ?? 0) - (a.governanceCycle ?? 0)
       );
     }
-
-    proposals.sort(
-      (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
-    );
   }
 
   switch (sortBy) {
