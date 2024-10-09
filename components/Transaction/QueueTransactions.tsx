@@ -34,7 +34,7 @@ export default function QueueTransactionsModal({
   spaceInfo: SpaceInfo;
 }) {
   const space = spaceInfo?.name || "";
-  const cycle = spaceInfo?.currentCycle;
+  const cycle = spaceInfo?.currentCycle.toString();
 
   //const [selectAllActions, setSelectAllActions] = useState(false);
 
