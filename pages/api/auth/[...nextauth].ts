@@ -1,8 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
+import { createPublicClient, http } from "viem";
+import { mainnet } from "viem/chains";
+
+
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(`https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`)
+});
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -32,8 +39,10 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
 
           const message = JSON.parse(credentials.message);
           const { domain, nonce } = message;
-          const { signature } = credentials;
-
+          const { signature } = credentials as { signature: `0x${string}` };
+          if (!signature.startsWith("0x")) {
+            throw new Error('Invalid signature format: must start with "0x"')
+          }
           const siwe = new SiweMessage(message);
 
           const nextAuthDomains = process.env.NEXTAUTH_DOMAINS?.split(",");
@@ -54,9 +63,8 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             return null;
           }
 
-          const result = await siwe.verify({ signature, nonce });
-
-          if (result.success) {
+          const result = await publicClient.verifySiweMessage({ message: siwe, signature })
+          if (result) {
             return {
               id: siwe.address,
             };
@@ -64,7 +72,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           return null;
         } catch (e: any) {
           console.log("❌ NextAuth.authorize.error", e);
-          return e;
+          return null;
         }
       },
     }),
