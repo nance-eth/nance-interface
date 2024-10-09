@@ -63,7 +63,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             return null;
           }
 
-          const result = await publicClient.verifySiweMessage({ message: siwe, signature })
+          const result = await publicClient.verifySiweMessage({ message: siwe.prepareMessage(), signature })
           if (result) {
             return {
               id: siwe.address,
