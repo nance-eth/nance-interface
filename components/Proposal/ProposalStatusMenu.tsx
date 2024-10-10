@@ -12,7 +12,7 @@ import { useProposalPatchStatus, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { useSession } from "next-auth/react";
 
 export default function ProposalStatusMenu() {
-  const { commonProps } = useContext(ProposalContext);
+  const { commonProps, mutateNanceProposal } = useContext(ProposalContext);
   const { trigger } = useProposalPatchStatus(
     commonProps.space,
     commonProps.uuid
@@ -33,7 +33,7 @@ export default function ProposalStatusMenu() {
           </Menu.Button>
 
           <Menu.Button className="hidden w-full justify-center gap-x-1.5 rounded-md bg-gray px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex">
-            <ProposalBadgeLabel status={commonProps.status} />
+            {commonProps.status}
             <ChevronDownIcon
               className="-mr-1 h-5 w-5 text-gray-400"
               aria-hidden="true"
@@ -53,12 +53,15 @@ export default function ProposalStatusMenu() {
                       onClick={() => {
                         toast.promise(trigger(s), {
                           loading: "Updating status",
-                          success: (data) => `Status updated to ${s}`,
+                          success: (data) => {
+                            mutateNanceProposal?.({ status: s });
+                            return `Status updated to ${s}`;
+                          },
                           error: (err) => `${err.toString()}`,
                         });
                       }}
                     >
-                      <ProposalBadgeLabel status={s} />
+                      {s}
                     </button>
                   )}
                 </Menu.Item>

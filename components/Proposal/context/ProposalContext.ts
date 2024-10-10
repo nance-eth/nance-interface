@@ -1,4 +1,4 @@
-import { Action } from "@nance/nance-sdk";
+import { Action, ProposalPacket } from "@nance/nance-sdk";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import { createContext } from "react";
 
@@ -32,7 +32,8 @@ export const ProposalContext = createContext<{
   proposalIdPrefix?: string;
   proposalSummary?: string;
   threadSummary?: string;
-  refetch?: () => void;
+  mutateNanceProposal?: (data: Partial<ProposalPacket>) => void;
+  refetchSnapshotProposal?: () => void;
 }>({
   commonProps: {
     space: "",
@@ -61,5 +62,6 @@ export const ProposalContext = createContext<{
   proposalIdPrefix: undefined,
   proposalSummary: undefined,
   threadSummary: undefined,
-  refetch: undefined,
+  mutateNanceProposal: undefined,
+  refetchSnapshotProposal: undefined,
 });

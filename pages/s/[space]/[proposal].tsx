@@ -25,13 +25,17 @@ export default function NanceProposalPage() {
   const params = useParams<{ space: string; proposal: string }>();
   const args = { space: params?.space, uuid: params?.proposal };
   const space = args.space;
-  const { data, isLoading: proposalLoading } = useProposal(args, !!params);
+  const {
+    data,
+    isLoading: proposalLoading,
+    mutate: mutateNanceProposal,
+  } = useProposal(args, !!params);
   const proposal = data?.data;
   const proposalHash = getLastSlash(proposal?.voteURL);
 
   const {
     data: { proposalsData },
-    refetch: refetchProposalsData,
+    refetch: refetchSnapshotProposal,
   } = useProposalsByID([proposalHash], "", proposalHash === undefined);
 
   const snapshotProposal = proposalsData?.[0];
@@ -115,7 +119,10 @@ export default function NanceProposalPage() {
               nextProposalId: proposal.proposalInfo.nextProposalId,
               proposalSummary: proposal.proposalSummary,
               threadSummary: proposal.threadSummary,
-              refetch: refetchProposalsData,
+              mutateNanceProposal: (d) => {
+                mutateNanceProposal({ ...data, data: { ...data.data, ...d } });
+              },
+              refetchSnapshotProposal,
             }}
           >
             <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">

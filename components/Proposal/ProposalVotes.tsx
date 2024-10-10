@@ -37,11 +37,8 @@ export default function ProposalVotes({
 }: {
   snapshotSpace: string;
 }) {
-  const {
-    proposalInfo,
-    commonProps,
-    refetch: refetchProposalsData,
-  } = useContext(ProposalContext);
+  const { proposalInfo, commonProps, refetchSnapshotProposal } =
+    useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
@@ -58,7 +55,7 @@ export default function ProposalVotes({
     proposalInfo,
     Math.max((query.page - 1) * VOTES_PER_PAGE, 0),
     query.sortBy as "created" | "vp",
-    query.withField as "reason" | "app" | "",
+    query.withField as "reason" | "app" | ""
   );
 
   const proposalType = proposalInfo?.type ?? "";
@@ -93,7 +90,7 @@ export default function ProposalVotes({
                 <p
                   className={classNames(
                     "cursor-pointer text-sm text-green-500",
-                    query.filterBy === "for" ? "underline" : "",
+                    query.filterBy === "for" ? "underline" : ""
                   )}
                   onClick={() => {
                     if (query.filterBy === "for") setQuery({ filterBy: "" });
@@ -106,7 +103,7 @@ export default function ProposalVotes({
                 <p
                   className={classNames(
                     "cursor-pointer text-sm text-red-500",
-                    query.filterBy === "against" ? "underline" : "",
+                    query.filterBy === "against" ? "underline" : ""
                   )}
                   onClick={() => {
                     if (query.filterBy === "against")
@@ -178,17 +175,17 @@ export default function ProposalVotes({
                           getColorOfChoice(
                             processChoices(
                               proposalInfo?.type,
-                              vote.choice,
-                            ) as string,
+                              vote.choice
+                            ) as string
                           ),
-                          "",
+                          ""
                         )}
                       >
                         voted{" "}
                         {
                           processChoices(
                             proposalInfo?.type,
-                            vote.choice,
+                            vote.choice
                           ) as string
                         }
                       </span>
@@ -226,7 +223,7 @@ export default function ProposalVotes({
                       {(
                         processChoices(
                           proposalInfo?.type,
-                          vote.choice,
+                          vote.choice
                         ) as string[]
                       ).map((choice, idx) => (
                         <p key={`${vote.id} - ${idx}`}>{choice}</p>
@@ -253,7 +250,7 @@ export default function ProposalVotes({
         snapshotSpace={snapshotSpace}
         snapshotProposal={proposalInfo}
         refetch={() => {
-          refetchProposalsData?.();
+          refetchSnapshotProposal?.();
           refetchProposalVotes();
         }}
       />
