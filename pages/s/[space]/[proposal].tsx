@@ -17,7 +17,6 @@ import {
 import { STATUS } from "@/constants/Nance";
 import { useProposal } from "@/utils/hooks/NanceHooks";
 import { useParams } from "next/navigation";
-import { getActionsFromBody } from "@nance/nance-sdk";
 
 export default function NanceProposalPage() {
   // state

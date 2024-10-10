@@ -5,11 +5,11 @@ import ProposalMetadata from "./ProposalMetadata";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import MarkdownWithTOC from "@/components/Markdown/MarkdownWithTOC";
 import { ProposalContext } from "./context/ProposalContext";
-import ProposalBadgeLabel from "../Space/sub/card/ProposalBadgeLabel";
 import { format, toDate } from "date-fns";
 import ProposalSummaries from "./ProposalSummaries";
 import ProposalMenu from "./ProposalMenu";
 import { ArrowLongLeftIcon } from "@heroicons/react/24/outline";
+import ProposalStatusMenu from "./ProposalStatusMenu";
 
 export default function ProposalContent() {
   const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
@@ -33,7 +33,7 @@ export default function ProposalContent() {
       <div className="flex flex-col px-4 py-5 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="inline-block">
-            <ProposalBadgeLabel status={commonProps.status} />
+            <ProposalStatusMenu />
           </div>
           <div className="flex flex-row items-center space-x-5">
             <Link

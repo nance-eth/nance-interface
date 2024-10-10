@@ -19,6 +19,7 @@ import {
   ProposalQueryResponse,
   Action,
   BaseRequest,
+  ProposalStatus,
 } from "@nance/nance-sdk";
 import { FundingCycleArgs } from "../functions/fundingCycle";
 import { JBSplit, V2V3FundingCycleMetadata } from "@/models/JuiceboxTypes";
@@ -302,6 +303,33 @@ export function useProposalDelete(
   let url = `${NANCE_PROXY_API_URL}/${space}/proposal/${uuid}`;
   let fetcher = deleter;
   return useSWRMutation(shouldFetch ? url : null, fetcher);
+}
+
+export function useProposalPatchStatus(
+  space: string,
+  uuid: string | undefined,
+  shouldFetch: boolean = true
+) {
+  let url = `${NANCE_PROXY_API_URL}/${space}/proposal/${uuid}/status/`;
+  return useSWRMutation(shouldFetch ? url : null, patcher);
+}
+
+async function patcher(
+  url: RequestInfo | URL,
+  { arg }: { arg: ProposalStatus }
+) {
+  const res = await fetch(url + arg, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const json: APIResponse<string> = await res.json();
+  if (json.success === false) {
+    throw new Error(`${JSON.stringify(json?.error)}`);
+  }
+
+  return json;
 }
 
 async function editor(
