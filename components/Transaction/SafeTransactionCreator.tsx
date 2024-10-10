@@ -67,8 +67,8 @@ export default function SafeTransactionCreator({
           disabled={queueNotReady}
           onClick={() => {
             setOpen(true);
-            trigger().then(() => {
-              if (!error) {
+            trigger().then((o) => {
+              if (o) {
                 onSuccess?.();
               }
             });

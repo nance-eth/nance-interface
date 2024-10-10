@@ -258,7 +258,7 @@ export function useQueueTransaction(
       // core logic
       const optionsFirstPass: SafeTransactionOptionalProps = {
         gasPrice: refundGas ? MAX_REFUND_GAS_PRICE || "0" : undefined, // If gasPrice > 0, Safe contract will refund gasUsed.
-        nonce
+        nonce,
       };
       // this pass we can get safeTxGas
       const transactionFirstPass = await safe.createTransaction({
@@ -298,10 +298,12 @@ export function useQueueTransaction(
         senderSignature: signature.data,
       });
 
-      setValue({
+      const ret = {
         safeTxHash: safeTxHash,
         nonce: safeTransaction.data.nonce.toString(),
-      });
+      };
+      setValue(ret);
+      return ret;
     } catch (e: any) {
       setError(e.message);
     } finally {
