@@ -25,14 +25,7 @@ export default function ProposalStatusMenu() {
     return (
       <Menu as="div" className="relative inline-block">
         <div>
-          <Menu.Button className="inline-flex w-full justify-end rounded-md sm:hidden">
-            <EllipsisVerticalIcon
-              className="h-7 w-7 text-indigo-600 hover:text-gray-900"
-              aria-hidden="true"
-            />
-          </Menu.Button>
-
-          <Menu.Button className="hidden w-full justify-center gap-x-1.5 rounded-md bg-gray px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex">
+          <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-gray px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             {commonProps.status}
             <ChevronDownIcon
               className="-mr-1 h-5 w-5 text-gray-400"
@@ -40,7 +33,7 @@ export default function ProposalStatusMenu() {
             />
           </Menu.Button>
         </div>
-        <Menu.Items className="absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+        <Menu.Items className="absolute mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
           {ProposalStatusNames.filter((s) => s !== commonProps.status).map(
             (s) => (
               <div key={s} className="px-1 py-1">
@@ -48,7 +41,7 @@ export default function ProposalStatusMenu() {
                   {({ active }) => (
                     <button
                       className={`${
-                        active ? "bg-gray-200 text-white" : "text-gray-900"
+                        active ? "bg-blue-500 text-white" : "text-gray-900"
                       } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       onClick={() => {
                         toast.promise(trigger(s), {

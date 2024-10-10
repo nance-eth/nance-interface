@@ -45,7 +45,10 @@ export default function ProposalContent() {
             <ProposalMenu />
           </div>
         </div>
-        <h1 id="applicant-information-title" className="text-3xl font-medium">
+        <h1
+          id="applicant-information-title"
+          className="text-3xl font-medium mt-2"
+        >
           {preTitleDisplay}
           {commonProps.title}
         </h1>
