@@ -1,7 +1,11 @@
 import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { utils } from "ethers";
-import { useReconfig } from "@/utils/hooks/NanceHooks";
+import {
+  getFetch,
+  getNanceEndpointPath,
+  useReconfig,
+} from "@/utils/hooks/NanceHooks";
 import {
   calcDiffTableData,
   compareReserves,
@@ -15,6 +19,7 @@ import TransactionCreator, {
 } from "@/components/Transaction/TransactionCreator";
 import DiffTableWithSection from "../form/DiffTableWithSection";
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
+import toast from "react-hot-toast";
 
 export default function QueueReconfigurationModal({
   open,
@@ -136,6 +141,17 @@ export default function QueueReconfigurationModal({
                     <TransactionCreator
                       address={owner}
                       transactions={[reconfigTx]}
+                      onSuccess={() => {
+                        const endpoint = getNanceEndpointPath(
+                          space,
+                          "tasks/thread/reconfig"
+                        );
+                        toast.promise(getFetch(endpoint), {
+                          loading: "Creating thread",
+                          success: (data) => `Successfully created thread`,
+                          error: (err) => `${err.toString()}`,
+                        });
+                      }}
                     />
                   </div>
 

@@ -10,9 +10,11 @@ import { NetworkContext } from "@/context/NetworkContext";
 export default function GovernorTransactionCreator({
   governorAddress,
   transactionDatas,
+  onSuccess,
 }: {
   governorAddress: string;
   transactionDatas: GenericTransactionData[];
+  onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [description, setDescription] = useState<string>("New proposal");
@@ -22,11 +24,11 @@ export default function GovernorTransactionCreator({
   const { data, error, isPending, writeContract, request } = usePropose(
     governorAddress as `0x${string}`,
     transactionDatas.map(
-      (transactionData) => transactionData.to as `0x${string}`,
+      (transactionData) => transactionData.to as `0x${string}`
     ),
     transactionDatas.map((transactionData) => transactionData.value),
     transactionDatas.map((transactionData) => transactionData.data),
-    description,
+    description
   );
   const { data: walletClient } = useWalletClient();
 
@@ -53,7 +55,11 @@ export default function GovernorTransactionCreator({
         disabled={queueNotReady}
         onClick={() => {
           setOpen(true);
-          writeContract(request!);
+          writeContract(request!, {
+            onSuccess: (d) => {
+              onSuccess?.();
+            },
+          });
         }}
         className="relative inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
       >

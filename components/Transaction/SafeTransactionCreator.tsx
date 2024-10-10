@@ -13,9 +13,11 @@ import ToggleWithLabel from "../form/ToggleWithLabel";
 export default function SafeTransactionCreator({
   safeAddress,
   safeTransaction,
+  onSuccess,
 }: {
   safeAddress: string;
   safeTransaction: MetaTransactionData[];
+  onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [nonce, setNonce] = useState<string>("");
@@ -65,7 +67,11 @@ export default function SafeTransactionCreator({
           disabled={queueNotReady}
           onClick={() => {
             setOpen(true);
-            trigger();
+            trigger().then(() => {
+              if (!error) {
+                onSuccess?.();
+              }
+            });
           }}
           className="relative grow inline-flex items-center justify-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 disabled:opacity-50"
         >

@@ -1,4 +1,4 @@
-import useSWR, { Fetcher } from "swr";
+import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import useSWRInfinite from "swr/infinite";
 import { NANCE_API_URL, NANCE_PROXY_API_URL } from "../../constants/Nance";
@@ -23,32 +23,41 @@ import {
 import { FundingCycleArgs } from "../functions/fundingCycle";
 import { JBSplit, V2V3FundingCycleMetadata } from "@/models/JuiceboxTypes";
 
-function jsonFetcher(): Fetcher<APIResponse<any>, string> {
-  return async (url) => {
-    const res = await fetch(url);
-    const json = await res.json();
-    if (json?.success === "false" || json?.error) {
-      throw new Error(
-        `An error occurred while fetching the data: ${JSON.stringify(
-          json?.error
-        )}`
-      );
-    }
-    return json;
-  };
+export async function getFetch(url: string) {
+  const res = await fetch(url);
+  const json = await res.json();
+  if (json?.success === "false" || json?.error) {
+    throw new Error(`${JSON.stringify(json?.error)}`);
+  }
+  return json as APIResponse<any>;
+}
+
+export async function postFetch(url: string, body: any) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (json?.success === "false" || json?.error) {
+    throw new Error(`${JSON.stringify(json?.error)}`);
+  }
+  return json as APIResponse<any>;
 }
 
 export function useAllSpaceInfo(shouldFetch: boolean = true) {
   return useSWR<APIResponse<SpaceInfo[]>>(
     shouldFetch ? `${NANCE_API_URL}/ish/all` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
 export function useSpaceConfig(space: string, shouldFetch: boolean = true) {
   return useSWR<APIResponse<SpaceConfig>, string>(
     shouldFetch ? `${NANCE_API_URL}/ish/config/${space}` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -58,7 +67,7 @@ export function useSpaceInfo(
 ) {
   return useSWR<APIResponse<SpaceInfo>, string>(
     shouldFetch ? `${NANCE_API_URL}/${args.space}` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -92,7 +101,7 @@ export type ReconfigData = {
 export function useReconfig(space: string, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ReconfigData>, string>(
     shouldFetch ? `${NANCE_API_URL}/${space}/reconfig` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -110,7 +119,7 @@ export function useCurrentPayouts(
     shouldFetch
       ? `${NANCE_API_URL}/${space}/payouts?` + urlParams.toString()
       : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -136,7 +145,7 @@ export function useProposals(
     shouldFetch
       ? `${NANCE_API_URL}/${args.space}/proposals?` + urlParams.toString()
       : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -168,10 +177,7 @@ export function useProposalsInfinite(
     return `${NANCE_API_URL}/${args.space}/proposals?` + urlParams.toString(); // SWR key
   };
 
-  return useSWRInfinite<APIResponse<ProposalsPacket>, string>(
-    getKey,
-    jsonFetcher()
-  );
+  return useSWRInfinite<APIResponse<ProposalsPacket>, string>(getKey, getFetch);
 }
 
 export function useProposal(
@@ -180,7 +186,7 @@ export function useProposal(
 ) {
   return useSWR<ProposalQueryResponse>(
     shouldFetch ? `${NANCE_API_URL}/${args.space}/proposal/${args.uuid}` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -199,14 +205,14 @@ export interface ActionPayload {
 export function useAction(args: ActionRequest, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ActionPayload>>(
     shouldFetch ? `${NANCE_API_URL}/${args.space}/actions/${args.aid}` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
 export function useActions(args: BaseRequest, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ActionPayload[]>>(
     shouldFetch ? `${NANCE_API_URL}/${args.space}/actions` : null,
-    jsonFetcher()
+    getFetch
   );
 }
 
@@ -219,11 +225,7 @@ async function emptyCreator(url: RequestInfo | URL) {
   });
   const json: APIResponse<string> = await res.json();
   if (json.success === false) {
-    throw new Error(
-      `An error occurred while uploading the data: ${JSON.stringify(
-        json?.error
-      )}`
-    );
+    throw new Error(`${JSON.stringify(json?.error)}`);
   }
 
   return json;
@@ -253,11 +255,7 @@ async function uploader(
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
-    throw new Error(
-      `An error occurred while uploading the data: ${JSON.stringify(
-        json?.error
-      )}`
-    );
+    throw new Error(`${JSON.stringify(json?.error)}`);
   }
 
   return json;
@@ -276,11 +274,7 @@ async function creator(
   });
   const json: APIResponse<ConfigSpacePayload> = await res.json();
   if (json.success === false) {
-    throw new Error(
-      `An error occurred while uploading the data: ${JSON.stringify(
-        json?.error
-      )}`
-    );
+    throw new Error(`${JSON.stringify(json?.error)}`);
   }
 
   return json;
@@ -323,11 +317,7 @@ async function editor(
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
-    throw new Error(
-      `An error occurred while uploading the data: ${JSON.stringify(
-        json?.error
-      )}`
-    );
+    throw new Error(`${JSON.stringify(json?.error)}`);
   }
 
   return json;
@@ -345,11 +335,7 @@ async function deleter(
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
-    throw new Error(
-      `An error occurred while deleting this proposal: ${JSON.stringify(
-        json?.error
-      )}`
-    );
+    throw new Error(`${JSON.stringify(json?.error)}`);
   }
 
   return json;
@@ -361,7 +347,7 @@ export function useCreateSpace(shouldFetch: boolean = true) {
   return useSWRMutation(shouldFetch ? url : null, fetcher);
 }
 
-export function getPath(space: string, command: string) {
+export function getNanceEndpointPath(space: string, command: string) {
   return `${NANCE_PROXY_API_URL}/${space}/${command}`;
 }
 

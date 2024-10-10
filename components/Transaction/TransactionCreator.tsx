@@ -16,9 +16,11 @@ export interface GenericTransactionData {
 export default function TransactionCreator({
   address,
   transactions,
+  onSuccess,
 }: {
   address: string;
   transactions: GenericTransactionData[];
+  onSuccess?: () => void;
 }) {
   const contractType = useContractType(address);
   const { isConnected } = useAccount();
@@ -56,6 +58,7 @@ export default function TransactionCreator({
       <SafeTransactionCreator
         safeAddress={address}
         safeTransaction={transactions}
+        onSuccess={onSuccess}
       />
     );
   } else if (contractType === ContractType.Governor) {
@@ -63,6 +66,7 @@ export default function TransactionCreator({
       <GovernorTransactionCreator
         governorAddress={address}
         transactionDatas={transactions}
+        onSuccess={onSuccess}
       />
     );
   } else {

@@ -5,7 +5,11 @@ import { CustomTransaction, SpaceInfo, Transfer } from "@nance/nance-sdk";
 import { extractFunctionName } from "@/utils/functions/nance";
 import { getContractLabel } from "@/constants/Contract";
 import { Interface, parseUnits } from "ethers/lib/utils";
-import { useActions } from "@/utils/hooks/NanceHooks";
+import {
+  getNanceEndpointPath,
+  postFetch,
+  useActions,
+} from "@/utils/hooks/NanceHooks";
 import OrderCheckboxTable, {
   TransactionEntry,
 } from "../form/OrderCheckboxTable";
@@ -16,6 +20,7 @@ import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
 import { deepStringify } from "@/utils/functions/stringify";
+import toast from "react-hot-toast";
 
 const TOKEN_DECIMALS: { [contract: string]: number } = {
   "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": 6, // USDC
@@ -187,6 +192,24 @@ export default function QueueTransactionsModal({
                     <TransactionCreator
                       address={transactorAddress || ""}
                       transactions={entries.map((e) => e.transactionData)}
+                      onSuccess={() => {
+                        const endpoint = getNanceEndpointPath(
+                          space,
+                          "tasks/thread/transactions"
+                        );
+
+                        toast.promise(
+                          postFetch(
+                            endpoint,
+                            actions.map((a) => a.action.uuid)
+                          ),
+                          {
+                            loading: "Creating thread",
+                            success: (data) => `Successfully created thread`,
+                            error: (err) => `${err.toString()}`,
+                          }
+                        );
+                      }}
                     />
                   </div>
 
