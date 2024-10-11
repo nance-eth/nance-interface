@@ -18,6 +18,7 @@ import {
 import { useProposalUpload } from "@/utils/hooks/NanceHooks";
 import {
   CustomTransaction,
+  Proposal,
   ProposalStatus as ProposalStatusType,
   ProposalUploadRequest,
   actionsToYaml,
@@ -81,7 +82,7 @@ const UIGuide = dynamic(() => import("@/components/common/UIGuide"), {
   ssr: false,
 });
 
-type ProposalFormValues = Omit<ProposalUploadRequest, "signature">;
+type ProposalFormValues = { proposal: Proposal };
 
 type ICustomTransaction = CustomTransaction & { tenderlyStatus: string };
 

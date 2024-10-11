@@ -49,6 +49,7 @@ export default function SpaceHeader() {
     currentEvent,
     currentCycle,
     snapshotSpace,
+    avatarURL
   } = spaceInfo;
 
   return (
@@ -57,7 +58,7 @@ export default function SpaceHeader() {
         <div className="flex flex-shrink-0 space-x-3 md:w-5/12">
           <Image
             className="h-16 w-16 rounded-full"
-            src={`https://cdn.stamp.fyi/space/${snapshotSpace}?s=160`}
+            src={avatarURL}
             alt={`${displayName} Logo`}
             height={64}
             width={64}

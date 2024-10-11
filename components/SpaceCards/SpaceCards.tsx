@@ -68,7 +68,7 @@ export default function SpaceCards({
             <div className="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
               <a href={`/s/${spaceInfo.name}`}>
                 <Image
-                  src={`https://cdn.stamp.fyi/space/${spaceInfo.snapshotSpace}?s=160`}
+                  src={spaceInfo.avatarURL}
                   alt={`${spaceInfo.displayName} Logo`}
                   className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
                   height={48}

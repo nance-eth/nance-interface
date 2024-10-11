@@ -65,11 +65,11 @@ export default function SpacePage() {
     );
   }
 
-  const { name, snapshotSpace } = spaceInfo;
+  const { name, snapshotSpace, avatarURL } = spaceInfo;
   const spaceImage =
     name === "juicebox"
       ? JBDAO_OPENGRAPH_IMAGE
-      : `https://cdn.stamp.fyi/space/${snapshotSpace}?s=500`;
+      : avatarURL;
   const pageTitle = `${spaceInfo.name} Governance`;
 
   const { formattedEndTime } = calculateRemainingTime(

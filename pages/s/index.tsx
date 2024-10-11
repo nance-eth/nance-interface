@@ -7,7 +7,6 @@ export default function NanceAllSpacePage() {
       <SiteNav
         pageTitle="All Spaces"
         description="All spaces created and hosted on Nance platform."
-        image={`https://cdn.stamp.fyi/space/jbdao.eth?w=1200&h=630`}
         withWallet
         withProposalButton={false}
       />

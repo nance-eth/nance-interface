@@ -9,22 +9,26 @@ const DEFAULT_TOP4SPACES = [
   {
     id: "juicebox",
     name: "juicebox",
-    snapshotSpace: "jbdao.eth"
+    snapshotSpace: "jbdao.eth",
+    avatarURL: "https://nance.infura-ipfs.io/ipfs/bafkreigutpsftjqf7jkxjva4bschpezwvlgjvboufcwie4elembuikzjei"
   },
   {
     id: "moondao",
     name: "moondao",
-    snapshotSpace: "tomoondao.eth"
+    snapshotSpace: "tomoondao.eth",
+    avatarURL: "https://nance.infura-ipfs.io/ipfs/QmeNcmMfUmoW59245qNSXnMFAW4xnWmBC3iG7MNqPF7SUF"
   },
   {
     id: "thirstythirsty",
     name: "thirstythirsty",
-    snapshotSpace: "gov.thirstythirsty.eth"
+    snapshotSpace: "gov.thirstythirsty.eth",
+    avatarURL: "https://nance.infura-ipfs.io/ipfs/bafkreichagj2usyj6an6tz4m3wh2fqth6dnv3aheqzlsf4oiajr3aosbkq"
   },
   {
     id: "daosquare",
     name: "DAOSquare",
-    snapshotSpace: "community.daosquare.eth"
+    snapshotSpace: "community.daosquare.eth",
+    avatarURL: "https://nance.infura-ipfs.io/ipfs/Qmdqpn34Q4xr6JWvEPzSf3b9YQ35rqTFkweqLMGtGA89WG"
   },
 ];
 
@@ -32,6 +36,7 @@ export interface SimpleSpaceEntry {
   id: string;
   name: string;
   snapshotSpace: string;
+  avatarURL: string;
 }
 
 export default function Landing() {
@@ -47,7 +52,8 @@ export default function Landing() {
       return {
         id: s.name,
         name: s.displayName,
-        snapshotSpace: s.snapshotSpace
+        snapshotSpace: s.snapshotSpace,
+        avatarURL: s.avatarURL,
       };
     }) || DEFAULT_TOP4SPACES;
   return (

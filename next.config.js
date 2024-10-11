@@ -25,6 +25,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "guild-xyz.mypinata.cloud",
       },
+      {
+        protocol: "https",
+        hostname: "nance.infura-ipfs.io"
+      }
     ],
   },
   async redirects() {
@@ -79,4 +83,3 @@ const nextConfig = {
 };
 
 module.exports = removeImports(nextConfig);
-

@@ -39,7 +39,7 @@ export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEnt
                     <Link key={space.id} href={`/s/${space.id}`}>
                       <Image
                         className="col-span-2 w-full lg:col-span-1 rounded-lg"
-                        src={`https://cdn.stamp.fyi/space/${space.snapshotSpace}`}
+                        src={space.avatarURL}
                         alt={space.name}
                         width={48}
                         height={48}
