@@ -232,7 +232,7 @@ export default function QueueTransactionsModal({
                         space,
                         chainId || 1,
                         cycle || "",
-                        transactorAddress || "",
+                        transactor?.address || "",
                         actions
                           ?.filter((x) => x?.action !== undefined)
                           .map((x) => x!.action) || []
