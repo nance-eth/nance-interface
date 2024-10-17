@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useWalletClient } from "wagmi";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import {
+  SafeProposeTransactionResponse,
   useHistoryTransactions,
   useQueueTransaction,
 } from "@/utils/hooks/Safe/SafeHooks";
@@ -17,7 +18,7 @@ export default function SafeTransactionCreator({
 }: {
   safeAddress: string;
   safeTransaction: MetaTransactionData[];
-  onSuccess?: () => void;
+  onSuccess?: (o: SafeProposeTransactionResponse) => void;
 }) {
   const [open, setOpen] = useState<boolean>(false);
   const [nonce, setNonce] = useState<string>("");
@@ -69,7 +70,7 @@ export default function SafeTransactionCreator({
             setOpen(true);
             trigger().then((o) => {
               if (o) {
-                onSuccess?.();
+                onSuccess?.(o);
               }
             });
           }}

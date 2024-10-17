@@ -228,6 +228,10 @@ export function useCreateTransactionForSimulation(
   };
 }
 
+export interface SafeProposeTransactionResponse {
+  safeTxHash: string;
+  nonce: string;
+}
 export function useQueueTransaction(
   safeAddress: string,
   safeTransactionData: MetaTransactionData[],
@@ -298,7 +302,7 @@ export function useQueueTransaction(
         senderSignature: signature.data,
       });
 
-      const ret = {
+      const ret: SafeProposeTransactionResponse = {
         safeTxHash: safeTxHash,
         nonce: safeTransaction.data.nonce.toString(),
       };

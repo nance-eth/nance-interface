@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { CustomTransaction, SpaceInfo, Transfer } from "@nance/nance-sdk";
@@ -16,7 +16,10 @@ import OrderCheckboxTable, {
 import TransferActionLabel from "../ActionLabel/TransferActionLabel";
 import CustomTransactionActionLabel from "../ActionLabel/CustomTransactionActionLabel";
 import TransactionCreator from "./TransactionCreator";
-import { safeBatchTransactionBuilder } from "@/utils/functions/safe";
+import {
+  getSafeTxUrl,
+  safeBatchTransactionBuilder,
+} from "@/utils/functions/safe";
 import { downloadJSON } from "@/utils/functions/fileDownload";
 import { getChainByNetworkName } from "config/custom-chains";
 import { deepStringify } from "@/utils/functions/stringify";
@@ -30,12 +33,15 @@ const TOKEN_DECIMALS: { [contract: string]: number } = {
 export default function QueueTransactionsModal({
   open,
   setOpen,
-  transactorAddress,
+  transactor,
   spaceInfo,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
-  transactorAddress?: string;
+  transactor?: {
+    network: string;
+    address: string;
+  };
   spaceInfo: SpaceInfo;
 }) {
   const space = spaceInfo?.name || "";
@@ -181,7 +187,7 @@ export default function QueueTransactionsModal({
                     </div>
 
                     <OrderCheckboxTable
-                      address={transactorAddress || ""}
+                      address={transactor?.address || ""}
                       entries={entries}
                       isLoading={isLoading}
                     />
@@ -190,25 +196,27 @@ export default function QueueTransactionsModal({
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                   <div className="w-full sm:w-auto sm:ml-3">
                     <TransactionCreator
-                      address={transactorAddress || ""}
+                      address={transactor?.address || ""}
                       transactions={entries.map((e) => e.transactionData)}
-                      onSuccess={() => {
+                      onSuccess={(o) => {
                         const endpoint = getNanceEndpointPath(
                           space,
                           "tasks/thread/transactions"
                         );
-
-                        toast.promise(
-                          postFetch(
-                            endpoint,
-                            actions.map((a) => a.action.uuid)
+                        const body = {
+                          actions: actions.map((a) => a.action.uuid),
+                          safeTxnUrl: getSafeTxUrl(
+                            transactor?.address || "",
+                            o?.safeTxHash || "",
+                            transactor?.network || "eth"
                           ),
-                          {
-                            loading: "Creating thread",
-                            success: (data) => `Successfully created thread`,
-                            error: (err) => `${err.toString()}`,
-                          }
-                        );
+                        };
+
+                        toast.promise(postFetch(endpoint, body), {
+                          loading: "Creating thread",
+                          success: (data) => `Successfully created thread`,
+                          error: (err) => `${err.toString()}`,
+                        });
                       }}
                     />
                   </div>

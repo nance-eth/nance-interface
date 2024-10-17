@@ -2,8 +2,8 @@ import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { utils } from "ethers";
 import {
-  getFetch,
   getNanceEndpointPath,
+  postFetch,
   useReconfig,
 } from "@/utils/hooks/NanceHooks";
 import {
@@ -20,24 +20,29 @@ import TransactionCreator, {
 import DiffTableWithSection from "../form/DiffTableWithSection";
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 import toast from "react-hot-toast";
+import { getSafeTxUrl } from "@/utils/functions/safe";
 
 export default function QueueReconfigurationModal({
   open,
   setOpen,
   juiceboxProjectId,
   space,
-  transactorAddress,
+  transactor,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
   juiceboxProjectId: number;
   space: string;
-  transactorAddress?: string;
+  transactor?: {
+    network: string;
+    address: string;
+  };
 }) {
   const cancelButtonRef = useRef(null);
 
   // Get configuration of current fundingCycle
   const projectId = juiceboxProjectId;
+  const transactorAddress = transactor?.address;
   const owner = transactorAddress ? utils.getAddress(transactorAddress) : "";
   const { data: controllerAddress, isLoading: controllerIsLoading } =
     useControllerOfProject(projectId);
@@ -141,12 +146,20 @@ export default function QueueReconfigurationModal({
                     <TransactionCreator
                       address={owner}
                       transactions={[reconfigTx]}
-                      onSuccess={() => {
+                      onSuccess={(o) => {
                         const endpoint = getNanceEndpointPath(
                           space,
                           "tasks/thread/reconfig"
                         );
-                        toast.promise(getFetch(endpoint), {
+                        const body = {
+                          safeTxnUrl: getSafeTxUrl(
+                            transactor?.address || "",
+                            o?.safeTxHash || "",
+                            transactor?.network || "eth"
+                          ),
+                        };
+
+                        toast.promise(postFetch(endpoint, body), {
                           loading: "Creating thread",
                           success: (data) => `Successfully created thread`,
                           error: (err) => `${err.toString()}`,

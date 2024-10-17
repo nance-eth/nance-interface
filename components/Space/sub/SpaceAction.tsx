@@ -151,7 +151,7 @@ export default function SpaceAction() {
           setOpen={setShowQueueReconfigurationModal}
           juiceboxProjectId={projectId}
           space={spaceName}
-          transactorAddress={spaceInfo.transactorAddress!.address}
+          transactor={spaceInfo.transactorAddress}
         />
       )}
 
@@ -159,7 +159,7 @@ export default function SpaceAction() {
         <QueueTransactionsModal
           open={showQueueTransactionsModal}
           setOpen={setShowQueueTransactionsModal}
-          transactorAddress={spaceInfo.transactorAddress!.address}
+          transactor={spaceInfo.transactorAddress}
           spaceInfo={spaceInfo}
         />
       )}

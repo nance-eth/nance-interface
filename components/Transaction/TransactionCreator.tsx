@@ -6,6 +6,7 @@ import { SpaceContext } from "@/context/SpaceContext";
 import { useAccount, useSwitchChain } from "wagmi";
 import SafeTransactionCreator from "./SafeTransactionCreator";
 import { getChainByNetworkName } from "config/custom-chains";
+import { SafeProposeTransactionResponse } from "@/utils/hooks/Safe/SafeHooks";
 
 export interface GenericTransactionData {
   to: string;
@@ -20,7 +21,7 @@ export default function TransactionCreator({
 }: {
   address: string;
   transactions: GenericTransactionData[];
-  onSuccess?: () => void;
+  onSuccess?: (o: SafeProposeTransactionResponse | undefined) => void;
 }) {
   const contractType = useContractType(address);
   const { isConnected } = useAccount();
@@ -66,7 +67,7 @@ export default function TransactionCreator({
       <GovernorTransactionCreator
         governorAddress={address}
         transactionDatas={transactions}
-        onSuccess={onSuccess}
+        onSuccess={onSuccess ? () => onSuccess(undefined) : undefined}
       />
     );
   } else {
