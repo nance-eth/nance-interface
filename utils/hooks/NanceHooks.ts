@@ -210,9 +210,14 @@ export function useAction(args: ActionRequest, shouldFetch: boolean = true) {
   );
 }
 
-export function useActions(args: BaseRequest, shouldFetch: boolean = true) {
+interface ActionsRequest extends BaseRequest {
+  all?: boolean;
+}
+export function useActions(args: ActionsRequest, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ActionPayload[]>>(
-    shouldFetch ? `${NANCE_API_URL}/${args.space}/actions` : null,
+    shouldFetch
+      ? `${NANCE_API_URL}/${args.space}/actions?all=${!!args.all}`
+      : null,
     getFetch
   );
 }

@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { CustomTransaction, SpaceInfo, Transfer } from "@nance/nance-sdk";
@@ -47,18 +47,21 @@ export default function QueueTransactionsModal({
   const space = spaceInfo?.name || "";
   const cycle = spaceInfo?.currentCycle.toString();
 
-  //const [selectAllActions, setSelectAllActions] = useState(false);
+  const [selectAllActions, setSelectAllActions] = useState(false);
 
-  const { data: allActions, isLoading } = useActions({ space });
+  const { data: allActions, isLoading } = useActions({
+    space,
+    all: selectAllActions,
+  });
 
-  // useEffect(() => {
-  //   let _window = window as any;
-  //   if (_window.Nance === undefined) {
-  //     _window.Nance = {};
-  //   }
+  useEffect(() => {
+    let _window = window as any;
+    if (_window.Nance === undefined) {
+      _window.Nance = {};
+    }
 
-  //   _window.Nance.selectAllActions = setSelectAllActions;
-  // }, []);
+    _window.Nance.selectAllActions = setSelectAllActions;
+  }, []);
 
   // Gather all actions in current fundingCycle
   const actionWithPIDArray = allActions?.data.map((p) => {
