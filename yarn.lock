@@ -3139,14 +3139,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nance/nance-editor@npm:^1.7.0":
-  version: 1.7.0
-  resolution: "@nance/nance-editor@npm:1.7.0"
+"@nance/nance-editor@npm:^1.8.2":
+  version: 1.8.2
+  resolution: "@nance/nance-editor@npm:1.8.2"
   dependencies:
     "@toast-ui/react-editor": ^3.2.3
   peerDependencies:
     react: ">=17.0.0"
-  checksum: e92e9ae99453ad997f82a1e439b2e0e67aa5bcf92dd7b077d48d8ac2133c6bbbeacccd927142e202ea259e9267c69f1d0d387ae47632e643c957740931de6f39
+  checksum: 0c78a6b7b8baec18b41a0828e5c12ea44450d52cbe55673b286e7fa22463a3561ec1e5d12442586c6d3335afeddb7d04d7c0ccc2c6dfefff5aa7ad491bfe88cf
   languageName: node
   linkType: hard
 
@@ -16443,7 +16443,7 @@ __metadata:
     "@heroicons/react": ^2.0.18
     "@hookform/error-message": ^2.0.1
     "@jbx-protocol/juice-contracts-v3": 5.0.0
-    "@nance/nance-editor": ^1.7.0
+    "@nance/nance-editor": ^1.8.2
     "@nance/nance-sdk": ^4.1.3
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": 2
@@ -21282,10 +21282,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.5.0, tslib@npm:^2.6.2":
+"tslib@npm:^2.0.0, tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.5.0":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: 329ea56123005922f39642318e3d1f0f8265d1e7fcb92c633e0809521da75eeaca28d2cf96d7248229deb40e5c19adf408259f4b9640afd20d13aecc1430f3ad
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.6.2":
+  version: 2.8.0
+  resolution: "tslib@npm:2.8.0"
+  checksum: de852ecd81adfdb4870927e250763345f07dc13fe7f395ce261424966bb122a0992ad844c3ec875c9e63e72afe2220a150712984e44dfd1a8a7e538a064e3d46
   languageName: node
   linkType: hard
 
@@ -23125,11 +23132,11 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.4.2":
-  version: 2.4.2
-  resolution: "yaml@npm:2.4.2"
+  version: 2.6.0
+  resolution: "yaml@npm:2.6.0"
   bin:
     yaml: bin.mjs
-  checksum: 90dda4485de04367251face9abb5c36927c94e44078f4e958e6468a07e74e7e92f89be20fc49860b6268c51ee5a5fc79ef89197d3f874bf24ef8921cc4ba9013
+  checksum: e5e74fd75e01bde2c09333d529af9fbb5928c5f7f01bfdefdcb2bf753d4ef489a45cab4deac01c9448f55ca27e691612b81fe3c3a59bb8cb5b0069da0f92cf0b
   languageName: node
   linkType: hard
 
