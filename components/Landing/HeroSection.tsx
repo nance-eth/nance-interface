@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SimpleSpaceEntry } from ".";
+import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 
 export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEntry[]}) {
   return (
@@ -28,10 +29,11 @@ export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEnt
             </h2>
             <div className="mt-6 flex flex-col items-center justify-center gap-x-6">
               <Link
-                href="/create"
-                className="rounded-md bg-blue-600 sm:px-36 px-24 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                href="https://cal.com/edsammy/30min?user=edsammy"
+                target="_blank"
+                className="rounded-md bg-blue-600 px-28 py-3 text-lg font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
-                Create Space
+                <div className="flex flex-row items-center">Book a Demo <CalendarDaysIcon className="ml-4 h-7 w-7" /></div>
               </Link>
               <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-4">
                 {
