@@ -3,7 +3,7 @@ import { useContext } from "react";
 import ProposalNavigator from "./ProposalNavigator";
 import ProposalMetadata from "./ProposalMetadata";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
-import MarkdownWithTOC from "@/components/Markdown/MarkdownWithTOC";
+import MarkdownViewer from "@/components/Markdown/MarkdownViewer";
 import { ProposalContext } from "./context/ProposalContext";
 import { format, toDate } from "date-fns";
 import ProposalSummaries from "./ProposalSummaries";
@@ -110,7 +110,7 @@ export default function ProposalContent() {
       </div>
 
       <div className="px-4 sm:px-6">
-        <MarkdownWithTOC body={body} />
+        <MarkdownViewer body={body} />
       </div>
 
       <div className="mt-4 px-4 py-5 sm:px-6">

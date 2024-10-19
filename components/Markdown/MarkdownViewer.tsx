@@ -8,7 +8,7 @@ import { h } from "hastscript";
 import { getActionYamlFromBody, trimActionsFromBody } from "@nance/nance-sdk";
 import { Disclosure } from "@headlessui/react";
 
-export default function MarkdownWithTOC({ body }: { body: string }) {
+export default function MarkdownViewer({ body }: { body: string }) {
   return (
     <article className="prose prose-lg prose-indigo break-words text-gray-500">
       <ReactMarkdown
@@ -28,25 +28,21 @@ export default function MarkdownWithTOC({ body }: { body: string }) {
           ],
         ]}
         components={{
-          // headings for TOC, do we still need?
-          h2: ({ node, ...props }) => <h2 className="group" {...props} />,
-          h3: ({ node, ...props }) => <h3 className="group" {...props} />,
-          h4: ({ node, ...props }) => <h4 className="group" {...props} />,
-          h5: ({ node, ...props }) => <h5 className="group" {...props} />,
-          h6: ({ node, ...props }) => <h6 className="group" {...props} />,
-
           // single \n as soft linebreak
           p: ({node, ...props}) => <p className="whitespace-pre-line" {...props} />,
 
-          // open links in new tab
-          a: ({node, href, ...props}) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              {...props}
-            />
-          ),
+          // open links in new tab (if not internal)
+          a: ({ node, href, ...props }) => {
+            const isInternalLink = href?.startsWith('#') || href?.startsWith('/');
+            return (
+              <a
+                href={href}
+                target={isInternalLink ? undefined : "_blank"}
+                rel={isInternalLink ? undefined : "noopener noreferrer"}
+                {...props}
+              />
+            )
+          },
           // scroll for long table
           table: ({ node, ...props }) => (
             <div className="overflow-x-auto">

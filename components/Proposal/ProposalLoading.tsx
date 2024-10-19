@@ -16,7 +16,7 @@ export default function ProposalLoading() {
       </div>
 
       <div className="px-4 sm:px-6">
-        {/* Replace MarkdownWithTOC with a loading skeleton */}
+        {/* Replace MarkdownViewer with a loading skeleton */}
         <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
         <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
         <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>

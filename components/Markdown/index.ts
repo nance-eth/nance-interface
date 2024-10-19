@@ -1,3 +1,3 @@
-import MarkdownWithTOC from "./MarkdownWithTOC";
+import MarkdownViewer from "./MarkdownViewer";
 
-export { MarkdownWithTOC };
+export { MarkdownViewer };
