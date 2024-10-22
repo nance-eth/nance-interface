@@ -152,7 +152,7 @@ export default function ProposalRow({
 
             <p className="break-words text-base text-black">{title}</p>
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-6 text-xs">
+            <div className="mt-2 flex flex-nowrap items-center gap-x-6 text-xs">
               {/* Author */}
               <div className="flex items-center gap-x-1">
                 <img
