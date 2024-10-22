@@ -28,12 +28,37 @@ export default function MarkdownViewer({ body }: { body: string }) {
           ],
         ]}
         components={{
+          // hover on section to get link
+          h2: ({ node, ...props }) => <h2 className="group" {...props} />,
+          h3: ({ node, ...props }) => <h3 className="group" {...props} />,
+          h4: ({ node, ...props }) => <h4 className="group" {...props} />,
+          h5: ({ node, ...props }) => <h5 className="group" {...props} />,
+          h6: ({ node, ...props }) => <h6 className="group" {...props} />,
+
           // single \n as soft linebreak
-          p: ({node, ...props}) => <p className="whitespace-pre-line" {...props} />,
+          p: ({ node, ...props }) => (
+            <p className="whitespace-pre-line" {...props} />
+          ),
 
           // open links in new tab (if not internal)
           a: ({ node, href, ...props }) => {
-            const isInternalLink = href?.startsWith('#') || href?.startsWith('/');
+            const isInternalLink =
+              href?.startsWith("#") || href?.startsWith("/");
+            const hrefWithoutEscapeDot = href?.replaceAll("%5C.", ".");
+
+            if (hrefWithoutEscapeDot !== href) {
+              return (
+                <a
+                  href={hrefWithoutEscapeDot}
+                  target={isInternalLink ? undefined : "_blank"}
+                  rel={isInternalLink ? undefined : "noopener noreferrer"}
+                  {...props}
+                >
+                  {hrefWithoutEscapeDot}
+                </a>
+              );
+            }
+
             return (
               <a
                 href={href}
@@ -41,7 +66,7 @@ export default function MarkdownViewer({ body }: { body: string }) {
                 rel={isInternalLink ? undefined : "noopener noreferrer"}
                 {...props}
               />
-            )
+            );
           },
           // scroll for long table
           table: ({ node, ...props }) => (
@@ -51,29 +76,35 @@ export default function MarkdownViewer({ body }: { body: string }) {
           ),
 
           // table formatting
-          th: ({ node, ...props }) => <th className="whitespace-nowrap border-r border-gray-200 last:border-r-0" {...props} />,
-          td: ({ node, ...props }) => <td className="whitespace-nowrap border-r border-gray-200 last:border-r-0" {...props} />,
+          th: ({ node, ...props }) => (
+            <th
+              className="whitespace-nowrap border-r border-gray-200 last:border-r-0"
+              {...props}
+            />
+          ),
+          td: ({ node, ...props }) => (
+            <td
+              className="whitespace-nowrap border-r border-gray-200 last:border-r-0"
+              {...props}
+            />
+          ),
         }}
       >
-        { trimActionsFromBody(body) }
+        {trimActionsFromBody(body)}
       </ReactMarkdown>
-      { getActionYamlFromBody(body) && (
+      {getActionYamlFromBody(body) && (
         <Disclosure as="div" className="text-gray bg-slate-200 rounded-lg">
           {({ open }) => (
             <>
               <dt>
                 <Disclosure.Button className="flex w-fit p-2 font-mono text-sm">
-                  {open ? (
-                    "(hide trimmed action text) ↑"
-                  ) : (
-                    "(show trimmed action text) ↓"
-                  )}
+                  {open
+                    ? "(hide trimmed action text) ↑"
+                    : "(show trimmed action text) ↓"}
                 </Disclosure.Button>
               </dt>
               <Disclosure.Panel as="dd" className="pr-4 pb-4">
-                <pre>
-                  {getActionYamlFromBody(body)}
-                </pre>
+                <pre>{getActionYamlFromBody(body)}</pre>
               </Disclosure.Panel>
             </>
           )}
