@@ -26,6 +26,10 @@ export default function GovernanceCyclesInfoLabel({
     cycleStartDate: cycleStartDate as string,
   });
 
+  if (action.pollRequired) {
+    return null;
+  }
+
   return (
     <>
       {actionCycleStart &&
