@@ -29,7 +29,7 @@ export default function SafeTenderlySimulationButton({
   const chain = useChainConfigOfSpace();
   const { data: safeInfo } = useSafeInfo(address, !!address);
   const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
-  const { encodedTransaction, safeTransaction } =
+  const { encodedTransaction, safeTransaction, error } =
     useCreateTransactionForSimulation(address, transactions, true);
 
   const state_objects: { [contract: string]: any } = {};
@@ -70,6 +70,7 @@ export default function SafeTenderlySimulationButton({
       shouldSimulate={shouldSimulate}
       setShouldSimulate={setShouldSimulate}
       onSimulated={onSimulated}
+      argsError={error}
     />
   );
 }

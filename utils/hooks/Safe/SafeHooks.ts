@@ -124,7 +124,10 @@ export function useSafe(safeAddress: string) {
       safeAddress,
     })
       .then((safe) => setValue(safe))
-      .catch((err) => setError(err));
+      .catch((err) => {
+        console.warn("Safe.init error", { err });
+        setError(err.message);
+      });
   }, [address, safeAddress]);
 
   return { value, loading: !value, error };
@@ -165,7 +168,7 @@ export function useCreateTransactionForSimulation(
     const fetch = async () => {
       // check
       if (!safe) {
-        setError(safeError || "Not connected to wallet or safe not found.");
+        setError(safeError || "failed to init Safe");
         return;
       }
 
@@ -216,7 +219,7 @@ export function useCreateTransactionForSimulation(
     };
 
     fetch()
-      .catch((err) => setError(err))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [safe, safeTransactionData]);
 
@@ -245,12 +248,12 @@ export function useQueueTransaction(
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
   const { value: safeApiKit } = useSafeAPIKit();
-  const { value: safe } = useSafe(safeAddress);
+  const { value: safe, error: safeError } = useSafe(safeAddress);
   const { data: safeInfo } = useSafeInfo(safeAddress, !!safeAddress);
 
   const trigger = async () => {
     if (!safe || !walletClient || !safeApiKit || !address) {
-      setError("Not connected to wallet or safe not found.");
+      setError(safeError + "Not connected to wallet or safe not found.");
       return;
     }
 

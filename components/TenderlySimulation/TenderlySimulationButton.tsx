@@ -67,6 +67,7 @@ export default function TenderlySimulationButton({
   shouldSimulate,
   setShouldSimulate,
   onSimulated,
+  argsError,
 }: {
   simulationArgs: TenderlySimulateArgs;
   shouldSimulate: boolean;
@@ -75,11 +76,12 @@ export default function TenderlySimulationButton({
     data: TenderlySimulationAPIResponse | undefined,
     shouldSimulate: boolean
   ) => void;
+  argsError?: string;
 }) {
   const { address } = useAccount();
   const { data, isLoading, error, mutate } = useTenderlySimulate(
     simulationArgs,
-    shouldSimulate
+    shouldSimulate && !argsError
   );
 
   useEffect(() => {
@@ -97,18 +99,20 @@ export default function TenderlySimulationButton({
         "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
       )
     ) !== undefined;
-  const isSuccess = data?.simulation?.status && !hasSafeExecutionFailureEvent;
-  let errorMessage = error ? error.message : data?.simulation?.error_message;
+  const isSuccess =
+    !argsError && data?.simulation?.status && !hasSafeExecutionFailureEvent;
+  let errorMessage = argsError
+    ? argsError
+    : error
+    ? error.message
+    : data?.simulation?.error_message;
 
-  if (!error && errorMessage) {
+  if (!error && argsError && errorMessage) {
     // try parse safe error code
     const errCode = errorMessage as string;
     const parse = SAFE_ERROR_CODE[errCode]
       ? `${errCode} - ${SAFE_ERROR_CODE[errCode]}`
       : errorMessage;
-    console.debug("tenderly simulation failed", parse, {
-      args: simulationArgs,
-    });
   }
 
   if (errorMessage === undefined) {
