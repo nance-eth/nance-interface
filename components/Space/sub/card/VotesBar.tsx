@@ -42,6 +42,7 @@ export default function VotesBar({
           <ColorBar
             greenScore={proposal?.voteResults?.scores[0] || 0}
             redScore={proposal?.voteResults?.scores[1] || 0}
+            blueScore={proposal?.voteResults?.scores[2] || 0}
             threshold={threshold}
             noTooltip
           />

@@ -43,7 +43,7 @@ export default function ProposalVotes({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
     withField: withDefault(createEnumParam(["reason", "app"]), ""),
-    filterBy: withDefault(createEnumParam(["for", "against"]), ""),
+    filterBy: withDefault(createEnumParam(["for", "against", "abstain"]), ""),
   });
 
   const {
@@ -71,6 +71,8 @@ export default function ProposalVotes({
     votes = votes.filter((v) => v.choice === "For");
   } else if (query.filterBy === "against") {
     votes = votes.filter((v) => v.choice === "Against");
+  } else if (query.filterBy === "abstain") {
+    votes = votes.filter((v) => v.choice === "Abstain");
   }
 
   const threshold = commonProps?.minTokenPassingAmount ?? 0;
@@ -102,6 +104,19 @@ export default function ProposalVotes({
 
                 <p
                   className={classNames(
+                    "cursor-pointer text-sm text-blue-500",
+                    query.filterBy === "abstain" ? "underline" : ""
+                  )}
+                  onClick={() => {
+                    if (query.filterBy === "abstain") setQuery({ filterBy: "" });
+                    else setQuery({ filterBy: "abstain" });
+                  }}
+                >
+                  ABSTAIN {formatNumber(proposalInfo?.scores[2] || 0)}
+                </p>
+
+                <p
+                  className={classNames(
                     "cursor-pointer text-sm text-red-500",
                     query.filterBy === "against" ? "underline" : ""
                   )}
@@ -119,6 +134,7 @@ export default function ProposalVotes({
                 <ColorBar
                   greenScore={proposalInfo?.scores[0] || 0}
                   redScore={proposalInfo?.scores[1] || 0}
+                  blueScore={proposalInfo?.scores[2] || 0}
                   threshold={threshold}
                   noTooltip
                 />

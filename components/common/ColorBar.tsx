@@ -7,6 +7,7 @@ const COLOR_VARIANTS: { [key: string]: string } = {
   green: "bg-green-500",
   red: "bg-red-500",
   gray: "bg-gray-200",
+  blue: "bg-blue-500",
 };
 const WIDTH_VARIANTS: { [key: number]: string } = {
   0: "w-0",
@@ -66,6 +67,10 @@ interface ColorBarProps {
    * The min percent of greenScore/(greenScore+redScore) for the proposal to pass. Defaults to 0.66
    */
   approvalPercent?: number;
+  /**
+   * The number of abstain votes for the proposal. If present, count it in quorum.
+   */
+  blueScore?: number;
 }
 
 /**
@@ -75,6 +80,7 @@ interface ColorBarProps {
  * @param noTooltip Whether to show the tooltip.
  * @param threshold The threshold of greenScore+redScore for the proposal to pass. Defaults to @see JB_THRESHOLD.
  * @param approvalPercent The min percent of greenScore/(greenScore+redScore) for the proposal to pass. Defaults to 0.66.
+ * @param blueScore The number of abstain votes for the proposal. If present, count it in quorum.
  */
 export default function ColorBar({
   greenScore,
@@ -82,12 +88,14 @@ export default function ColorBar({
   noTooltip = false,
   threshold = JB_THRESHOLD,
   approvalPercent = 0.66,
+  blueScore = 0
 }: ColorBarProps) {
-  const totalScore = greenScore + redScore;
+  const totalScore = greenScore + redScore + blueScore;
+  const baseTotalScore = greenScore + redScore;
   const hasPass =
-    totalScore >= threshold && greenScore / totalScore >= approvalPercent;
+    totalScore >= threshold && greenScore / baseTotalScore >= approvalPercent;
   const shouldDisplayVerticalLine =
-    totalScore >= threshold && greenScore / totalScore < approvalPercent;
+    totalScore >= threshold && greenScore / baseTotalScore < approvalPercent;
   const colorWidth = Math.min(
     TOTAL_WIDTH,
     Math.round((totalScore / threshold) * TOTAL_WIDTH),
@@ -96,12 +104,14 @@ export default function ColorBar({
 
   const greenWidth = Math.round((greenScore / totalScore) * colorWidth);
   const redWidth = Math.round((redScore / totalScore) * colorWidth);
+  const blueWidth = Math.round((blueScore / totalScore) * colorWidth);
 
   const renderBar = () => (
     <>
       <div className="flex h-3 w-full min-w-[5rem] flex-row rounded-full bg-gray-200 dark:bg-gray-700">
         <ColorDiv color="green" width={greenWidth} />
         <ColorDiv color="red" width={redWidth} />
+        <ColorDiv color="blue" width={blueWidth} />
         <ColorDiv color="gray" width={grayWidth} />
       </div>
       {shouldDisplayVerticalLine && (
@@ -121,11 +131,11 @@ export default function ColorBar({
           <div>
             {`${hasPass ? "✅" : "❌"}
             For ${formatNumber(greenScore)}
-            (${(greenScore / (greenScore + redScore) * 100).toFixed()}%)`}
+            (${(greenScore / baseTotalScore * 100).toFixed()}%)`}
           </div>
           <div>
             {`Against ${formatNumber(redScore)}
-            (${(redScore / (greenScore + redScore) * 100).toFixed()}%)`}
+            (${(redScore / baseTotalScore * 100).toFixed()}%)`}
           </div>
           <div>
             {`Total ${formatNumber(totalScore)}

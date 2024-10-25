@@ -174,23 +174,12 @@ export default function ProposalRow({
               {/* Due / Cycle */}
               <div className="flex items-center gap-x-1">
                 <CalendarDaysIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
-                {["Voting"].includes(status) && snapshotProposal ? (
-                  <div>
-                    <p className="text-gray-500">Due</p>
-                    <div className="text-center text-black">
-                      {formatDistanceToNow(fromUnixTime(snapshotProposal.end), {
-                        addSuffix: true,
-                      })}
-                    </div>
+                <div>
+                  <p className="text-gray-500">Cycle</p>
+                  <div className="text-center text-black">
+                    {governanceCycle}
                   </div>
-                ) : (
-                  <div>
-                    <p className="text-gray-500">Cycle</p>
-                    <div className="text-center text-black">
-                      {governanceCycle}
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
               {/* Tokens */}
               <RequestingTokensOfProposal actions={actions} />
