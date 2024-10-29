@@ -104,7 +104,7 @@ export default function ProposalVotes({
 
                 <p
                   className={classNames(
-                    "cursor-pointer text-sm text-blue-500",
+                    "cursor-pointer text-sm text-gray-500",
                     query.filterBy === "abstain" ? "underline" : ""
                   )}
                   onClick={() => {

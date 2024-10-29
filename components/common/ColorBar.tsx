@@ -7,7 +7,7 @@ const COLOR_VARIANTS: { [key: string]: string } = {
   green: "bg-green-500",
   red: "bg-red-500",
   gray: "bg-gray-200",
-  blue: "bg-blue-500",
+  blue: "bg-gray-500",
 };
 const WIDTH_VARIANTS: { [key: number]: string } = {
   0: "w-0",
