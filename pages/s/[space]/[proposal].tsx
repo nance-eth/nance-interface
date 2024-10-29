@@ -157,8 +157,6 @@ export default function NanceProposalPage() {
                 )}
               </section>
             </div>
-
-            <ScrollToBottom />
           </ProposalContext.Provider>
         </main>
       </div>
