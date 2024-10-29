@@ -213,7 +213,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
       return newAction;
     });
 
-    const body = `${formData.proposal.body}\n\n${actionsToYaml(actions)}`;
+    // To resolve wrong escaped dot after hyphen
+    const originalBody = formData.proposal.body;
+    const proposalBody = originalBody.replaceAll("\\.", ".");
+    if (originalBody !== proposalBody) {
+      console.debug("Replaced escaped dot", {original: originalBody, new: proposalBody})
+    }
+
+    const body = `${proposalBody}\n\n${actionsToYaml(actions)}`;
     const proposal = {
       ...formData.proposal,
       body,
@@ -241,7 +248,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
     //   message: message as SnapshotTypes.Proposal as any,
     // }).then(async (signature) => {
     // ==========================================
-
     const req: ProposalUploadRequest = {
       proposal,
       // ===== SIGNATURE BASED AUTHENTICATION =====

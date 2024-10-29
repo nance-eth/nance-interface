@@ -44,20 +44,6 @@ export default function MarkdownViewer({ body }: { body: string }) {
           a: ({ node, href, ...props }) => {
             const isInternalLink =
               href?.startsWith("#") || href?.startsWith("/");
-            const hrefWithoutEscapeDot = href?.replaceAll("%5C.", ".");
-
-            if (hrefWithoutEscapeDot !== href) {
-              return (
-                <a
-                  href={hrefWithoutEscapeDot}
-                  target={isInternalLink ? undefined : "_blank"}
-                  rel={isInternalLink ? undefined : "noopener noreferrer"}
-                  {...props}
-                >
-                  {hrefWithoutEscapeDot}
-                </a>
-              );
-            }
 
             return (
               <a
