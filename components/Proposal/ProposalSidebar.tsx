@@ -99,7 +99,7 @@ export default function ProposalSidebar({
       </div>
 
       <div
-        className="fixed lg:hidden mx-4 bottom-1 left-1 max-w-3xl bg-white px-4 py-5 opacity-100 shadow rounded-lg"
+        className="fixed lg:hidden mx-4 bottom-1 max-w-3xl bg-white px-4 py-5 opacity-100 shadow rounded-lg"
         style={mobileBarStyle}
       >
         <div
