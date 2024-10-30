@@ -1,7 +1,7 @@
 import { classNames } from "@/utils/functions/tailwind";
 import { ErrorMessage } from "@hookform/error-message";
 import { useFormContext } from "react-hook-form";
-import TooltipInfo from "./TooltipInfo";
+import TooltipInfo from "@/components/common/TooltipInfo";
 
 export interface SelectOption {
   displayValue: string;

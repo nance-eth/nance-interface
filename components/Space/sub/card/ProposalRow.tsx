@@ -11,11 +11,12 @@ import {
 import { SpaceContext } from "@/context/SpaceContext";
 import { useContext } from "react";
 import Link from "next/link";
-import { format, formatDistanceToNow, fromUnixTime } from "date-fns";
+import { format } from "date-fns";
 import { CalendarDaysIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
+import TooltipInfo from "@/components/common/TooltipInfo";
 
 function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   // we only parse Payout and Transfer actions here
@@ -155,19 +156,41 @@ export default function ProposalRow({
             <div className="mt-2 flex flex-nowrap items-center gap-x-6 text-xs">
               {/* Author */}
               <div className="flex items-center gap-x-1">
-                <img
-                  src={`https://cdn.stamp.fyi/avatar/${authorAddress}`}
-                  alt=""
-                  className="h-6 w-6 flex-none rounded-full bg-gray-50"
-                />
+                {!authorAddress ? (
+                  <img
+                    src={`/images/unknown.png`}
+                    alt=""
+                    className="h-6 w-6 flex-none rounded-full bg-gray-50"
+                  />
+                ) : (
+                  <img
+                    src={`https://cdn.stamp.fyi/avatar/${authorAddress}`}
+                    alt=""
+                    className="h-6 w-6 flex-none rounded-full bg-gray-50"
+                  />
+                )}
                 <div>
                   <p className="text-gray-500">Author</p>
                   <div className="text-center text-black">
-                    <FormattedAddress
-                      address={authorAddress}
-                      minified
-                      copyable={false}
-                    />
+                    {!authorAddress ? (
+                      <div className="mb-1 text-sm font-medium text-gray-700 flex space-x-1 items-center">
+                        <span>Sponsor required</span>
+                        <TooltipInfo
+                          content={
+                            `The intended author does not have sufficient voting power to submit a proposal.\
+                            An address with atleast\
+                            ${formatNumber(spaceInfo?.proposalSubmissionValidation?.minBalance || 0)}\
+                            voting power must sponsor the proposal.`
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <FormattedAddress
+                        address={authorAddress}
+                        minified
+                        copyable={false}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

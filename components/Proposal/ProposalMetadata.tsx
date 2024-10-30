@@ -60,6 +60,7 @@ export default function ProposalMetadata() {
   return (
     <div className="my-4 rounded-md border bg-gray-100 px-4 py-5 sm:px-6">
       <Link
+        target="_blank"
         href={`${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`}
         className="mb-3 text-gray-500"
       >

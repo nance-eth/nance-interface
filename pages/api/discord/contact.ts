@@ -4,11 +4,10 @@ const WEBHOOK = process.env.DISCORD_CONTACT_WEBHOOK || '';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method, body } = req;
-
   if (method === 'POST') {
     const response = await fetch(WEBHOOK, {
       method,
-      body: JSON.stringify(body),
+      body,
       headers: {
         'Content-Type': 'application/json'
       }

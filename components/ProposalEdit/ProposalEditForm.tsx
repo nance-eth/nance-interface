@@ -51,6 +51,7 @@ import "@nance/nance-editor/lib/css/editor.css";
 import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
 import ProposalLocalCache, { ProposalCache } from "./ProposalLocalCache";
+import { discordMessage } from "@/utils/functions/discord";
 
 // Have to use dynamic import to avoid SSR issues (maybe theres a better way??)
 let getMarkdown: GetMarkdown;
@@ -300,11 +301,22 @@ export default function ProposalEditForm({ space }: { space: string }) {
       {error && (
         <ResultModal
           title="Error"
-          description={error.error_description || error.message || error}
-          buttonText="Close"
-          onClick={() => {
+          description={error.message || error}
+          buttonText="Send Support Alert"
+          onClick={async () => {
+            const discordSupportResponse = await fetch("/api/discord/contact", {
+              method: "POST",
+              body: JSON.stringify(discordMessage({
+                page: "edit",
+                space: space,
+                author: address,
+                error: error.message
+              }))
+            })
+            const url = await discordSupportResponse.json();
+            console.log(url)
             reset();
-            setSubmitError(undefined);
+            setSubmitError(new Error("Message sent our team will take a look!"));
           }}
           isSuccessful={false}
           shouldOpen={true}

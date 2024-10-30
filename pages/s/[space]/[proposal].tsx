@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useProposalsByID } from "@/utils/hooks/snapshot/Proposals";
 import { getLastSlash } from "@/utils/functions/nance";
 import Custom404 from "../../404";
-import { ScrollToBottom } from "@/components/PageButton";
 import ProposalSidebar from "@/components/Proposal/ProposalSidebar";
 import ProposalContent from "@/components/Proposal/ProposalContent";
 import ProposalOptions from "@/components/Proposal/ProposalOptions";
@@ -94,6 +93,7 @@ export default function NanceProposalPage() {
     actions: proposal.actions || [],
     proposalId: proposal.proposalId ? String(proposal.proposalId) : undefined,
     minTokenPassingAmount: proposal.proposalInfo.minTokenPassingAmount || 0,
+    minVotingPowerSubmissionBalance: proposal.proposalInfo.minVotingPowerSubmissionBalance || 0
   };
 
   return (

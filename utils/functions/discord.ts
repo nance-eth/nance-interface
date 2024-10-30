@@ -38,34 +38,18 @@ export function getDomain(url: string) {
   return domain;
 }
 
-export function discordContactMessage(form: {
-  name: string;
-  email: string;
-  message: string;
-}) {
+export function discordMessage(form: Record<string, any>) {
   const body = {
     embeds: [
       {
         title: "New Message from nance.app",
         description: `At <t:${Math.floor(Date.now() / 1000)}>:`,
         color: 0xeff6ff,
-        fields: [
-          {
-            name: "Name",
-            value: form.name ? form.name : "No name provided.",
-            inline: false,
-          },
-          {
-            name: "Contact",
-            value: form.email ? form.email : "No contact provided.",
-            inline: true,
-          },
-          {
-            name: "Message",
-            value: form.message,
-            inline: false,
-          },
-        ],
+        fields: Object.entries(form).map(([key, value]) => ({
+          name: key.charAt(0).toUpperCase() + key.slice(1),
+          value: value ? value.toString() : `No ${key} provided.`,
+          inline: false
+        }))
       },
     ],
   };

@@ -261,7 +261,7 @@ async function uploader(
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
-    throw new Error(`${JSON.stringify(json?.error)}`);
+    throw new Error(json?.error);
   }
 
   return json;
@@ -350,7 +350,7 @@ async function editor(
   });
   const json: APIResponse<ProposalUploadPayload> = await res.json();
   if (json.success === false) {
-    throw new Error(`${JSON.stringify(json?.error)}`);
+    throw new Error(json?.error);
   }
 
   return json;

@@ -23,6 +23,7 @@ export interface ProposalCommonProps {
   actions: Action[];
   proposalId?: string;
   minTokenPassingAmount: number;
+  minVotingPowerSubmissionBalance: number;
 }
 
 export const ProposalContext = createContext<{
@@ -56,6 +57,7 @@ export const ProposalContext = createContext<{
     actions: [],
     proposalId: "",
     minTokenPassingAmount: 0,
+    minVotingPowerSubmissionBalance: 0,
   },
   proposalInfo: undefined,
   nextProposalId: 0,

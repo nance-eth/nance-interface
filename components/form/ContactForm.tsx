@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { discordContactMessage } from '../../utils/functions/discord';
+import { discordMessage } from '../../utils/functions/discord';
 
 const ContactForm = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -8,7 +8,7 @@ const ContactForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const body = discordContactMessage(data);
+      const body = discordMessage(data);
       await fetch('/api/discord/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

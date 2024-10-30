@@ -4,7 +4,7 @@ import ENSAddressInput from "./ENSAddressInput";
 import { useEffect } from "react";
 import { classNames } from "@/utils/functions/tailwind";
 import { isAddress, zeroAddress } from "viem";
-import TooltipInfo from "./TooltipInfo";
+import TooltipInfo from "@/components/common/TooltipInfo";
 
 interface AddressFormProps {
   /**

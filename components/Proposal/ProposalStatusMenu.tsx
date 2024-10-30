@@ -1,6 +1,5 @@
 import {
   ChevronDownIcon,
-  EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 import { Menu } from "@headlessui/react";
 import { ProposalStatusNames } from "@nance/nance-sdk";

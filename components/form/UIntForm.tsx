@@ -1,7 +1,7 @@
 import { ErrorMessage } from "@hookform/error-message";
 import { useFormContext } from "react-hook-form";
 import { classNames } from "@/utils/functions/tailwind";
-import TooltipInfo from "./TooltipInfo";
+import TooltipInfo from "@/components/common/TooltipInfo";
 
 /**
  * UIntForm is a form component for uint input with a button to add decimal zeros.
