@@ -1,8 +1,6 @@
 /* eslint-disable max-lines */
 "use client";
-import {
-  CheckCircleIcon,
-} from "@heroicons/react/24/outline";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -88,6 +86,7 @@ interface MiddleStepInfo {
   title: string;
   description: string;
   warning?: boolean;
+  onContinue: () => void;
 }
 
 const CACHE_VERSION = 1;
@@ -102,7 +101,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const [formErrors, setFormErrors] = useState<string>("");
   const [selected, setSelected] = useState(ProposalStatus[0]);
   const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
-  const [formDataPayload, setFormDataPayload] = useState<ProposalFormValues>();
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<Error>();
 
@@ -156,19 +154,19 @@ export default function ProposalEditForm({ space }: { space: string }) {
           description:
             "You mention doing something but didn't attach an action. Consider adding one!",
           warning: true,
+          onContinue: () => processAndUploadProposal(formData),
         });
-        setFormDataPayload(formData);
         return;
       }
 
       if (_allSimulated) {
         return await processAndUploadProposal(formData);
       } else {
-        setFormDataPayload(formData);
         setMiddleStepInfo({
           title: "Submit will fail, please check the following",
           description:
             "You have some transactions may failed based on simulations.\n",
+          onContinue: () => processAndUploadProposal(formData),
         });
       }
     } catch (e) {
@@ -214,7 +212,10 @@ export default function ProposalEditForm({ space }: { space: string }) {
     const originalBody = formData.proposal.body;
     const proposalBody = originalBody.replaceAll("\\.", ".");
     if (originalBody !== proposalBody) {
-      console.debug("Replaced escaped dot", {original: originalBody, new: proposalBody})
+      console.debug("Replaced escaped dot", {
+        original: originalBody,
+        new: proposalBody,
+      });
     }
 
     const body = `${proposalBody}\n\n${actionsToYaml(actions)}`;
@@ -301,17 +302,21 @@ export default function ProposalEditForm({ space }: { space: string }) {
           onClick={async () => {
             const discordSupportResponse = await fetch("/api/discord/contact", {
               method: "POST",
-              body: JSON.stringify(discordMessage({
-                page: "edit",
-                space: space,
-                author: address,
-                error: error.message
-              }))
-            })
+              body: JSON.stringify(
+                discordMessage({
+                  page: "edit",
+                  space: space,
+                  author: address,
+                  error: error.message,
+                })
+              ),
+            });
             const url = await discordSupportResponse.json();
-            console.log(url)
+            console.log(url);
             reset();
-            setSubmitError(new Error("Message sent our team will take a look!"));
+            setSubmitError(
+              new Error("Message sent our team will take a look!")
+            );
           }}
           isSuccessful={false}
           shouldOpen={true}
@@ -334,7 +339,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
           title={middleStepInfo.title}
           warning={middleStepInfo.warning}
           description={middleStepInfo.description}
-          onContinue={() => processAndUploadProposal(formDataPayload!)}
+          onContinue={middleStepInfo.onContinue}
         />
       )}
       <form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
