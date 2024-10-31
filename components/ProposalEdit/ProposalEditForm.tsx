@@ -2,7 +2,6 @@
 "use client";
 import {
   CheckCircleIcon,
-  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSession } from "next-auth/react";
@@ -42,11 +41,9 @@ import {
   TEMPLATE,
 } from "@/constants/Nance";
 import { ProposalSubmitButton } from "./ProposalSubmitButton";
-import DiscordUser from "../CreateSpace/sub/DiscordUser";
 import { classNames } from "@/utils/functions/tailwind";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useAccount, useSignTypedData } from "wagmi";
-// import { accessCheckWithGuild } from "@/utils/hooks/GuildxyzHooks";
 import "@nance/nance-editor/lib/css/editor.css";
 import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
@@ -106,7 +103,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const [selected, setSelected] = useState(ProposalStatus[0]);
   const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
   const [formDataPayload, setFormDataPayload] = useState<ProposalFormValues>();
-  const [authorDiscordId, setAuthorDiscordId] = useState<string | undefined>();
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<Error>();
 
@@ -225,7 +221,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
     const proposal = {
       ...formData.proposal,
       body,
-      authorDiscordId,
       status:
         metadata.loadedProposal?.status === "Temperature Check" && !isNew
           ? "Temperature Check"
@@ -449,26 +444,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
           )}
 
           {status !== "unauthenticated" && (
-            <div
-              className={classNames(
-                "flex w-full",
-                isNew ? "justify-between" : "justify-end"
-              )}
-            >
-              {isNew ? (
-                <div className="ml-6 items-center">
-                  <DiscordUser
-                    address={session?.user?.name || ""}
-                    setDiscordId={setAuthorDiscordId}
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    <InformationCircleIcon className="mr-1 inline h-5 w-5" />
-                    Optional: receive notification of proposal status changes
-                  </p>
-                </div>
-              ) : (
-                <></>
-              )}
+            <div className="flex w-full justify-end">
               <ProposalSubmitButton
                 formErrors={formErrors}
                 status={status}
