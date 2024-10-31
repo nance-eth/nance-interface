@@ -25,7 +25,7 @@ export default function SpacePage() {
     if (_window.Nance === undefined) {
       _window.Nance = {};
     }
-
+    // Use these by typing Nance into dev console
     _window.Nance.updateSpaceInfo = setOverrideSpaceInfo;
     _window.Nance.spaceInfo = spaceInfo;
   }, [spaceInfo, mutate]);

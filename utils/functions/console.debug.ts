@@ -6,6 +6,11 @@ const _console = {
       console.log("[DEBUG]", ...args);
     }
   },
+  log: console.log,
+  warn: console.warn,
+  error: console.error,
+  info: console.info,
+  trace: console.trace
 };
 
 console.debug = _console.debug;

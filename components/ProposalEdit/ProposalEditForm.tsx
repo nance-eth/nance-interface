@@ -35,7 +35,7 @@ import { getUnixTime } from "date-fns";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
 import { NANCE_DEFAULT_IPFS_GATEWAY, TEMPLATE } from "@/constants/Nance";
 import { SpaceContext } from "@/context/SpaceContext";
-import { useAccount, useSignTypedData } from "wagmi";
+import { useAccount } from "wagmi";
 import "@nance/nance-editor/lib/css/editor.css";
 import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
@@ -97,7 +97,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
   const [proposalUploadStatus, setProposalUploadStatus] =
     useState<ProposalStatus>("Discussion");
   const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
-  const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<Error>();
 
   // hooks
@@ -140,7 +139,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
           address || "",
           spaceInfo?.snapshotSpace || ""
         );
-        if (vp < minVp) {
+        if (vp < minVp && !metadata.loadedProposal?.authorAddress) {
           vpMiddleStep = {
             title: "You can only save as Draft",
             description: `You don't have enough voting power (${minVp} Token) to publish, but you can save this proposal as Draft for now.`,
@@ -281,7 +280,6 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
     trigger(req)
       .then(async (res) => {
-        setSubmitted(true);
         // clear local cache
         setProposalCache({
           version: CACHE_VERSION,
@@ -473,14 +471,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
           )}
 
           {status !== "unauthenticated" && (
-            <div className="flex w-full space-x-4 justify-end">
+            <div className="flex w-full space-x-4 justify-end pr-8">
               <button
                 type="submit"
                 disabled={isMutating}
                 onClick={() => {
                   setProposalUploadStatus("Draft");
                 }}
-                className="inline-flex justify-center rounded-md border border-dashed px-4 py-2 text-sm font-medium text-gray-600 hover:text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:text-white disabled:bg-gray-400"
+                className="inline-flex justify-center rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:text-white disabled:bg-gray-400"
               >
                 {isMutating && proposalUploadStatus === "Draft" && (
                   <ArrowPathIcon
@@ -497,7 +495,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
                 onClick={() => {
                   setProposalUploadStatus("Discussion");
                 }}
-                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
               >
                 {isMutating && proposalUploadStatus === "Discussion" && (
                   <ArrowPathIcon
