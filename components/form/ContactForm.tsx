@@ -8,11 +8,11 @@ const ContactForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      const body = discordMessage(data);
+      const body = JSON.stringify(discordMessage(data));
       await fetch('/api/discord/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(body), // idk why double stringying works debug later
       });
       setSubmissionMessage('Thank you for reaching out! We will get back to you as soon as possible.');
       reset();
