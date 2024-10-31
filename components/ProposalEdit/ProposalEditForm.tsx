@@ -473,16 +473,16 @@ export default function ProposalEditForm({ space }: { space: string }) {
           )}
 
           {status !== "unauthenticated" && (
-            <div className="flex w-full space-x-2 justify-end">
+            <div className="flex w-full space-x-4 justify-end">
               <button
                 type="submit"
                 disabled={isMutating}
                 onClick={() => {
                   setProposalUploadStatus("Draft");
                 }}
-                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+                className="inline-flex justify-center rounded-md border border-dashed px-4 py-2 text-sm font-medium text-gray-600 hover:text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:text-white disabled:bg-gray-400"
               >
-                {(status === "loading" || isMutating) && (
+                {isMutating && proposalUploadStatus === "Draft" && (
                   <ArrowPathIcon
                     className="mr-1 h-5 w-5 animate-spin text-white"
                     aria-hidden="true"
@@ -499,7 +499,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
                 }}
                 className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
               >
-                {(status === "loading" || isMutating) && (
+                {isMutating && proposalUploadStatus === "Discussion" && (
                   <ArrowPathIcon
                     className="mr-1 h-5 w-5 animate-spin text-white"
                     aria-hidden="true"
