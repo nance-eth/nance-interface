@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 "use client";
-import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
@@ -16,7 +16,7 @@ import { useProposalUpload } from "@/utils/hooks/NanceHooks";
 import {
   CustomTransaction,
   Proposal,
-  ProposalStatus as ProposalStatusType,
+  ProposalStatus,
   ProposalUploadRequest,
   actionsToYaml,
   // ===== SIGNATURE BASED AUTHENTICATION =====
@@ -33,13 +33,7 @@ import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "@/utils/hooks/LocalStorage";
 import { getUnixTime } from "date-fns";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
-import {
-  NANCE_DEFAULT_IPFS_GATEWAY,
-  ProposalStatus,
-  TEMPLATE,
-} from "@/constants/Nance";
-import { ProposalSubmitButton } from "./ProposalSubmitButton";
-import { classNames } from "@/utils/functions/tailwind";
+import { NANCE_DEFAULT_IPFS_GATEWAY, TEMPLATE } from "@/constants/Nance";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useAccount, useSignTypedData } from "wagmi";
 import "@nance/nance-editor/lib/css/editor.css";
@@ -100,7 +94,8 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
   // state
   const [formErrors, setFormErrors] = useState<string>("");
-  const [selected, setSelected] = useState(ProposalStatus[0]);
+  const [proposalUploadStatus, setProposalUploadStatus] =
+    useState<ProposalStatus>("Discussion");
   const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<Error>();
@@ -183,7 +178,11 @@ export default function ProposalEditForm({ space }: { space: string }) {
       }
 
       if (_allSimulated) {
-        setMiddleStepInfo(vpMiddleStep);
+        if (vpMiddleStep) {
+          setMiddleStepInfo(vpMiddleStep);
+        } else {
+          processAndUploadProposal(formData);
+        }
       } else {
         setMiddleStepInfo({
           title: "Submit will fail, please check the following",
@@ -200,7 +199,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
   };
   const processAndUploadProposal: (
     formData: ProposalFormValues,
-    overrideStatus?: ProposalStatusType
+    overrideStatus?: ProposalStatus
   ) => void = async (formData, overrideStatus) => {
     let uuid;
     if (!isNew && metadata?.loadedProposal) {
@@ -252,7 +251,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
         overrideStatus ||
         (metadata.loadedProposal?.status === "Temperature Check" && !isNew
           ? "Temperature Check"
-          : (selected.value as ProposalStatusType)),
+          : proposalUploadStatus),
     };
 
     if (!address) {
@@ -460,30 +459,54 @@ export default function ProposalEditForm({ space }: { space: string }) {
           </p>
         </div>
 
-        {formErrors.length > 0 && (
-          <p className="mt-1 text-red-500">Form errors: {formErrors}</p>
-        )}
-
-        <div className="flex justify-end" id="submit-button-div">
+        <div className="flex flex-col justify-end" id="submit-button-div">
           {status === "unauthenticated" && (
-            <button
-              type="button"
-              onClick={() => openConnectModal?.()}
-              className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
-            >
-              Connect Wallet
-            </button>
+            <div className="flex w-full space-x-2 justify-end">
+              <button
+                type="button"
+                onClick={() => openConnectModal?.()}
+                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+              >
+                Connect Wallet
+              </button>
+            </div>
           )}
 
           {status !== "unauthenticated" && (
-            <div className="flex w-full justify-end">
-              <ProposalSubmitButton
-                formErrors={formErrors}
-                status={status}
-                isMutating={formState.isSubmitting || isMutating || submitted}
-                selected={selected}
-                setSelected={setSelected}
-              />
+            <div className="flex w-full space-x-2 justify-end">
+              <button
+                type="submit"
+                disabled={isMutating}
+                onClick={() => {
+                  setProposalUploadStatus("Draft");
+                }}
+                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+              >
+                {(status === "loading" || isMutating) && (
+                  <ArrowPathIcon
+                    className="mr-1 h-5 w-5 animate-spin text-white"
+                    aria-hidden="true"
+                  />
+                )}
+                Save Draft
+              </button>
+
+              <button
+                type="submit"
+                disabled={isMutating}
+                onClick={() => {
+                  setProposalUploadStatus("Discussion");
+                }}
+                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
+              >
+                {(status === "loading" || isMutating) && (
+                  <ArrowPathIcon
+                    className="mr-1 h-5 w-5 animate-spin text-white"
+                    aria-hidden="true"
+                  />
+                )}
+                Publish
+              </button>
             </div>
           )}
         </div>
