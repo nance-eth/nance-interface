@@ -47,6 +47,7 @@ import "@nance/nance-editor/lib/css/dark.css";
 import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
 import ProposalLocalCache, { ProposalCache } from "./ProposalLocalCache";
 import { discordMessage } from "@/utils/functions/discord";
+import { fetchVotingPowerWithoutProposal } from "@/utils/hooks/snapshot/VotingPower";
 
 // Have to use dynamic import to avoid SSR issues (maybe theres a better way??)
 let getMarkdown: GetMarkdown;
@@ -137,6 +138,26 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
   const onSubmit: SubmitHandler<ProposalFormValues> = async (formData) => {
     try {
+      const minVp = spaceInfo?.proposalSubmissionValidation?.minBalance || 0;
+      let vpMiddleStep: MiddleStepInfo | undefined = undefined;
+      if (minVp > 0) {
+        const vp = await fetchVotingPowerWithoutProposal(
+          address || "",
+          spaceInfo?.snapshotSpace || ""
+        );
+        if (vp < minVp) {
+          vpMiddleStep = {
+            title: "You can only save as Draft",
+            description: `You don't have enough voting power (${minVp} Token) to publish, but you can save this proposal as Draft for now.`,
+            warning: true,
+            onContinue: () => {
+              // save as Draft so user won't lost the changes
+              processAndUploadProposal(formData, "Draft");
+            },
+          };
+        }
+      }
+
       // check if actions all passed simulation
       const _allSimulated =
         getValues("proposal.actions")?.filter(
@@ -154,28 +175,33 @@ export default function ProposalEditForm({ space }: { space: string }) {
           description:
             "You mention doing something but didn't attach an action. Consider adding one!",
           warning: true,
-          onContinue: () => processAndUploadProposal(formData),
+          onContinue: vpMiddleStep
+            ? () => setMiddleStepInfo(vpMiddleStep)
+            : () => processAndUploadProposal(formData),
         });
         return;
       }
 
       if (_allSimulated) {
-        return await processAndUploadProposal(formData);
+        setMiddleStepInfo(vpMiddleStep);
       } else {
         setMiddleStepInfo({
           title: "Submit will fail, please check the following",
           description:
             "You have some transactions may failed based on simulations.\n",
-          onContinue: () => processAndUploadProposal(formData),
+          onContinue: vpMiddleStep
+            ? () => setMiddleStepInfo(vpMiddleStep)
+            : () => processAndUploadProposal(formData),
         });
       }
     } catch (e) {
       setSubmitError(e as Error);
     }
   };
-  const processAndUploadProposal: SubmitHandler<ProposalFormValues> = async (
-    formData
-  ) => {
+  const processAndUploadProposal: (
+    formData: ProposalFormValues,
+    overrideStatus?: ProposalStatusType
+  ) => void = async (formData, overrideStatus) => {
     let uuid;
     if (!isNew && metadata?.loadedProposal) {
       uuid = metadata.loadedProposal.uuid;
@@ -223,9 +249,10 @@ export default function ProposalEditForm({ space }: { space: string }) {
       ...formData.proposal,
       body,
       status:
-        metadata.loadedProposal?.status === "Temperature Check" && !isNew
+        overrideStatus ||
+        (metadata.loadedProposal?.status === "Temperature Check" && !isNew
           ? "Temperature Check"
-          : (selected.value as ProposalStatusType),
+          : (selected.value as ProposalStatusType)),
     };
 
     if (!address) {

@@ -86,3 +86,14 @@ query VotingPowerQuery($voter: String!, $space: String!, $proposal: String) {
     }
 }
 `;
+
+export const VOTING_POWER_WITHOUT_PROPOSAL_QUERY = `
+query VotingPowerQuery($voter: String!, $space: String!) {
+    vp (
+      voter: $voter
+      space: $space
+    ) {
+      vp
+    }
+}
+`;
