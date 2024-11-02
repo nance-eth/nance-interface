@@ -15,9 +15,11 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
         <JBSplitEntry mod={payout2JBSplit(action)} />
         <GovernanceCyclesInfoLabel action={action} />
       </span>
-      <div className="font-semibold italic text-emerald-600">
-        Total Amount: ${total}
-      </div>
+      {count > 1 && (
+        <div className="font-semibold italic text-emerald-600">
+          Total Amount: ${total}
+        </div>
+      )}
     </div>
   );
 }
