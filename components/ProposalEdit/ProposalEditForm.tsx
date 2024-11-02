@@ -108,17 +108,14 @@ export default function ProposalEditForm({ space }: { space: string }) {
     { version: CACHE_VERSION, title: "", body: "", timestamp: 0 }
   );
 
+  const proposalId = metadata.fork ? undefined : metadata.loadedProposal?.uuid;
   const {
     isMutating,
     error: uploadError,
     trigger,
     data,
     reset,
-  } = useProposalUpload(
-    space,
-    (!metadata.fork && metadata.loadedProposal?.uuid) || undefined,
-    router.isReady
-  );
+  } = useProposalUpload(space, proposalId, router.isReady);
 
   const { data: session, status } = useSession();
   const { openConnectModal } = useConnectModal();

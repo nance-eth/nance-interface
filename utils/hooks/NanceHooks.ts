@@ -25,7 +25,7 @@ import { FundingCycleArgs } from "../functions/fundingCycle";
 import { JBSplit, V2V3FundingCycleMetadata } from "@/models/JuiceboxTypes";
 
 export async function getFetch(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(NANCE_API_URL + url);
   const json = await res.json();
   if (json?.success === "false" || json?.error) {
     throw new Error(`${JSON.stringify(json?.error)}`);
@@ -34,7 +34,7 @@ export async function getFetch(url: string) {
 }
 
 export async function postFetch(url: string, body: any) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_PROXY_API_URL + url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -50,14 +50,14 @@ export async function postFetch(url: string, body: any) {
 
 export function useAllSpaceInfo(shouldFetch: boolean = true) {
   return useSWR<APIResponse<SpaceInfo[]>>(
-    shouldFetch ? `${NANCE_API_URL}/ish/all` : null,
+    shouldFetch ? `/ish/all` : null,
     getFetch
   );
 }
 
 export function useSpaceConfig(space: string, shouldFetch: boolean = true) {
   return useSWR<APIResponse<SpaceConfig>, string>(
-    shouldFetch ? `${NANCE_API_URL}/ish/config/${space}` : null,
+    shouldFetch ? `/ish/config/${space}` : null,
     getFetch
   );
 }
@@ -67,7 +67,7 @@ export function useSpaceInfo(
   shouldFetch: boolean = true
 ) {
   return useSWR<APIResponse<SpaceInfo>, string>(
-    shouldFetch ? `${NANCE_API_URL}/${args.space}` : null,
+    shouldFetch ? `/${args.space}` : null,
     getFetch
   );
 }
@@ -101,7 +101,7 @@ export type ReconfigData = {
 
 export function useReconfig(space: string, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ReconfigData>, string>(
-    shouldFetch ? `${NANCE_API_URL}/${space}/reconfig` : null,
+    shouldFetch ? `/${space}/reconfig` : null,
     getFetch
   );
 }
@@ -117,9 +117,7 @@ export function useCurrentPayouts(
   }
 
   return useSWR<APIResponse<SQLPayout[]>, string>(
-    shouldFetch
-      ? `${NANCE_API_URL}/${space}/payouts?` + urlParams.toString()
-      : null,
+    shouldFetch ? `/${space}/payouts?` + urlParams.toString() : null,
     getFetch
   );
 }
@@ -143,9 +141,7 @@ export function useProposals(
   }
 
   return useSWR<APIResponse<ProposalsPacket>, string>(
-    shouldFetch
-      ? `${NANCE_API_URL}/${args.space}/proposals?` + urlParams.toString()
-      : null,
+    shouldFetch ? `/${args.space}/proposals?` + urlParams.toString() : null,
     getFetch
   );
 }
@@ -175,7 +171,7 @@ export function useProposalsInfinite(
     if (!shouldFetch || (previousPageData && !previousPageData.data.hasMore))
       return null; // reached the end
     urlParams.set("page", (pageIndex + 1).toString());
-    return `${NANCE_API_URL}/${args.space}/proposals?` + urlParams.toString(); // SWR key
+    return `/${args.space}/proposals?` + urlParams.toString(); // SWR key
   };
 
   return useSWRInfinite<APIResponse<ProposalsPacket>, string>(getKey, getFetch);
@@ -185,10 +181,8 @@ export function useProposal(
   args: ProposalRequest,
   shouldFetch: boolean = true
 ) {
-  return useSWR<ProposalQueryResponse>(
-    shouldFetch ? `${NANCE_API_URL}/${args.space}/proposal/${args.uuid}` : null,
-    getFetch
-  );
+  const url = `/${args.space}/proposal/${args.uuid}`;
+  return useSWR<ProposalQueryResponse>(shouldFetch ? url : null, getFetch);
 }
 
 // TODO move these two types into nance-sdk
@@ -205,7 +199,7 @@ export interface ActionPayload {
 
 export function useAction(args: ActionRequest, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ActionPayload>>(
-    shouldFetch ? `${NANCE_API_URL}/${args.space}/actions/${args.aid}` : null,
+    shouldFetch ? `/${args.space}/actions/${args.aid}` : null,
     getFetch
   );
 }
@@ -215,15 +209,13 @@ interface ActionsRequest extends BaseRequest {
 }
 export function useActions(args: ActionsRequest, shouldFetch: boolean = true) {
   return useSWR<APIResponse<ActionPayload[]>>(
-    shouldFetch
-      ? `${NANCE_API_URL}/${args.space}/actions?all=${!!args.all}`
-      : null,
+    shouldFetch ? `/${args.space}/actions?all=${!!args.all}` : null,
     getFetch
   );
 }
 
 async function emptyCreator(url: RequestInfo | URL) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_API_URL + url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -241,9 +233,7 @@ export function useCreateActionPoll(
   shouldFetch: boolean = true
 ) {
   return useSWRMutation(
-    shouldFetch
-      ? `${NANCE_API_URL}/${args.space}/actions/${args.aid}/poll`
-      : null,
+    shouldFetch ? `/${args.space}/actions/${args.aid}/poll` : null,
     emptyCreator
   );
 }
@@ -252,7 +242,7 @@ async function uploader(
   url: RequestInfo | URL,
   { arg }: { arg: ProposalUploadRequest }
 ) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_PROXY_API_URL + url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -271,7 +261,7 @@ async function creator(
   url: RequestInfo | URL,
   { arg }: { arg: CreateFormValues }
 ) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_PROXY_API_URL + url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -288,13 +278,13 @@ async function creator(
 
 export function useProposalUpload(
   space: string,
-  proposalId: string | undefined,
+  uuid: string | undefined,
   shouldFetch: boolean = true
 ) {
-  let url = `${NANCE_PROXY_API_URL}/${space}/proposals`;
+  let url = `/${space}/proposals`;
   let fetcher = uploader;
-  if (proposalId) {
-    url = `${NANCE_PROXY_API_URL}/${space}/proposal/${proposalId}`;
+  if (uuid) {
+    url = `/${space}/proposal/${uuid}`;
     fetcher = editor;
   }
   return useSWRMutation(shouldFetch ? url : null, fetcher);
@@ -305,7 +295,7 @@ export function useProposalDelete(
   uuid: string | undefined,
   shouldFetch: boolean = true
 ) {
-  let url = `${NANCE_PROXY_API_URL}/${space}/proposal/${uuid}`;
+  let url = `/${space}/proposal/${uuid}`;
   let fetcher = deleter;
   return useSWRMutation(shouldFetch ? url : null, fetcher);
 }
@@ -315,7 +305,7 @@ export function useProposalPatchStatus(
   uuid: string | undefined,
   shouldFetch: boolean = true
 ) {
-  let url = `${NANCE_PROXY_API_URL}/${space}/proposal/${uuid}/status/`;
+  let url = `/${space}/proposal/${uuid}/status/`;
   return useSWRMutation(shouldFetch ? url : null, patcher);
 }
 
@@ -323,7 +313,7 @@ async function patcher(
   url: RequestInfo | URL,
   { arg }: { arg: ProposalStatus }
 ) {
-  const res = await fetch(url + arg, {
+  const res = await fetch(NANCE_PROXY_API_URL + url + arg, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -341,7 +331,7 @@ async function editor(
   url: RequestInfo | URL,
   { arg }: { arg: ProposalUploadRequest }
 ) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_PROXY_API_URL + url, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -360,7 +350,7 @@ async function deleter(
   url: RequestInfo | URL,
   { arg }: { arg: ProposalDeleteRequest }
 ) {
-  const res = await fetch(url, {
+  const res = await fetch(NANCE_PROXY_API_URL + url, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -375,13 +365,12 @@ async function deleter(
 }
 
 export function useCreateSpace(shouldFetch: boolean = true) {
-  const url = `${NANCE_PROXY_API_URL}/ish/config`;
-  let fetcher = creator;
-  return useSWRMutation(shouldFetch ? url : null, fetcher);
+  const url = `/ish/config`;
+  return useSWRMutation(shouldFetch ? url : null, creator);
 }
 
 export function getNanceEndpointPath(space: string, command: string) {
-  return `${NANCE_PROXY_API_URL}/${space}/${command}`;
+  return `/${space}/${command}`;
 }
 
 export async function fetchCreatedProposals(
