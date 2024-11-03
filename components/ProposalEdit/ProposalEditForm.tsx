@@ -42,6 +42,7 @@ import { GetMarkdown, SetMarkdown } from "@nance/nance-editor";
 import ProposalLocalCache, { ProposalCache } from "./ProposalLocalCache";
 import { discordMessage } from "@/utils/functions/discord";
 import { fetchVotingPowerWithoutProposal } from "@/utils/hooks/snapshot/VotingPower";
+import { useSWRConfig } from "swr";
 
 // Have to use dynamic import to avoid SSR issues (maybe theres a better way??)
 let getMarkdown: GetMarkdown;
@@ -107,6 +108,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
     CACHE_VERSION,
     { version: CACHE_VERSION, title: "", body: "", timestamp: 0 }
   );
+  const { mutate } = useSWRConfig();
 
   const proposalId = metadata.fork ? undefined : metadata.loadedProposal?.uuid;
   const {
@@ -285,8 +287,23 @@ export default function ProposalEditForm({ space }: { space: string }) {
           timestamp: 0,
         });
         console.debug("📗 Nance.editProposal.onSignSuccess ->", res);
+
+        // revalidate proposalId path of this proposal for useSWR
+        //   since the uuid path will be revalidated by useSWRMutation
+        //   related doc: https://swr.vercel.app/docs/mutation
+        const proposalId = metadata.loadedProposal?.proposalId;
+        if (proposalId) {
+          const _url = `/${space}/proposal/${proposalId}`;
+          console.debug("mutate", _url);
+          mutate(_url);
+        }
+
         if (res?.data && res.data.uuid) {
-          router.push(`/s/${space}/${res.data.uuid}`);
+          // this is assuming updating existed proposal won't update the proposalId
+          router.push(
+            `/s/${space}/${res.data.uuid}`,
+            `/s/${space}/${proposalId || res.data.uuid}`
+          );
         }
       })
       .catch((err) => {
