@@ -99,6 +99,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
     useState<ProposalStatus>("Discussion");
   const [middleStepInfo, setMiddleStepInfo] = useState<MiddleStepInfo>();
   const [submitError, setSubmitError] = useState<Error>();
+  const [processingSubmission, setProcessingSubmission] = useState(false);
 
   // hooks
   const { address } = useAccount();
@@ -145,6 +146,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
             warning: true,
             onContinue: () => {
               // save as Draft so user won't lost the changes
+              setProposalUploadStatus("Draft");
               processAndUploadProposal(formData, "Draft");
             },
           };
@@ -277,6 +279,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
       // ==========================================
     };
 
+    setProcessingSubmission(true);
     trigger(req)
       .then(async (res) => {
         // clear local cache
@@ -308,6 +311,9 @@ export default function ProposalEditForm({ space }: { space: string }) {
       })
       .catch((err) => {
         console.warn("📗 Nance.editProposal.onSignError ->", err);
+        setProcessingSubmission(false);
+        // let next catch work, display error in modal.
+        throw err;
       });
     // }); // ===== SIGNATURE BASED AUTHENTICATION =====
   };
@@ -488,13 +494,13 @@ export default function ProposalEditForm({ space }: { space: string }) {
             <div className="flex w-full space-x-4 justify-end pr-8">
               <button
                 type="submit"
-                disabled={isMutating}
+                disabled={processingSubmission}
                 onClick={() => {
                   setProposalUploadStatus("Draft");
                 }}
                 className="inline-flex justify-center rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:text-white disabled:bg-gray-400"
               >
-                {isMutating && proposalUploadStatus === "Draft" && (
+                {processingSubmission && proposalUploadStatus === "Draft" && (
                   <ArrowPathIcon
                     className="mr-1 h-5 w-5 animate-spin text-white"
                     aria-hidden="true"
@@ -505,18 +511,19 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
               <button
                 type="submit"
-                disabled={isMutating}
+                disabled={processingSubmission}
                 onClick={() => {
                   setProposalUploadStatus("Discussion");
                 }}
                 className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400"
               >
-                {isMutating && proposalUploadStatus === "Discussion" && (
-                  <ArrowPathIcon
-                    className="mr-1 h-5 w-5 animate-spin text-white"
-                    aria-hidden="true"
-                  />
-                )}
+                {processingSubmission &&
+                  proposalUploadStatus === "Discussion" && (
+                    <ArrowPathIcon
+                      className="mr-1 h-5 w-5 animate-spin text-white"
+                      aria-hidden="true"
+                    />
+                  )}
                 Publish
               </button>
             </div>
