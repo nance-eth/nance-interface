@@ -1,5 +1,5 @@
-import { Disclosure } from '@headlessui/react';
-import { MinusSmallIcon, PlusSmallIcon } from '@heroicons/react/24/outline';
+import { Disclosure } from "@headlessui/react";
+import { MinusSmallIcon, PlusSmallIcon } from "@heroicons/react/24/outline";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import { ProposalContext } from "./context/ProposalContext";
 import { useContext, useState } from "react";
@@ -17,14 +17,18 @@ export default function ProposalSummaries() {
   const { proposalSummary, threadSummary } = useContext(ProposalContext);
   const { status: walletStatus } = useSession();
   const authenticated = walletStatus === "authenticated";
-  {if (!proposalSummary && !threadSummary && !authenticated) return null;}
+  {
+    if (!proposalSummary && !threadSummary && !authenticated) return null;
+  }
   return (
     <div className="rounded-md border bg-gray-100">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
-          <dl className="mb-5 space-y-6 divide-y divide-gray-900/10">
+          <dl className="mb-2 space-y-2 divide-y divide-gray-900/10">
             <Summary type="Proposal" markdown={proposalSummary} />
-            {!threadSummary && !authenticated ? (null) : <Summary type="Discussion" markdown={threadSummary} />}
+            {!threadSummary && !authenticated ? null : (
+              <Summary type="Discussion" markdown={threadSummary} />
+            )}
           </dl>
         </div>
       </div>
@@ -45,7 +49,9 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
     setSummaryLoading(true);
     setSummary(undefined);
     try {
-      const res = await fetch(`${NANCE_API_URL}/${space}/summary/${_type}/${uuid}`);
+      const res = await fetch(
+        `${NANCE_API_URL}/${space}/summary/${_type}/${uuid}`
+      );
       const { data, error } = await res.json();
       if (error) throw Error(error);
       setSummary(data);
@@ -56,7 +62,7 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
   };
 
   return (
-    <Disclosure as="div" className="pt-6">
+    <Disclosure as="div" className="pt-2">
       {({ open }) => (
         <>
           <dt>
@@ -76,24 +82,23 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
               <article className="prose mx-auto break-words text-gray-500">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[
-                    rehypeRaw,
-                    rehypeSanitize,
-                    rehypeSlug,
-                  ]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeSlug]}
                 >
                   {summary?.replace(/^#/gm, "###")}
                 </ReactMarkdown>
               </article>
             )}
-            <div className={
-              classNames("mt-2 ml-2 justify-center text-cyan-500",
+            <div
+              className={classNames(
+                "mt-2 ml-2 justify-center text-cyan-500",
                 !summaryLoading && "hover:cursor-pointer",
                 authenticated ? "" : "hidden"
               )}
-            onClick={ async () => handleGenerateSummary() }
+              onClick={async () => handleGenerateSummary()}
             >
-              {summaryLoading ? <SummarySkeleton /> : (
+              {summaryLoading ? (
+                <SummarySkeleton />
+              ) : (
                 <div className="flex flex-row space-x-1">
                   <SparklesIcon width={20} height={20} /> <p>Nancearize</p>
                 </div>

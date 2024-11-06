@@ -1,4 +1,9 @@
-import { ArrowPathIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon,
+  ArrowTopRightOnSquareIcon,
+  MinusSmallIcon,
+  PlusSmallIcon,
+} from "@heroicons/react/24/outline";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getDomain, openInDiscord } from "@/utils/functions/discord";
 import { useContext, useState } from "react";
@@ -8,10 +13,16 @@ import { ProposalContext } from "./context/ProposalContext";
 import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { SpaceContext } from "@/context/SpaceContext";
 import { Spinner } from "flowbite-react";
-import { APIResponse, ProposalPacket, getOrRefreshProposalDiscussion } from "@nance/nance-sdk";
+import {
+  APIResponse,
+  ProposalPacket,
+  getOrRefreshProposalDiscussion,
+} from "@nance/nance-sdk";
 import toast from "react-hot-toast";
 import { useAccount } from "wagmi";
 import { canEditProposal } from "@/utils/functions/nance";
+import { RequestingTokensOfProposal } from "../Space/sub/card/ProposalRow";
+import { Disclosure } from "@headlessui/react";
 
 export default function ProposalMetadata() {
   const { address } = useAccount();
@@ -69,19 +80,49 @@ export default function ProposalMetadata() {
       <div className="gaps-4">
         {commonProps.actions && commonProps.actions.length > 0 && (
           <>
-            <p className="col-span-2 font-medium">Actions:</p>
+            <p className="col-span-2 font-medium">Actions: </p>
 
-            <div className="col-span-2 mt-2 flex w-full flex-col space-y-2">
-              <SpaceContext.Provider value={spaceInfo}>
-                {commonProps.actions.map((action, index) => (
-                  <ActionLabel
-                    action={action}
-                    space={commonProps.space}
-                    key={index}
-                  />
-                ))}
-              </SpaceContext.Provider>
-            </div>
+            <Disclosure as="div" className="pl-2">
+              {({ open }) => (
+                <>
+                  <dt>
+                    <Disclosure.Button className="flex w-full items-start justify-between text-left text-gray-900">
+                      <span className="">
+                        <RequestingTokensOfProposal
+                          actions={commonProps.actions}
+                        />
+                      </span>
+                      <span className="ml-6 flex h-7 items-center">
+                        {open ? (
+                          <MinusSmallIcon
+                            className="h-6 w-6"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <PlusSmallIcon
+                            className="h-6 w-6"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </span>
+                    </Disclosure.Button>
+                  </dt>
+                  <Disclosure.Panel as="dd" className="mt-2 pr-12">
+                    <div className="col-span-2 mt-2 flex w-full flex-col space-y-2">
+                      <SpaceContext.Provider value={spaceInfo}>
+                        {commonProps.actions.map((action, index) => (
+                          <ActionLabel
+                            action={action}
+                            space={commonProps.space}
+                            key={index}
+                          />
+                        ))}
+                      </SpaceContext.Provider>
+                    </div>
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
           </>
         )}
 
@@ -121,20 +162,24 @@ export default function ProposalMetadata() {
                   {getDomain(discussionThreadURL)}
                   <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
                 </a>
-                {address
-                  && spaceInfo?.spaceOwners.includes(address)
-                  && canEditProposal(commonProps.status)
-                  && (
-                    <ArrowPathIcon className="h-3 w-3 hover:cursor-pointer"
+                {address &&
+                  spaceInfo?.spaceOwners.includes(address) &&
+                  canEditProposal(commonProps.status) && (
+                    <ArrowPathIcon
+                      className="h-3 w-3 hover:cursor-pointer"
                       onClick={async () => {
                         toast.promise(
                           getOrRefreshProposalDiscussion(
-                            commonProps.space, commonProps.uuid, NANCE_API_URL
-                          ), {
+                            commonProps.space,
+                            commonProps.uuid,
+                            NANCE_API_URL
+                          ),
+                          {
                             loading: "Updating Discord",
                             success: "Discord updated!",
-                            error: (err) => `${err.toString()}`
-                          });
+                            error: (err) => `${err.toString()}`,
+                          }
+                        );
                       }}
                     />
                   )}
@@ -145,28 +190,30 @@ export default function ProposalMetadata() {
 
           {discussionThreadURL === "ERROR" &&
             commonProps.status === "Discussion" && (
-            <>
-              <span className="font-medium">Discussion:</span>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                className="col-span-2 cursor-pointer text-sky-800"
-                onClick={async () => {
-                  try {
-                    setDiscussionThreadURL(undefined);
-                    await getOrRefreshProposalDiscussion(
-                      commonProps.space, commonProps.uuid, NANCE_API_URL
-                    )
-                  } catch (e: any) {
-                    toast.error(e.toString());
-                  }
-                }}
-              >
-                start discussion
-                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-              </a>
-            </>
-          )}
+              <>
+                <span className="font-medium">Discussion:</span>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="col-span-2 cursor-pointer text-sky-800"
+                  onClick={async () => {
+                    try {
+                      setDiscussionThreadURL(undefined);
+                      await getOrRefreshProposalDiscussion(
+                        commonProps.space,
+                        commonProps.uuid,
+                        NANCE_API_URL
+                      );
+                    } catch (e: any) {
+                      toast.error(e.toString());
+                    }
+                  }}
+                >
+                  start discussion
+                  <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+                </a>
+              </>
+            )}
 
           {commonProps.snapshotSpace && commonProps.snapshotHash && (
             <>

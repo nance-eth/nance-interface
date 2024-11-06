@@ -11,7 +11,7 @@ import ProposalMenu from "./ProposalMenu";
 import { ArrowLongLeftIcon } from "@heroicons/react/24/outline";
 import ProposalStatusMenu from "./ProposalStatusMenu";
 import TooltipInfo from "../common/TooltipInfo";
-import { formatNumber, formatTokenBalance, numToPrettyString } from "@/utils/functions/NumberFormatter";
+import { formatNumber } from "@/utils/functions/NumberFormatter";
 
 export default function ProposalContent() {
   const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
@@ -62,11 +62,11 @@ export default function ProposalContent() {
               <div className="mb-1 text-sm font-medium text-gray-700 flex space-x-1 items-center">
                 <span>Sponsor required</span>
                 <TooltipInfo
-                  content={
-                    `The intended author does not have sufficient voting power to submit a proposal.\
-                    An address with atleast ${formatNumber(commonProps.minVotingPowerSubmissionBalance)}\
-                    voting power must sponsor the proposal.`
-                  }
+                  content={`The intended author does not have sufficient voting power to submit a proposal.\
+                    An address with atleast ${formatNumber(
+                      commonProps.minVotingPowerSubmissionBalance
+                    )}\
+                    voting power must sponsor the proposal.`}
                 />
               </div>
             ) : (
@@ -78,7 +78,6 @@ export default function ProposalContent() {
                 minified
               />
             )}
-
           </span>
         </div>
         {commonProps.coauthors.length > 0 && (

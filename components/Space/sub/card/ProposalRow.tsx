@@ -18,7 +18,7 @@ import { formatNumber } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 import TooltipInfo from "@/components/common/TooltipInfo";
 
-function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
+export function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   // we only parse Payout and Transfer actions here
   const usd =
     actions
@@ -176,12 +176,13 @@ export default function ProposalRow({
                       <div className="mb-1 text-sm font-medium text-gray-700 flex space-x-1 items-center">
                         <span>Sponsor required</span>
                         <TooltipInfo
-                          content={
-                            `The intended author does not have sufficient voting power to submit a proposal.\
+                          content={`The intended author does not have sufficient voting power to submit a proposal.\
                             An address with atleast\
-                            ${formatNumber(spaceInfo?.proposalSubmissionValidation?.minBalance || 0)}\
-                            voting power must sponsor the proposal.`
-                          }
+                            ${formatNumber(
+                              spaceInfo?.proposalSubmissionValidation
+                                ?.minBalance || 0
+                            )}\
+                            voting power must sponsor the proposal.`}
                         />
                       </div>
                     ) : (
