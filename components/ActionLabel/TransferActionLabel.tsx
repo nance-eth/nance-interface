@@ -16,12 +16,9 @@ export default function TransferActionLabel({ action }: { action: Action }) {
   });
 
   const amount = transfer.amount.toString(); // transfer.amount can be number type, use toString to make sure it be string
-  const fixed = amount.includes(".")
-    ? amount.split(".")[1].replace(/0+$/, "").length
-    : 0; // get mantissa length
   return (
     <span className="line-clamp-5">
-      {numToPrettyString(Number(amount), fixed)}
+      {numToPrettyString(amount, "auto")}
       &nbsp;
       <TokenSymbol address={transfer.contract} />
       &nbsp;to

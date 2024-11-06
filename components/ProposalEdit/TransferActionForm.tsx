@@ -126,9 +126,9 @@ export default function TransferActionForm({
         />
         <span className="text-xs text-gray-400">
           Total:{" "}
-          {(
-            watch(genFieldName("count")) * watch(genFieldName("amount"))
-          ).toFixed(4)}
+          {numToPrettyString(
+            watch(genFieldName("count")) * watch(genFieldName("amount")), "auto"
+          )}
         </span>
       </div>
 
