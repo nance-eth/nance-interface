@@ -295,7 +295,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
         if (proposalId) {
           const _url = `/${space}/proposal/${proposalId}`;
           console.debug("mutate", _url);
-          mutate(_url);
+          await mutate(_url);
         }
 
         if (res?.data && res.data.uuid) {
