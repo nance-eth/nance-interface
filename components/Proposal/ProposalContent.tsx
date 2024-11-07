@@ -76,10 +76,10 @@ export default function ProposalContent() {
                 />
                 {commonProps.coauthors.map((coauthor, i) => (
                   <span key={coauthor} className="inline-flex">
-                    {", "}
+                    {","}
                     <FormattedAddress
                       address={coauthor}
-                      style="text-gray-500"
+                      style="ml-1 text-gray-500"
                       openInNewWindow={false}
                       minified
                       link
