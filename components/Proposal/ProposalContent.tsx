@@ -5,7 +5,7 @@ import ProposalMetadata from "./ProposalMetadata";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import MarkdownViewer from "@/components/Markdown/MarkdownViewer";
 import { ProposalContext } from "./context/ProposalContext";
-import { format, toDate } from "date-fns";
+import { format, formatDistanceToNowStrict, toDate } from "date-fns";
 import ProposalSummaries from "./ProposalSummaries";
 import ProposalMenu from "./ProposalMenu";
 import { ArrowLongLeftIcon } from "@heroicons/react/24/outline";
@@ -21,18 +21,13 @@ export default function ProposalContent() {
     proposalIdPrefix && proposalId ? `${proposalIdPrefix}${proposalId}: ` : "";
   const { body } = commonProps;
 
-  const createdAt = format(
-    toDate(commonProps.created * 1000),
-    "MM/dd/yy hh:mm a"
-  );
-  const updatedAt = format(
-    toDate(commonProps.edited * 1000),
-    "MM/dd/yy hh:mm a"
-  );
+  const edited = commonProps.edited !== commonProps.created;
+  const editedDate = toDate(commonProps.edited * 1000);
+  const editedDateFormatted = format(editedDate, "MM/dd/yy hh:mm a");
 
   return (
     <div className="">
-      <div className="flex flex-col px-4 py-5 sm:px-6">
+      <div className="flex flex-col px-4 py-1 lg:py-5 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="inline-block">
             <ProposalStatusMenu />
@@ -49,7 +44,7 @@ export default function ProposalContent() {
         </div>
         <h1
           id="applicant-information-title"
-          className="text-3xl font-medium mt-2"
+          className="text-2xl font-medium mt-2"
         >
           {preTitleDisplay}
           {commonProps.title}
@@ -70,55 +65,39 @@ export default function ProposalContent() {
                 />
               </div>
             ) : (
-              <FormattedAddress
-                address={commonProps.author}
-                style="text-gray-500"
-                overrideURLPrefix="/u/"
-                openInNewWindow={false}
-                minified
-              />
-            )}
-          </span>
-        </div>
-        {commonProps.coauthors.length > 0 && (
-          <p className="text-sm text-gray-500">
-            co-authored with&nbsp;
-            {commonProps.coauthors.map((coauthor, i) => (
-              <span key={coauthor} className="inline-flex">
+              <div className="flex flex-wrap">
                 <FormattedAddress
-                  address={coauthor}
+                  address={commonProps.author}
                   style="text-gray-500"
+                  overrideURLPrefix="/u/"
                   openInNewWindow={false}
                   minified
+                  link
                 />
-                <span>{i < commonProps!.coauthors.length - 1 && ", "}</span>
-              </span>
-            ))}
-          </p>
-        )}
-        <div className="font-mono text-xs text-gray-500 mt-1">
-          <p>
-            created&nbsp;
-            {createdAt}
-          </p>
-
-          {commonProps.edited !== commonProps.created && (
-            <p>
-              updated&nbsp;
-              {updatedAt}
-            </p>
-          )}
-
-          {commonProps.voteStart > 0 && (
-            <p>
-              vote &nbsp; &nbsp;
-              {format(
-                toDate(commonProps.voteStart * 1000),
-                "MM/dd/yy hh:mm a"
-              )}{" "}
-              - {format(toDate(commonProps.voteEnd * 1000), "MM/dd/yy hh:mm a")}
-            </p>
-          )}
+                {commonProps.coauthors.map((coauthor, i) => (
+                  <span key={coauthor} className="inline-flex">
+                    {", "}
+                    <FormattedAddress
+                      address={coauthor}
+                      style="text-gray-500"
+                      openInNewWindow={false}
+                      minified
+                      link
+                    />
+                  </span>
+                ))}
+                <span
+                  className="tooltip cursor-pointer"
+                  data-tip={editedDateFormatted}
+                >
+                  &nbsp;{edited ? "edited" : "created"}&nbsp;
+                  {formatDistanceToNowStrict(editedDate, {
+                    addSuffix: true,
+                  })}
+                </span>
+              </div>
+            )}
+          </span>
         </div>
         <ProposalMetadata />
         <ProposalSummaries />
