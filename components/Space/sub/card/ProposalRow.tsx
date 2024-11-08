@@ -100,13 +100,15 @@ export default function ProposalRow({
     const quorumLabel =
       snapshotProposal.quorum !== 0 ? `${quorumProgress}% of quorum, ` : "";
     const scoresLabel = snapshotProposal.choices
-      .map(
-        (choice, index) =>
-          `${choice} ${formatNumber(snapshotProposal.scores[index])} (${(
-            (snapshotProposal.scores[index] / snapshotProposal.scores_total) *
-            100
-          ).toFixed(0)}%)`
-      )
+      .map((choice, index) => {
+        const score = snapshotProposal.scores[index] ?? 0;
+        const total = snapshotProposal.scores_total;
+        const div = score / total;
+        const percent = isNaN(div) ? 0 : div * 100;
+        return (
+          `${choice} ${formatNumber(score)} (${(percent).toFixed(0)}%)`
+        )
+      })
       .slice(0, 3)
       .join(", ");
     votingInfo = `${quorumLabel}${scoresLabel}`;

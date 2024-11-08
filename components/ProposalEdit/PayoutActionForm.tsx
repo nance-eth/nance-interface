@@ -85,7 +85,7 @@ export default function PayoutActionForm({
         <span className="text-xs text-gray-400">
           Total:{" "}
           ${(
-            watch(genFieldName("count") ?? 1) * watch(genFieldName("amount"))
+            watch(genFieldName("count") ?? 1) * watch(genFieldName("amount") ?? 1)
           ).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
         </span>
       </div>
