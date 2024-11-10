@@ -18,7 +18,7 @@ const tasks = [
   { name: "End Temperature Check", endpoint: "temperatureCheckClose" },
   { name: "Start Voting", endpoint: "voteSetup" },
   { name: "End Voting", endpoint: "voteClose" },
-  { name: "Reconfig Thread", endpoint: "thread/reconfig"}
+  { name: "Check Permissions", endpoint: "permissions"}
 ];
 
 export default function Tasks({ spaceConfig }: { spaceConfig: SpaceConfig }) {
