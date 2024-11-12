@@ -33,7 +33,7 @@ export default function ProposalMetadata() {
     string | undefined
   >(commonProps.discussion);
   const [retries, setRetries] = useState(0);
-  const retryLimit = 2;
+  const retryLimit = 3;
 
   useEffect(() => {
     if (!discussionThreadURL || discussionThreadURL === "") {
@@ -99,7 +99,7 @@ export default function ProposalMetadata() {
               />
             ))}
           </div>
-          <Disclosure as="div" className="">
+          <Disclosure as="div" className="" defaultOpen={commonProps.actions.length === 0}>
             {({ open }) => (
               <>
                 <dt>
