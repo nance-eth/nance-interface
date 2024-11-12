@@ -4,7 +4,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { NANCE_API_URL } from "@/constants/Nance";
 import { getDomain, openInDiscord } from "@/utils/functions/discord";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ActionLabel from "@/components/ActionLabel/ActionLabel";
 import { ProposalContext } from "./context/ProposalContext";
@@ -32,39 +32,45 @@ export default function ProposalMetadata() {
   const [discussionThreadURL, setDiscussionThreadURL] = useState<
     string | undefined
   >(commonProps.discussion);
-
-  // set interval to refresh discussion link, couldn't get it to work with useProposal hook
-  let retries = 0;
+  const [retries, setRetries] = useState(0);
   const retryLimit = 2;
-  const interval = setInterval(async () => {
-    if (
-      (!discussionThreadURL && commonProps.status !== "Draft") ||
-      commonProps.status !== "Archived"
-    ) {
-      if (retries >= retryLimit) {
-        setDiscussionThreadURL("ERROR");
-        clearInterval(interval);
-      }
-      try {
-        const res = await fetch(
-          `${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`
-        );
-        const { data } = (await res.json()) as APIResponse<ProposalPacket>;
-        const refreshedDiscussionURL = data?.discussionThreadURL;
-        if (
-          refreshedDiscussionURL !== "" &&
-          refreshedDiscussionURL !== undefined
-        ) {
-          setDiscussionThreadURL(refreshedDiscussionURL);
-          clearInterval(interval);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (
+        (!discussionThreadURL && commonProps.status !== "Draft") ||
+        commonProps.status !== "Archived"
+      ) {
+        if (retries >= retryLimit) {
+          setDiscussionThreadURL("ERROR");
+          clearInterval(interval); // Clear the interval here
+          return;
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        retries += 1;
+        try {
+          console.log(`fetch Discussion try ${retries}/${retryLimit}`);
+          const res = await fetch(
+            `${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`
+          );
+          const { data } = (await res.json()) as APIResponse<ProposalPacket>;
+          const refreshedDiscussionURL = data?.discussionThreadURL;
+          if (
+            refreshedDiscussionURL !== "" &&
+            refreshedDiscussionURL !== undefined
+          ) {
+            setDiscussionThreadURL(refreshedDiscussionURL);
+            clearInterval(interval); // Clear the interval if the URL is found
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setRetries((prev) => prev + 1);
+        }
       }
-    }
-  }, 1500);
+    }, 1500);
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, [discussionThreadURL, retries, commonProps.status]);
 
   return (
     <div className="my-4 rounded-md border bg-gray-100 px-4 py-5 sm:px-6">
@@ -94,7 +100,7 @@ export default function ProposalMetadata() {
             {({ open }) => (
               <>
                 <dt>
-                  <Disclosure.Button className="flex w-full justify-center items-center bg-gradient-to-b from-gray-100 to-blue-100 rounded-md">
+                  <Disclosure.Button className="mt-1 flex w-full justify-center items-center bg-gradient-to-b from-gray-100 to-blue-100 rounded-md">
                     {!open && (
                       <>
                         More&nbsp;
@@ -132,98 +138,98 @@ export default function ProposalMetadata() {
 
                     {!discussionThreadURL &&
                       commonProps.status === "Discussion" && (
-                        <>
-                          <span className="font-medium">Discussion:</span>
-                          <Spinner size={"sm"} />
-                        </>
-                      )}
+                      <>
+                        <span className="font-medium">Discussion:</span>
+                        <Spinner size={"sm"} />
+                      </>
+                    )}
 
                     {discussionThreadURL &&
                       discussionThreadURL !== "ERROR" && (
-                        <>
-                          <span className="font-medium">Discussion:</span>
-                          <div className="flex flex-row items-center space-x-1">
-                            <a
-                              className="col-span-2 w-fit"
-                              target="_blank"
-                              rel="noreferrer"
-                              href={openInDiscord(discussionThreadURL)}
-                            >
-                              {getDomain(discussionThreadURL)}
-                              <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
-                            </a>
-                            {address &&
-                              spaceInfo?.spaceOwners.includes(address) &&
-                              canEditProposal(commonProps.status) && (
-                                <ArrowPathIcon
-                                  className="h-3 w-3 hover:cursor-pointer"
-                                  onClick={async () => {
-                                    toast.promise(
-                                      getOrRefreshProposalDiscussion(
-                                        commonProps.space,
-                                        commonProps.uuid,
-                                        NANCE_API_URL
-                                      ),
-                                      {
-                                        loading: "Updating Discord",
-                                        success: "Discord updated!",
-                                        error: (err) => `${err.toString()}`,
-                                      }
-                                    );
-                                  }}
-                                />
-                              )}
-                          </div>
-                          <div></div>
-                        </>
-                      )}
-
-                    {discussionThreadURL === "ERROR" &&
-                      commonProps.status === "Discussion" && (
-                        <>
-                          <span className="font-medium">Discussion:</span>
-                          <a
-                            target="_blank"
-                            rel="noreferrer"
-                            className="col-span-2 cursor-pointer text-sky-800"
-                            onClick={async () => {
-                              try {
-                                setDiscussionThreadURL(undefined);
-                                await getOrRefreshProposalDiscussion(
-                                  commonProps.space,
-                                  commonProps.uuid,
-                                  NANCE_API_URL
-                                );
-                              } catch (e: any) {
-                                toast.error(e.toString());
-                              }
-                            }}
-                          >
-                            start discussion
-                            <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-                          </a>
-                        </>
-                      )}
-
-                    {commonProps.snapshotSpace &&
-                      commonProps.snapshotHash && (
-                        <>
-                          <span className="font-medium">
-                            Snapshot view:
-                          </span>
+                      <>
+                        <span className="font-medium">Discussion:</span>
+                        <div className="flex flex-row items-center space-x-1">
                           <a
                             className="col-span-2 w-fit"
                             target="_blank"
                             rel="noreferrer"
-                            href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}
+                            href={openInDiscord(discussionThreadURL)}
                           >
-                            {commonProps.snapshotHash.substring(0, 8)}
+                            {getDomain(discussionThreadURL)}
                             <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
                           </a>
-                        </>
-                      )}
+                          {address &&
+                              spaceInfo?.spaceOwners.includes(address) &&
+                              canEditProposal(commonProps.status) && (
+                            <ArrowPathIcon
+                              className="h-3 w-3 hover:cursor-pointer"
+                              onClick={async () => {
+                                toast.promise(
+                                  getOrRefreshProposalDiscussion(
+                                    commonProps.space,
+                                    commonProps.uuid,
+                                    NANCE_API_URL
+                                  ),
+                                  {
+                                    loading: "Updating Discord",
+                                    success: "Discord updated!",
+                                    error: (err) => `${err.toString()}`,
+                                  }
+                                );
+                              }}
+                            />
+                          )}
+                        </div>
+                        <div></div>
+                      </>
+                    )}
+
+                    {discussionThreadURL === "ERROR" &&
+                      commonProps.status === "Discussion" && (
+                      <>
+                        <span className="font-medium">Discussion:</span>
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          className="col-span-2 cursor-pointer text-sky-800"
+                          onClick={async () => {
+                            try {
+                              setDiscussionThreadURL(undefined);
+                              await getOrRefreshProposalDiscussion(
+                                commonProps.space,
+                                commonProps.uuid,
+                                NANCE_API_URL
+                              );
+                            } catch (e: any) {
+                              toast.error(e.toString());
+                            }
+                          }}
+                        >
+                            start discussion
+                          <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+                        </a>
+                      </>
+                    )}
+
+                    {commonProps.snapshotSpace &&
+                      commonProps.snapshotHash && (
+                      <>
+                        <span className="font-medium">
+                            Snapshot view:
+                        </span>
+                        <a
+                          className="col-span-2 w-fit"
+                          target="_blank"
+                          rel="noreferrer"
+                          href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}
+                        >
+                          {commonProps.snapshotHash.substring(0, 8)}
+                          <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
+                        </a>
+                      </>
+                    )}
                   </div>
-                  <Disclosure.Button className="flex w-full justify-center items-center bg-gradient-to-t from-gray-100 to-blue-100 rounded-md">
+                  <Disclosure.Button className="mt-1 flex w-full justify-center items-center bg-gradient-to-t from-gray-100 to-blue-100 rounded-md">
                     Less&nbsp;
                     <BarsArrowUpIcon className="w-5 h-5 my-2" />
                   </Disclosure.Button>
