@@ -36,40 +36,43 @@ export default function ProposalMetadata() {
   const retryLimit = 2;
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      if (
-        (!discussionThreadURL && commonProps.status !== "Draft") ||
-        commonProps.status !== "Archived"
-      ) {
-        if (retries >= retryLimit) {
-          setDiscussionThreadURL("ERROR");
-          clearInterval(interval); // Clear the interval here
-          return;
-        }
-        try {
-          console.log(`fetch Discussion try ${retries}/${retryLimit}`);
-          const res = await fetch(
-            `${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`
-          );
-          const { data } = (await res.json()) as APIResponse<ProposalPacket>;
-          const refreshedDiscussionURL = data?.discussionThreadURL;
-          if (
-            refreshedDiscussionURL !== "" &&
-            refreshedDiscussionURL !== undefined
-          ) {
-            setDiscussionThreadURL(refreshedDiscussionURL);
-            clearInterval(interval); // Clear the interval if the URL is found
+    if (!discussionThreadURL || discussionThreadURL === "") {
+      const interval = setInterval(async () => {
+        if (
+          (!discussionThreadURL && commonProps.status !== "Draft") ||
+          commonProps.status !== "Archived"
+        ) {
+          if (retries >= retryLimit) {
+            setDiscussionThreadURL("ERROR");
+            clearInterval(interval);
+            setRetries(0);
+            return;
           }
-        } catch (e) {
-          console.error(e);
-        } finally {
-          setRetries((prev) => prev + 1);
+          try {
+            console.log(`fetch Discussion try ${retries}/${retryLimit}`);
+            const res = await fetch(
+              `${NANCE_API_URL}/${commonProps.space}/proposal/${commonProps.uuid}`
+            );
+            const { data } = (await res.json()) as APIResponse<ProposalPacket>;
+            const refreshedDiscussionURL = data?.discussionThreadURL;
+            if (
+              refreshedDiscussionURL !== "" &&
+              refreshedDiscussionURL !== undefined
+            ) {
+              setDiscussionThreadURL(refreshedDiscussionURL);
+              clearInterval(interval); // Clear the interval if the URL is found
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setRetries((prev) => prev + 1);
+          }
         }
-      }
-    }, 1500);
+      }, 1500);
 
-    // Cleanup function to clear the interval when the component unmounts
-    return () => clearInterval(interval);
+      // Cleanup function to clear the interval when the component unmounts
+      return () => clearInterval(interval);
+    }
   }, [discussionThreadURL, retries, commonProps.status]);
 
   return (
