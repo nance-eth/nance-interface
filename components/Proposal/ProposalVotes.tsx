@@ -39,8 +39,7 @@ export default function ProposalVotes({
   snapshotSpace: string;
   expand: boolean;
 }) {
-  const { proposalInfo, commonProps, refetchSnapshotProposal } =
-    useContext(ProposalContext);
+  const { proposalInfo, commonProps } = useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
@@ -272,7 +271,6 @@ export default function ProposalVotes({
           snapshotSpace={snapshotSpace}
           snapshotProposal={proposalInfo}
           refetch={() => {
-            refetchSnapshotProposal?.();
             refetchProposalVotes();
           }}
         />
