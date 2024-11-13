@@ -26,8 +26,11 @@ export default function NewVoteButton({
   if (snapshotProposal === undefined) {
     buttonLabel = "Loading";
   }
-  if (snapshotProposal?.state !== "active") {
-    buttonLabel = "Voting Closed";
+
+  if (snapshotProposal?.state === "pending") {
+    buttonLabel = "Voting not started";
+  } else if (snapshotProposal?.state === "closed") {
+    buttonLabel = "Voting closed";
   } else if (isConnected) {
     buttonLabel = "Vote";
   } else {
@@ -40,7 +43,7 @@ export default function NewVoteButton({
         id="vote"
         className={classNames(
           "inline-flex w-full items-center justify-center rounded-md border border-transparent bg-blue-600 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-black disabled:opacity-50",
-          isSmall ? "" : "px-4",
+          isSmall ? "" : "px-4"
         )}
         onClick={(e) => {
           e.stopPropagation();
