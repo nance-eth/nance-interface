@@ -133,7 +133,7 @@ export function useSafe(safeAddress: string) {
   return { value, loading: !value, error };
 }
 
-const MAX_REFUND_GAS_PRICE = "60000000000"; // 60 Gwei
+const MAX_REFUND_GAS_PRICE = "160000000000"; // 160 Gwei
 
 function generatePreValidatedSignature(ownerAddress: string): SafeSignature {
   const signature =
