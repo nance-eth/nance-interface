@@ -1,10 +1,10 @@
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Head from "next/head";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
+import CustomConnectButton from "./CustomConnectButton";
 
 interface SiteNavProps {
   pageTitle: string;
@@ -45,9 +45,10 @@ export default function SiteNav({
     image: image || "/images/opengraph/OG_splash.png",
   };
 
-  const origin = process.env.NODE_ENV !== "development" ?
-    "https://nance.app" :
-    "http://localhost:3001";
+  const origin =
+    process.env.NODE_ENV !== "development"
+      ? "https://nance.app"
+      : "http://localhost:3001";
   return (
     <>
       <Head>
@@ -76,10 +77,19 @@ export default function SiteNav({
         <meta property="fc:frame:button:3" content="↩️" />
         <meta property="fc:frame:button:4" content="full 📜" />
         <meta property="fc:frame:button:4:action" content="link" />
-        <meta property="fc:frame:button:4:target" content={`${origin}/s/${space}/${proposalId}`} />
-        <meta property="fc:frame:image" content={`${origin}/api/imageProposal?space=${space}&proposalId=${proposalId}`} />
+        <meta
+          property="fc:frame:button:4:target"
+          content={`${origin}/s/${space}/${proposalId}`}
+        />
+        <meta
+          property="fc:frame:image"
+          content={`${origin}/api/imageProposal?space=${space}&proposalId=${proposalId}`}
+        />
         <meta property="fc:frame:image:aspect_ratio" content="1:1" />
-        <meta property="fc:frame:post_url" content={`${origin}/api/frame?space=${space}&proposalId=${proposalId}`} />
+        <meta
+          property="fc:frame:post_url"
+          content={`${origin}/api/frame?space=${space}&proposalId=${proposalId}`}
+        />
       </Head>
       <header className="min-h-full w-full">
         <Disclosure as="nav" className="border-b border-gray-200 bg-white">
@@ -127,7 +137,7 @@ export default function SiteNav({
                       </button>
                     )}
 
-                    {withWallet && <ConnectButton />}
+                    {withWallet && <CustomConnectButton />}
                   </div>
 
                   <div className="-mr-2 flex items-center xl:hidden">
@@ -175,7 +185,7 @@ export default function SiteNav({
                     </button>
                   )}
 
-                  {withWallet && <ConnectButton />}
+                  {withWallet && <CustomConnectButton />}
                 </div>
               </Disclosure.Panel>
             </>
