@@ -3,7 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
 
-export default function () {
+export default function CustomConnectButton() {
   const { status: sessionStatus } = useSession();
   const { status: walletStatus } = useAccount();
 
