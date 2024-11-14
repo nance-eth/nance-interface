@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { BigNumberish, BytesLike } from "ethers";
 
 export interface SelectedNetworkOption {

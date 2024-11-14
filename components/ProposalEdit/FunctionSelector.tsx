@@ -38,8 +38,8 @@ export default function FunctionSelector({
     query === ""
       ? Object.keys(fragmentMap)
       : Object.keys(fragmentMap).filter((functionName) => {
-          return functionName.toLowerCase().includes(query.toLowerCase());
-        });
+        return functionName.toLowerCase().includes(query.toLowerCase());
+      });
 
   useEffect(() => {
     if (functionData && abi) {

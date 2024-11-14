@@ -59,8 +59,8 @@ export default function ProposalContent() {
                 <TooltipInfo
                   content={`The intended author does not have sufficient voting power to submit a proposal.\
                     An address with atleast ${formatNumber(
-                      commonProps.minVotingPowerSubmissionBalance
-                    )}\
+                commonProps.minVotingPowerSubmissionBalance
+              )}\
                     voting power must sponsor the proposal.`}
                 />
               </div>

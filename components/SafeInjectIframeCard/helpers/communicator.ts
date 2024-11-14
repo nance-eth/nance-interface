@@ -55,10 +55,10 @@ class AppCommunicator {
     const sdkVersion = getSDKVersion();
     const msg = error
       ? MessageFormatter.makeErrorResponse(
-          requestId,
+        requestId,
           data as string,
           sdkVersion,
-        )
+      )
       : MessageFormatter.makeResponse(requestId, data, sdkVersion);
     // console.debug("iframe.send", { msg, iframe: this.iframeRef.current });
     this.iframeRef.current?.contentWindow?.postMessage(msg, "*");

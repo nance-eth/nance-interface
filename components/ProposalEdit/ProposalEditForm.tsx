@@ -519,11 +519,11 @@ export default function ProposalEditForm({ space }: { space: string }) {
               >
                 {processingSubmission &&
                   proposalUploadStatus === "Discussion" && (
-                    <ArrowPathIcon
-                      className="mr-1 h-5 w-5 animate-spin text-white"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <ArrowPathIcon
+                    className="mr-1 h-5 w-5 animate-spin text-white"
+                    aria-hidden="true"
+                  />
+                )}
                 Publish
               </button>
             </div>

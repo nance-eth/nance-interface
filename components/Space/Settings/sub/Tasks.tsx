@@ -41,7 +41,7 @@ export default function Tasks({ spaceConfig }: { spaceConfig: SpaceConfig }) {
     setTaskResult(json);
     setTaskLoading(false);
     if (json.error) {
-      toast.error(json.error)
+      toast.error(json.error);
     }
   };
 

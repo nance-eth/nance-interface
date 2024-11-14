@@ -95,17 +95,17 @@ export default function SpaceAction() {
             },
             ...(reconfigurationEnabled.includes(spaceInfo.name)
               ? [
-                  {
-                    name: "Queue Reconfiguration",
-                    description:
+                {
+                  name: "Queue Reconfiguration",
+                  description:
                       "Queue a reconfiguration based on governance results and submit it to Safe.",
-                    href: "#",
-                    icon: BanknotesIcon,
-                    onClick: () => {
-                      setShowQueueReconfigurationModal(true);
-                    },
+                  href: "#",
+                  icon: BanknotesIcon,
+                  onClick: () => {
+                    setShowQueueReconfigurationModal(true);
                   },
-                ]
+                },
+              ]
               : []),
             {
               name: "Queue Transactions",

@@ -164,10 +164,10 @@ export function compareRules(
   newWeight = weightSpecified
     ? newWeight
     : mulDiv(
-        weight,
-        discountRateDenominator - discountRate,
-        discountRateDenominator
-      );
+      weight,
+      discountRateDenominator - discountRate,
+      discountRateDenominator
+    );
 
   // Payer gets what left after reserved tokens are issued.
   const payerWeight =

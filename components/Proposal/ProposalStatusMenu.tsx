@@ -19,7 +19,7 @@ export default function ProposalStatusMenu() {
     commonProps.uuid
   );
   const [isEditing, setIsEditing] = useState(false);
-  const [editStatus, setEditStatus] = useState<ProposalStatus>()
+  const [editStatus, setEditStatus] = useState<ProposalStatus>();
 
   const { data: session } = useSession();
   const { data } = useSpaceInfo({ space: commonProps.space });

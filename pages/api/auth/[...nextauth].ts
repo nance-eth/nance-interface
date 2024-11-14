@@ -41,7 +41,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           const { domain, nonce } = message;
           const { signature } = credentials as { signature: `0x${string}` };
           if (!signature.startsWith("0x")) {
-            throw new Error('Invalid signature format: must start with "0x"')
+            throw new Error('Invalid signature format: must start with "0x"');
           }
           const siwe = new SiweMessage(message);
 
@@ -63,7 +63,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             return null;
           }
 
-          const result = await publicClient.verifySiweMessage({ message: siwe.prepareMessage(), signature })
+          const result = await publicClient.verifySiweMessage({ message: siwe.prepareMessage(), signature });
           if (result) {
             return {
               id: siwe.address,

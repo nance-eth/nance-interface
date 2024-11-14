@@ -17,6 +17,7 @@ import { SnapshotProposal } from "@/models/SnapshotTypes";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 import TooltipInfo from "@/components/common/TooltipInfo";
+import Image from "next/image";
 
 export function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   // we only parse Payout and Transfer actions here
@@ -107,7 +108,7 @@ export default function ProposalRow({
         const percent = isNaN(div) ? 0 : div * 100;
         return (
           `${choice} ${formatNumber(score)} (${(percent).toFixed(0)}%)`
-        )
+        );
       })
       .slice(0, 3)
       .join(", ");
@@ -159,13 +160,13 @@ export default function ProposalRow({
               {/* Author */}
               <div className="flex items-center gap-x-1">
                 {!authorAddress ? (
-                  <img
+                  <Image
                     src={`/images/unknown.png`}
                     alt=""
                     className="h-6 w-6 flex-none rounded-full bg-gray-50"
                   />
                 ) : (
-                  <img
+                  <Image
                     src={`https://cdn.stamp.fyi/avatar/${authorAddress}`}
                     alt=""
                     className="h-6 w-6 flex-none rounded-full bg-gray-50"
@@ -181,9 +182,9 @@ export default function ProposalRow({
                           content={`The intended author does not have sufficient voting power to submit a proposal.\
                             An address with atleast\
                             ${formatNumber(
-                              spaceInfo?.proposalSubmissionValidation
-                                ?.minBalance || 0
-                            )}\
+                        spaceInfo?.proposalSubmissionValidation
+                          ?.minBalance || 0
+                      )}\
                             voting power must sponsor the proposal.`}
                         />
                       </div>

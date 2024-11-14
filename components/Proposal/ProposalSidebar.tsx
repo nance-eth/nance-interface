@@ -77,15 +77,15 @@ export default function ProposalSidebar({
 
   const mobileBarStyle = shouldExpand
     ? {
-        maxHeight: "calc(100vh - 1rem)",
-        height: "calc(100vh - 10rem)",
-        width: "calc(100vw - 2rem)",
-      }
+      maxHeight: "calc(100vh - 1rem)",
+      height: "calc(100vh - 10rem)",
+      width: "calc(100vw - 2rem)",
+    }
     : {
-        maxHeight: "calc(100vh - 1rem)",
-        //height: "calc(100vh - 10rem)",
-        width: "calc(100vw - 2rem)",
-      };
+      maxHeight: "calc(100vh - 1rem)",
+      //height: "calc(100vh - 10rem)",
+      width: "calc(100vw - 2rem)",
+    };
 
   return (
     <>

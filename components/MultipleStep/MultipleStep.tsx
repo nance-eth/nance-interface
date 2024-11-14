@@ -188,18 +188,18 @@ export default function MultipleStep({
           >
             {step.contentRender
               ? step.contentRender(
-                  currentStepIdx - 1 >= 0
-                    ? () => setCurrentStepIdxWithScroll(currentStepIdx - 1)
-                    : undefined,
-                  currentStepIdx + 1 <= steps.length - 1
-                    ? () => setCurrentStepIdxWithScroll(currentStepIdx + 1)
-                    : undefined,
-                  (step: number) => setCurrentStepIdxWithScroll(step),
-                  () => {
-                    setCurrentStepIdxWithScroll(0);
-                    driverObj.drive();
-                  },
-                )
+                currentStepIdx - 1 >= 0
+                  ? () => setCurrentStepIdxWithScroll(currentStepIdx - 1)
+                  : undefined,
+                currentStepIdx + 1 <= steps.length - 1
+                  ? () => setCurrentStepIdxWithScroll(currentStepIdx + 1)
+                  : undefined,
+                (step: number) => setCurrentStepIdxWithScroll(step),
+                () => {
+                  setCurrentStepIdxWithScroll(0);
+                  driverObj.drive();
+                },
+              )
               : step.content}
           </div>
         ))}

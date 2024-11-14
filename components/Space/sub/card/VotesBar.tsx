@@ -32,21 +32,21 @@ export default function VotesBar({
           type
         ) ? (
           // sum all scores to get the total score
-          <ColorBar
-            greenScore={scores_total || 0}
-            redScore={0}
-            threshold={threshold}
-            noTooltip
-          />
-        ) : (
-          <ColorBar
-            greenScore={proposal?.voteResults?.scores[0] || 0}
-            redScore={proposal?.voteResults?.scores[1] || 0}
-            blueScore={proposal?.voteResults?.scores[2] || 0}
-            threshold={threshold}
-            noTooltip
-          />
-        )}
+            <ColorBar
+              greenScore={scores_total || 0}
+              redScore={0}
+              threshold={threshold}
+              noTooltip
+            />
+          ) : (
+            <ColorBar
+              greenScore={proposal?.voteResults?.scores[0] || 0}
+              redScore={proposal?.voteResults?.scores[1] || 0}
+              blueScore={proposal?.voteResults?.scores[2] || 0}
+              threshold={threshold}
+              noTooltip
+            />
+          )}
       </div>
     );
   } else {

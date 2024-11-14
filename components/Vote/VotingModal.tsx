@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { useState, Fragment, useEffect } from "react";
 import useVotingPower from "@/utils/hooks/snapshot/VotingPower";
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
@@ -420,8 +421,8 @@ function WeightedChoiceSelector({
             {isNaN(getValues((index + 1).toString())) || totalUnits == 0
               ? "0%"
               : `${Math.round(
-                  (getValues((index + 1).toString()) / totalUnits) * 100
-                )}%`}
+                (getValues((index + 1).toString()) / totalUnits) * 100
+              )}%`}
           </span>
         </div>
       ))}

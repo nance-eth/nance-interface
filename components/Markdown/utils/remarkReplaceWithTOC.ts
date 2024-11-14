@@ -1,6 +1,6 @@
 // Modified from https://github.com/remarkjs/remark-toc/blob/9d0e2764ce3b5a8276e3cdee36c56ff6eecf7477/lib/index.js
 // This plugin will generate TOC and remove other content.
-import {toc, Options} from 'mdast-util-toc'
+import {toc, Options} from 'mdast-util-toc';
 
 /**
  * Generate a table of contents (TOC).
@@ -20,7 +20,7 @@ export default function remarkReplaceWithToc(options: Readonly<Options> | null |
     ...options,
     heading: (options && options.heading) || '(table[ -]of[ -])?contents?|toc',
     tight: options && typeof options.tight === 'boolean' ? options.tight : true
-  }
+  };
 
   /**
    * Transform.
@@ -31,7 +31,7 @@ export default function remarkReplaceWithToc(options: Readonly<Options> | null |
    *   Nothing.
    */
   return function (tree: any) {
-    const result = toc(tree, settings)
+    const result = toc(tree, settings);
 
     if (
       result.endIndex === undefined ||
@@ -40,13 +40,13 @@ export default function remarkReplaceWithToc(options: Readonly<Options> | null |
       result.index === -1 ||
       !result.map
     ) {
-      return
+      return;
     }
 
     tree.children = [
       //...tree.children.slice(0, result.index),
       result.map,
       //...tree.children.slice(result.endIndex)
-    ]
-  }
+    ];
+  };
 }

@@ -53,7 +53,7 @@ export default function ProjectSearch({
           } else {
             setVal(undefined);
           }
-        })
+        });
     }
   }, [val, selectedProject, query]);
 

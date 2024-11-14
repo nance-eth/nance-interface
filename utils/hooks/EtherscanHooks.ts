@@ -43,8 +43,8 @@ export function useEtherscanContractABI(
   } = useSWR<string>(
     shouldFetch
       ? `${apiUrl}?module=contract&action=getabi&address=${
-          implementationAddress || address
-        }&apikey=${API_KEY}`
+        implementationAddress || address
+      }&apikey=${API_KEY}`
       : null,
     fetcher
     //{ shouldRetryOnError: false }

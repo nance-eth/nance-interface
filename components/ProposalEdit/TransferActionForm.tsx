@@ -51,12 +51,12 @@ export default function TransferActionForm({
   const items: ListBoxItem[] = data
     ? safeBalanceToItems(data)
     : [
-        {
-          id: ETH_MOCK_CONTRACT,
-          name: "ETH",
-          decimals: 18,
-        },
-      ];
+      {
+        id: ETH_MOCK_CONTRACT,
+        name: "ETH",
+        decimals: 18,
+      },
+    ];
 
   const metadata = useContext(ProposalMetadataContext);
   const isNew = metadata.fork || metadata.loadedProposal === undefined;

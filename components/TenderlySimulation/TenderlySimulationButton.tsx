@@ -104,8 +104,8 @@ export default function TenderlySimulationButton({
   let errorMessage = argsError
     ? argsError
     : error
-    ? error.message
-    : data?.simulation?.error_message;
+      ? error.message
+      : data?.simulation?.error_message;
 
   if (!error && argsError && errorMessage) {
     // try parse safe error code

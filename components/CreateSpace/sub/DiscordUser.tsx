@@ -74,12 +74,12 @@ export default function DiscordUser({
                 disabled
                   ? undefined
                   : () => {
-                      discordLogoutTrigger();
-                      // set local storage to false
-                      localStorage.removeItem(LOCAL_STORAGE_KEY_DISCORD_STATUS);
-                      mutate();
-                      setShouldFetchDiscordUser(false);
-                    }
+                    discordLogoutTrigger();
+                    // set local storage to false
+                    localStorage.removeItem(LOCAL_STORAGE_KEY_DISCORD_STATUS);
+                    mutate();
+                    setShouldFetchDiscordUser(false);
+                  }
               }
             >
               <div className="inline-flex items-center">

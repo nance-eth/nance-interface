@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { ErrorMessage } from "@hookform/error-message";
 import { FunctionFragment, FormatTypes, Interface } from "ethers/lib/utils";
 import { useState, useEffect, useCallback, useContext } from "react";
@@ -78,22 +79,22 @@ export default function CustomTransactionActionForm({
     to === DEPLOY_CONTRACT_FAKE_ADDRESS
       ? (fields[0] as unknown as CustomTransactionArg)?.value || ""
       : encodeTransactionInput(
-          functionFragment?.format(FormatTypes.minimal) || "",
-          args || []
-        );
+        functionFragment?.format(FormatTypes.minimal) || "",
+        args || []
+      );
 
   const transaction: GenericTransactionData =
     to === DEPLOY_CONTRACT_FAKE_ADDRESS
       ? {
-          to: "",
-          value: getValues(genFieldName("value")),
-          data: input,
-        }
+        to: "",
+        value: getValues(genFieldName("value")),
+        data: input,
+      }
       : {
-          to: getValues(genFieldName("contract")) as string,
-          value: getValues(genFieldName("value")),
-          data: input,
-        };
+        to: getValues(genFieldName("contract")) as string,
+        value: getValues(genFieldName("value")),
+        data: input,
+      };
 
   useEffect(() => {
     if (latestTransaction) {
@@ -217,72 +218,72 @@ export default function CustomTransactionActionForm({
 
         {watch(genFieldName("contract"))?.length === 42 &&
           watch(genFieldName("contract")) !== DEPLOY_CONTRACT_FAKE_ADDRESS && (
-            <div className="col-span-4 sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+          <div className="col-span-4 sm:col-span-2">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
                 Function
-              </label>
-              <Controller
-                name={genFieldName("functionName")}
-                control={control}
-                rules={{
-                  required: "Can't be empty",
-                }}
-                render={({ field: { onChange, onBlur, value, ref } }) => (
-                  <FunctionSelector
-                    address={watch(genFieldName("contract"))}
-                    val={value}
-                    setVal={onChange}
-                    setFunctionFragment={(f) => {
-                      setFunctionFragment(f);
+            </label>
+            <Controller
+              name={genFieldName("functionName")}
+              control={control}
+              rules={{
+                required: "Can't be empty",
+              }}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <FunctionSelector
+                  address={watch(genFieldName("contract"))}
+                  val={value}
+                  setVal={onChange}
+                  setFunctionFragment={(f) => {
+                    setFunctionFragment(f);
 
-                      if (functionData) {
-                        // load args from latest transaction
-                        const iface = new Interface([f]);
-                        const decoded = iface.decodeFunctionData(
-                          f.name,
-                          functionData
-                        );
-                        const args = decoded.map((v) => v);
+                    if (functionData) {
+                      // load args from latest transaction
+                      const iface = new Interface([f]);
+                      const decoded = iface.decodeFunctionData(
+                        f.name,
+                        functionData
+                      );
+                      const args = decoded.map((v) => v);
 
-                        args.forEach((arg, index) => {
-                          setValue(genFieldName(`args.${index}`), arg);
-                        });
-                        replace(
-                          args.map((v, index) => ({
-                            value: v,
-                            type: f.inputs[index].type,
-                            name: f.inputs[index].name,
-                          }))
-                        );
-                        // clear this one-time data that we got from latest transaction
-                        setFunctionData(undefined);
-                      } else {
-                        // reset args
-                        replace(
-                          f.inputs?.map((param) => {
-                            return {
-                              value: "",
-                              type: param.type,
-                              name: param.name,
-                            };
-                          }) || []
-                        );
-                      }
-                    }}
-                    inputStyle="h-10"
-                    functionData={functionData}
-                  />
-                )}
-              />
-              <ErrorMessage
-                errors={errors}
-                name={genFieldName("functionName")}
-                render={({ message }) => (
-                  <p className="mt-1 text-red-500">{message}</p>
-                )}
-              />
-            </div>
-          )}
+                      args.forEach((arg, index) => {
+                        setValue(genFieldName(`args.${index}`), arg);
+                      });
+                      replace(
+                        args.map((v, index) => ({
+                          value: v,
+                          type: f.inputs[index].type,
+                          name: f.inputs[index].name,
+                        }))
+                      );
+                      // clear this one-time data that we got from latest transaction
+                      setFunctionData(undefined);
+                    } else {
+                      // reset args
+                      replace(
+                        f.inputs?.map((param) => {
+                          return {
+                            value: "",
+                            type: param.type,
+                            name: param.name,
+                          };
+                        }) || []
+                      );
+                    }
+                  }}
+                  inputStyle="h-10"
+                  functionData={functionData}
+                />
+              )}
+            />
+            <ErrorMessage
+              errors={errors}
+              name={genFieldName("functionName")}
+              render={({ message }) => (
+                <p className="mt-1 text-red-500">{message}</p>
+              )}
+            />
+          </div>
+        )}
 
         {(fields as unknown as CustomTransactionArg[]).map((field, index) => (
           <div key={field.id} className="col-span-4 sm:col-span-1">
@@ -311,12 +312,12 @@ export default function CustomTransactionActionForm({
             {field.type !== "address" &&
               !field.type.includes("int") &&
               field.type !== "bool" && (
-                <StringForm
-                  label={`Param: ${field.name || "_"}`}
-                  fieldName={genFieldName(`args.${index}.value`)}
-                  fieldType={field.type}
-                />
-              )}
+              <StringForm
+                label={`Param: ${field.name || "_"}`}
+                fieldName={genFieldName(`args.${index}.value`)}
+                fieldType={field.type}
+              />
+            )}
           </div>
         ))}
       </div>
