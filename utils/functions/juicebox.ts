@@ -838,7 +838,8 @@ export function compareReserves(
 
 export function payout2JBSplit(action: Action) {
   // FIXME: this may not work for allocator
-  const { amount } = getPayoutCountAmount(action);
+  const { amount: _amount } = getPayoutCountAmount(action);
+  const amount = _amount || 0; // handle potential NaN
   const payout = action.payload as Payout;
   const split: JBSplit = {
     preferClaimed: false,
