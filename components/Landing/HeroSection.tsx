@@ -6,7 +6,7 @@ import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEntry[]}) {
   return (
     <div>
-      <div className="relative isolate px-6 pt-14 lg:px-8">
+      <div className="relative isolate px-6 lg:px-8">
         <div
           className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
           aria-hidden="true"
@@ -19,7 +19,7 @@ export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEnt
             }}
           />
         </div>
-        <div className="mx-auto max-w-2xl py-24 sm:py-48 lg:py-56">
+        <div className="mx-auto max-w-2xl py-24">
           <div className="text-center">
             <div className="flex justify-center">
               <Image src="/images/wordart.png" alt="Nance" width={300} height={300} />

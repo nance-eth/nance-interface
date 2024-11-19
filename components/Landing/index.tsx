@@ -1,3 +1,4 @@
+import { ArrowDownIcon } from "@heroicons/react/24/solid";
 import Contact from "./Contact";
 import FeatureSection from "./FeatureSection";
 import HeroSection from "./HeroSection";
@@ -59,6 +60,23 @@ export default function Landing() {
   return (
     <>
       <HeroSection top4Spaces={top4Spaces} />
+      <div className="flex flex-col justify-center items-center pb-16">
+        <div className="mb-8 flex flex-col justify-center items-center animate-bounce">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Watch Demo
+          </h2>
+          <ArrowDownIcon className="h-6 w-6 mt-0.5"/>
+        </div>
+        <video
+          controls
+          width="50%"
+          height="auto"
+          preload="metadata"
+        >
+          <source src="https://gxlarh7inss0pe2k.public.blob.vercel-storage.com/demo_take2-OMhijJsyx8JDKHyDAwO6e83YOMyAGU.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
       <StatsSection data={data?.data}/>
       <FeatureSection />
       <Testimonials />
