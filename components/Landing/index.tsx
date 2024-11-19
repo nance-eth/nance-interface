@@ -69,7 +69,7 @@ export default function Landing() {
         </div>
         <video
           controls
-          width="50%"
+          className="w-3/4 md:w-1/2 rounded-xl"
           height="auto"
           preload="metadata"
         >
