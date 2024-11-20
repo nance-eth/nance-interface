@@ -67,15 +67,12 @@ export default function Landing() {
           </h2>
           <ArrowDownIcon className="h-6 w-6 mt-0.5"/>
         </div>
-        <video
-          controls
-          className="w-3/4 md:w-1/2 rounded-xl"
-          height="auto"
-          preload="metadata"
-        >
-          <source src="https://gxlarh7inss0pe2k.public.blob.vercel-storage.com/demo_take2-OMhijJsyx8JDKHyDAwO6e83YOMyAGU.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <iframe
+          className="w-3/4 h-96 md:w-1/2 rounded-xl"
+          src="https://www.youtube.com/embed/1Kv2pZ0i35E"
+          title="Nance Demo Video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
       </div>
       <StatsSection data={data?.data}/>
       <FeatureSection />
