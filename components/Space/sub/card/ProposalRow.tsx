@@ -164,12 +164,16 @@ export default function ProposalRow({
                     src={`/images/unknown.png`}
                     alt=""
                     className="h-6 w-6 flex-none rounded-full bg-gray-50"
+                    width={500}
+                    height={500}
                   />
                 ) : (
                   <Image
                     src={`https://cdn.stamp.fyi/avatar/${authorAddress}`}
                     alt=""
                     className="h-6 w-6 flex-none rounded-full bg-gray-50"
+                    width={500}
+                    height={500}
                   />
                 )}
                 <div>
