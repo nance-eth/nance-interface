@@ -68,8 +68,8 @@ export default function Landing() {
           <ArrowDownIcon className="h-6 w-6 mt-0.5"/>
         </div>
         <iframe
-          className="w-3/4 h-96 md:w-1/2 rounded-xl"
-          src="https://www.youtube.com/embed/1Kv2pZ0i35E"
+          className="w-[90%] h-96 md:w-1/2 rounded-xl"
+          src="https://www.youtube.com/embed/1Kv2pZ0i35E?rel=0"
           title="Nance Demo Video"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         />
