@@ -35,6 +35,11 @@ export default function MarkdownViewer({ body }: { body: string }) {
           h5: ({ node, ...props }) => <h5 className="group" {...props} />,
           h6: ({ node, ...props }) => <h6 className="group" {...props} />,
 
+          img: ({ node, ...props }) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="rounded-lg" {...props} />
+          ),
+
           // single \n as soft linebreak
           p: ({ node, ...props }) => (
             <p className="whitespace-pre-line" {...props} />

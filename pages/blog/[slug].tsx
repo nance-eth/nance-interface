@@ -13,16 +13,14 @@ export default function BlogPost({ post }: { post: Post }) {
         description="A blog by the Nance folks"
         withProposalButton={false}
       />
-      <div className="my-12 px-4 sm:px-14">
-        <div className="max-w-3xl mx-auto mb-2">
-          <Link
-            href="/blog"
-            className="text-sm flex flex-row"
-          >
-            <ArrowLongLeftIcon className="h-5 w-5" /> &nbsp; back
-          </Link>
-        </div>
-        <div className="max-w-3xl mx-auto py-8 px-6 sm:px-14 bg-white rounded-lg border border-gray-200">
+      <div className="my-12 px-4 sm:px-14 min-h-screen">
+        <Link
+          href="/blog"
+          className="text-sm flex flex-row max-w-3xl mx-auto mb-2"
+        >
+          <ArrowLongLeftIcon className="h-5 w-5" /> &nbsp; back
+        </Link>
+        <div className="max-w-3xl mx-auto pt-8 pb-16 px-6 sm:px-14 bg-white rounded-lg border border-gray-200">
           <div className="text-center">
             <div className="text-gray-400">{
               format(new Date(post.date), "MMMM dd, yyyy")
