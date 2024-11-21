@@ -40,6 +40,7 @@
     "flowbite-react": "^0.3.7",
     "graphql-hooks": "^6.2.1",
     "graphql-hooks-memcache": "^3.1.0",
+    "gray-matter": "^4.0.3",
     "ioredis": "^5.3.2",
     "next": "^14.2.5",
     "next-auth": "^4.24.7",

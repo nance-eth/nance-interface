@@ -36,6 +36,7 @@ export default function SiteNav({
     { name: "Home", href: homePath },
     { name: "Spaces", href: "/s" },
     { name: "Docs", href: "https://docs.nance.app" },
+    { name: "Blog", href: "/blog" },
   ];
 
   const meta = {
