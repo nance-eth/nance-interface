@@ -21,7 +21,7 @@ export default function NanceBlog({ posts }: { posts: Post[] }) {
         </div>
 
         {/* Post card */}
-        <div className="flex flex-col space-y-8 max-w-2xl mx-auto">
+        <div className="flex flex-col px-4 sm:px-0 space-y-8 max-w-2xl mx-auto">
           {posts?.map((post) => (
             <a href={`/blog/${post.slug}`} key={post.slug}>
               <article className="px-6 py-8 bg-white rounded-lg border border-gray-200 hover:border-gray-900">
