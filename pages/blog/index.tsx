@@ -32,7 +32,7 @@ export default function NanceBlog({ posts }: { posts: Post[] }) {
                   <h2 className="text-2xl font-semibold">
                     {post.title}
                   </h2>
-                  <p className="mt-4 px-4 text-gray-600 text-left">{post.body.substring(0,282)}...</p>
+                  <p className="mt-4 px-4 text-gray-600 text-left">{post.body.substring(0,293)}...</p>
                   <span className="inline-block px-3 py-1 mt-4 text-sm text-gray-600 border rounded-full">
                     Read more
                   </span>
