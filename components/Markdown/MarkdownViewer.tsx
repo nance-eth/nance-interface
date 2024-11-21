@@ -35,9 +35,9 @@ export default function MarkdownViewer({ body }: { body: string }) {
           h5: ({ node, ...props }) => <h5 className="group" {...props} />,
           h6: ({ node, ...props }) => <h6 className="group" {...props} />,
 
-          img: ({ node, ...props }) => (
+          img: ({ node, alt, ...props }) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="rounded-lg" {...props} />
+            <img className="rounded-lg" alt={alt || "image"} {...props} />
           ),
 
           // single \n as soft linebreak
