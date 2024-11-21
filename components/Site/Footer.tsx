@@ -40,47 +40,40 @@ const navigation = [
 export default function Footer() {
   return (
     <footer className="bg-slate-50">
-      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-        <div className="grid grid-cols-3 items-center">
-          {/* Left section */}
-          <div>
-            <p className="text-xs leading-5 text-gray-500">
-              &infin; Built with{" "}
-              <a
-                href={`https://github.com/nance-eth/nance-interface/tree/${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}`}
-              >
-                {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
-                  "dev"}
-              </a>
-            </p>
-          </div>
-
-          {/* Center section with iframe */}
-          <div className="flex justify-center">
-            <iframe
-              src="https://status.nance.app/badge?theme=light"
-              width="200"
-              height="30"
-              frameBorder="0"
-              scrolling="no"
-            ></iframe>
-          </div>
-
-          {/* Right section */}
-          <div className="flex justify-end space-x-6">
-            {navigation.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                rel="noreferrer"
-                target="_blank"
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <span className="sr-only">{item.name}</span>
-                <item.icon aria-hidden="true" />
-              </a>
-            ))}
-          </div>
+      <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
+        <div className="mt-8 md:mt-0">
+          <p className="text-center text-xs leading-5 text-gray-500">
+            &infin; Built with{" "}
+            <a
+              href={`https://github.com/nance-eth/nance-interface/tree/${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}`}
+            >
+              {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+                "dev"}
+            </a>
+          </p>
+        </div>
+        <div className="flex justify-center text-center">
+          <iframe
+            src="https://status.nance.app/badge?theme=light"
+            width="200"
+            height="30"
+            frameBorder="0"
+            scrolling="no"
+          ></iframe>
+        </div>
+        <div className="flex justify-center space-x-6">
+          {navigation.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              rel="noreferrer"
+              target="_blank"
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <span className="sr-only">{item.name}</span>
+              <item.icon aria-hidden="true" />
+            </a>
+          ))}
         </div>
       </div>
     </footer>
