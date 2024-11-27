@@ -226,48 +226,45 @@ export default function Analysis() {
           <div className="w-full max-w-5xl mt-8">
             <SpaceHeader />
           </div>
-          <div className="max-w-5xl flex flex-col flex-wrap justify-center items-center gap-6 lg:flex-row w-full px-4">
-            <div className="card bg-base-100 w-80 sm:w-96">
+          <div className="max-w-5xl flex flex-wrap gap-6 w-full px-4">
+            <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Proposal Status Distribution</h2>
-                <p>
-                  {totalProposals}
-                  {" total proposals"}
-                </p>
               </div>
-              <figure className="py-4">
-                <PieChart width={200} height={200}>
-                  <Pie
-                    data={pieData}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={renderCustomizedLabel}
-                    labelLine={false}
-                    isAnimationActive={false}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          STATUS_COLORS[
-                            entry.name as keyof typeof STATUS_COLORS
-                          ]
-                        }
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomPieTooltip />} />
-                </PieChart>
+              <figure className="h-80">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderCustomizedLabel}
+                      labelLine={false}
+                      isAnimationActive={false}
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={
+                            STATUS_COLORS[
+                              entry.name as keyof typeof STATUS_COLORS
+                            ]
+                          }
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomPieTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
               </figure>
             </div>
 
-            <div className="card bg-base-100 w-80 sm:w-96">
+            <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Top Authors</h2>
-                <p></p>
               </div>
-              <figure>
+              <figure className="h-80">
                 <div className="overflow-x-auto">
                   <table className="table">
                     {/* head */}
@@ -317,47 +314,48 @@ export default function Analysis() {
               </figure>
             </div>
 
-            <div className="card bg-base-100 w-80 sm:w-96">
+            <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Proposal Voter Turnout</h2>
-                <p></p>
               </div>
-              <figure>
-                <BarChart data={voteData} width={400} height={400}>
-                  <XAxis
-                    dataKey="date"
-                    tickFormatter={(str) =>
-                      format(new Date(str * 1000), "MMM yyyy")
-                    }
-                    minTickGap={30}
-                  />
-                  <YAxis
-                    width={80}
-                    label={{
-                      value: "Voters",
-                      angle: -90,
-                      position: "insideLeft",
-                      offset: 10,
-                    }}
-                  />
-                  <Tooltip
-                    content={<CustomBarTooltip />}
-                    cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
-                  />
-                  <Bar
-                    dataKey="votes"
-                    fill="#8884d8"
-                    isAnimationActive={false}
-                  />
-                  <Brush
-                    dataKey="date"
-                    height={30}
-                    stroke="#8884d8"
-                    tickFormatter={(str) =>
-                      format(new Date(str * 1000), "MMM yyyy")
-                    }
-                  />
-                </BarChart>
+              <figure className="h-80">
+                <ResponsiveContainer>
+                  <BarChart data={voteData} width={400} height={400}>
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(str) =>
+                        format(new Date(str * 1000), "MMM yyyy")
+                      }
+                      minTickGap={30}
+                    />
+                    <YAxis
+                      width={80}
+                      label={{
+                        value: "Voters",
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: 10,
+                      }}
+                    />
+                    <Tooltip
+                      content={<CustomBarTooltip />}
+                      cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
+                    />
+                    <Bar
+                      dataKey="votes"
+                      fill="#8884d8"
+                      isAnimationActive={false}
+                    />
+                    <Brush
+                      dataKey="date"
+                      height={30}
+                      stroke="#8884d8"
+                      tickFormatter={(str) =>
+                        format(new Date(str * 1000), "MMM yyyy")
+                      }
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </figure>
             </div>
           </div>
