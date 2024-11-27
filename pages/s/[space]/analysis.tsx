@@ -227,7 +227,7 @@ export default function Analysis() {
             <SpaceHeader />
           </div>
           <div className="max-w-5xl flex flex-col flex-wrap justify-center items-center gap-6 lg:flex-row w-full px-4">
-            <div className="card bg-base-100 w-80 sm:w-96 shadow-xl">
+            <div className="card bg-base-100 w-80 sm:w-96">
               <div className="card-body">
                 <h2 className="card-title">Proposal Status Distribution</h2>
                 <p>
@@ -262,7 +262,7 @@ export default function Analysis() {
               </figure>
             </div>
 
-            <div className="card bg-base-100 w-80 sm:w-96 shadow-xl">
+            <div className="card bg-base-100 w-80 sm:w-96">
               <div className="card-body">
                 <h2 className="card-title">Top Authors</h2>
                 <p></p>
@@ -317,7 +317,7 @@ export default function Analysis() {
               </figure>
             </div>
 
-            <div className="card bg-base-100 w-80 sm:w-96 shadow-xl">
+            <div className="card bg-base-100 w-80 sm:w-96">
               <div className="card-body">
                 <h2 className="card-title">Proposal Voter Turnout</h2>
                 <p></p>
