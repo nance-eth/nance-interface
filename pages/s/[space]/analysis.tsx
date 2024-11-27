@@ -289,7 +289,7 @@ export default function Analysis() {
                   <PieChart>
                     <Pie
                       data={pieData}
-                      outerRadius={100}
+                      outerRadius={"80%"}
                       fill="#8884d8"
                       dataKey="value"
                       label={renderCustomizedLabel}
