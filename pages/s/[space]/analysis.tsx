@@ -212,6 +212,7 @@ export default function Analysis() {
                       dataKey="value"
                       label={renderCustomizedLabel}
                       labelLine={false}
+                      isAnimationActive={false}
                     >
                       {pieData.map((entry, index) => (
                         <Cell
@@ -251,6 +252,8 @@ export default function Analysis() {
                               <FormattedAddress
                                 address={author.author}
                                 copyable={false}
+                                link
+                                style="mt-1"
                                 minified
                               />
                             </div>
@@ -288,7 +291,7 @@ export default function Analysis() {
                         label={{ value: "Voters", angle: -90, position: "insideLeft", offset: 10 }}
                       />
                       <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.1)" }} />
-                      <Bar dataKey="votes" fill="#8884d8" />
+                      <Bar dataKey="votes" fill="#8884d8" isAnimationActive={false} />
                       <Brush
                         dataKey="date"
                         height={30}
