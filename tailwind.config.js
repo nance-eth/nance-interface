@@ -18,4 +18,8 @@ module.exports = {
     require("@tailwindcss/typography"),
     require("daisyui"),
   ],
+  daisyui: {
+    // dont use dark theme for dark mode when we're not ready
+    darkTheme: "light",
+  },
 };
