@@ -8,7 +8,6 @@ import {
 } from "@/utils/functions/NumberFormatter";
 import {
   useProposals,
-  useProposalsInfinite,
   useSpaceInfo,
 } from "@/utils/hooks/NanceHooks";
 import { useProposalsWithFilter } from "@/utils/hooks/snapshot/Proposals";
@@ -31,6 +30,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Image from "next/image";
+import PoweredByNance from "@/components/Analysis/PoweredByNance";
 
 export default function Analysis() {
   const params = useParams<{ space: string; proposal: string }>();
@@ -124,10 +124,10 @@ export default function Analysis() {
         count,
         approvalRate: authorApprovals[author]
           ? (
-              (authorApprovals[author].approved /
+            (authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-            ).toFixed(1) + "%"
+          ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -283,6 +283,9 @@ export default function Analysis() {
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Proposal Status Distribution</h2>
+                <div className="absolute top-6 right-6 flex items-center">
+                  <PoweredByNance />
+                </div>
               </div>
               <figure className="h-80">
                 <ResponsiveContainer>
@@ -315,6 +318,9 @@ export default function Analysis() {
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Top Authors</h2>
+                <div className="absolute top-6 right-6 flex items-center">
+                  <PoweredByNance />
+                </div>
               </div>
               <figure className="h-80">
                 <div className="overflow-x-auto">
@@ -368,6 +374,9 @@ export default function Analysis() {
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Proposal Voter Turnout</h2>
+                <div className="absolute top-8 right-8 flex items-center">
+                  <PoweredByNance size={100} />
+                </div>
               </div>
               <figure className="h-80">
                 <ResponsiveContainer>
@@ -394,13 +403,13 @@ export default function Analysis() {
                     />
                     <Bar
                       dataKey="votes"
-                      fill="#8884d8"
+                      fill="rgba(136, 132, 216, 0.7)"
                       isAnimationActive={false}
                     />
                     <Brush
                       dataKey="date"
                       height={30}
-                      stroke="#8884d8"
+                      stroke="rgba(136, 132, 216, 0.7)"
                       tickFormatter={(str) =>
                         format(new Date(str * 1000), "MMM yyyy")
                       }
