@@ -2,7 +2,10 @@
 import { Footer, SiteNav } from "@/components/Site";
 import SpaceHeader from "@/components/Space/sub/SpaceHeader";
 import { SpaceContext } from "@/context/SpaceContext";
-import { numToPrettyString } from "@/utils/functions/NumberFormatter";
+import {
+  formatNumber,
+  numToPrettyString,
+} from "@/utils/functions/NumberFormatter";
 import {
   useProposals,
   useProposalsInfinite,
@@ -50,26 +53,36 @@ export default function Analysis() {
   const { data: snapshotData, loading: isSnapshotLoading } =
     useProposalsWithFilter({ space: spaceInfo?.snapshotSpace, first: 1_000 });
   const loading = isProposalLoading || isSnapshotLoading || isSpaceInfoLoading;
-  const voteData = useMemo(() => {
-    if (!snapshotData?.proposalsData) return [];
+  const {
+    allProposals: voteData,
+    maxVotesInfo,
+    maxTokensInfo,
+  } = useMemo(() => {
+    if (!snapshotData?.proposalsData)
+      return {
+        allProposals: [],
+        maxVotesInfo: undefined,
+        maxTokensInfo: undefined,
+      };
 
     const allProposals = [
       ...snapshotData.proposalsData.map((d) => ({ ...d, space: "jbdao.eth" })),
-    ]
-      .sort((a, b) => a.created - b.created)
-      .map((d) => ({
-        date: d.created,
-        space: d.space,
-        votes: d.votes,
-        tokens: d.scores_total,
-        title: d.title,
-        author: d.author,
-      }));
+    ].map((d) => ({
+      date: d.created,
+      space: d.space,
+      votes: d.votes,
+      tokens: d.scores_total,
+      title: d.title,
+      author: d.author,
+    }));
+    const maxVotesInfo = allProposals.sort((a, b) => b.votes - a.votes)[0];
+    const maxTokensInfo = allProposals.sort((a, b) => b.tokens - a.tokens)[0];
+    allProposals.sort((a, b) => a.date - b.date);
 
-    return allProposals;
+    return { allProposals, maxVotesInfo, maxTokensInfo };
   }, [snapshotData?.proposalsData]);
 
-  const { pieData, totalProposals, topAuthors } = useMemo(() => {
+  const { pieData, totalProposals, topAuthors, totalAuthors } = useMemo(() => {
     if (!proposalData)
       return { pieData: [], totalProposals: 0, topAuthors: [] };
     const statusCounts = {
@@ -118,6 +131,7 @@ export default function Analysis() {
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
+    const totalAuthors = Object.keys(authorCounts).length;
 
     return {
       pieData: Object.entries(statusCounts).map(([name, value]) => ({
@@ -127,6 +141,7 @@ export default function Analysis() {
       })),
       totalProposals: total,
       topAuthors,
+      totalAuthors,
     };
   }, [proposalData]);
 
@@ -226,6 +241,44 @@ export default function Analysis() {
           <div className="w-full max-w-5xl mt-8">
             <SpaceHeader />
           </div>
+          <div className="mb-4 overflow-x-scroll">
+            <div className="stats w-[90vw] mx-4 max-w-5xl">
+              <div className="stat">
+                <div className="stat-title">Total Proposals</div>
+                <div className="stat-value">{totalProposals}</div>
+                <div className="stat-desc">
+                  {format(new Date((voteData[0]?.date || 1) * 1000), "y MMM")} -{" "}
+                  {format(new Date(), "y MMM")}
+                </div>
+              </div>
+
+              <div className="stat">
+                <div className="stat-title">Total Authors</div>
+                <div className="stat-value">{totalAuthors}</div>
+                <div className="stat-desc">
+                  {totalProposals / (totalAuthors ?? 1)} proposed avg
+                </div>
+              </div>
+
+              {maxVotesInfo && (
+                <div className="stat">
+                  <div className="stat-title">Most Voters</div>
+                  <div className="stat-value">{maxVotesInfo?.votes}</div>
+                  <div className="stat-desc">{maxVotesInfo?.title}</div>
+                </div>
+              )}
+
+              {maxTokensInfo && (
+                <div className="stat">
+                  <div className="stat-title">Highest Voting Power</div>
+                  <div className="stat-value">
+                    {formatNumber(maxTokensInfo?.tokens)}
+                  </div>
+                  <div className="stat-desc">{maxTokensInfo?.title}</div>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="max-w-5xl flex flex-wrap gap-6 w-full px-4">
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
@@ -259,7 +312,6 @@ export default function Analysis() {
                 </ResponsiveContainer>
               </figure>
             </div>
-
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Top Authors</h2>
@@ -313,7 +365,6 @@ export default function Analysis() {
                 </div>
               </figure>
             </div>
-
             <div className="card bg-base-100 w-80 sm:w-96 grow">
               <div className="card-body">
                 <h2 className="card-title">Proposal Voter Turnout</h2>
