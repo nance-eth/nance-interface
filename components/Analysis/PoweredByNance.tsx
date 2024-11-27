@@ -17,7 +17,7 @@ export default function PoweredByNance({ size = 50 }: PoweredByNanceProps) {
         height={size}
         className="opacity-20"
       />
-      <div className="flex flex-col">
+      <div className="flex flex-col select-none cursor-default">
         <span className={`ml-2 text-gray-400 ${textSize} font-medium`}>powered by</span>
         <span className={`ml-2 text-gray-400 ${nanceSize} font-medium`}>Nance</span>
       </div>
