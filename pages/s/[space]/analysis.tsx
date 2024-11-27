@@ -1,4 +1,4 @@
-import { SiteNav } from "@/components/Site";
+import { Footer, SiteNav } from "@/components/Site";
 import SpaceHeader from "@/components/Space/sub/SpaceHeader";
 import { SpaceContext } from "@/context/SpaceContext";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
@@ -18,6 +18,7 @@ import {
   YAxis,
   Bar,
   Brush,
+  ResponsiveContainer
 } from "recharts";
 
 export default function Analysis() {
@@ -97,7 +98,7 @@ export default function Analysis() {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-4 border rounded shadow max-w-[300px]">
+        <div className="fixed z-50 bg-white p-4 border rounded shadow max-w-[300px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <p className="italic text-xs">{format(new Date(data.date * 1000), 'MMMM d yyyy')}</p>
           <p className="text-sm font-semibold break-words">{data.title}</p>
           <p>
@@ -165,53 +166,62 @@ export default function Analysis() {
         <SiteNav pageTitle="Governance Analysis" withProposalButton={false} withWallet />
         <div className="flex flex-col items-center">
           <SpaceHeader />
-          <h1 className="text-2xl font-bold mt-12">Proposal Status Distribution</h1>
-          <div className="text-lg mt-8">Total Proposals: {totalProposals}</div>
-          <div className="flex flex-row justify-center">
-            <PieChart width={600} height={600}> {/* Increased from 400x400 */}
-              <Pie
-                data={pieData}
-                outerRadius={200}
-                fill="#8884d8"
-                dataKey="value"
-                label={renderCustomizedLabel}
-                labelLine={false}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomPieTooltip />} />
-            </PieChart>
-            <BarChart
-              width={900}
-              height={400}
-              data={voteData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-              <XAxis
-                dataKey="date"
-                tickFormatter={(str) => format(new Date(str * 1000), 'MMM yyyy')}
-                minTickGap={30}
-              />
-              <YAxis
-                width={80}
-                label={{ value: "Voters", angle: -90, position: "insideLeft", offset: 10 }}
-              />
-              <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.1)" }} />
-              <Bar dataKey="votes" fill="#8884d8" />
-              <Brush
-                dataKey="date"
-                height={30}
-                stroke="#8884d8"
-                tickFormatter={(str) => format(new Date(str * 1000), 'MMM yyyy')}
-              />
-            </BarChart>
+          <div className="flex flex-col lg:flex-row items-center min-h-[calc(100vh-300px)] w-full max-w-[1800px] px-4">
+            <div className="flex flex-col items-center w-full lg:w-1/2">
+              <h1 className="text-2xl font-bold mt-12 mb-8">Proposal Status Distribution</h1>
+              <PieChart width={400} height={400}>
+                <Pie
+                  data={pieData}
+                  outerRadius={150}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={renderCustomizedLabel}
+                  labelLine={false}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={STATUS_COLORS[entry.name as keyof typeof STATUS_COLORS]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomPieTooltip />} />
+              </PieChart>
+              <div className="text-lg">Total Proposals: {totalProposals}</div>
+            </div>
+
+            <div className="flex flex-col items-center w-full lg:w-1/2">
+              <h1 className="text-2xl font-bold mt-12 mb-8">Proposal Voter Turnout</h1>
+              <div className="w-full h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={voteData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  >
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(str) => format(new Date(str * 1000), 'MMM yyyy')}
+                      minTickGap={30}
+                    />
+                    <YAxis
+                      width={80}
+                      label={{ value: "Voters", angle: -90, position: "insideLeft", offset: 10 }}
+                    />
+                    <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0, 0, 0, 0.1)" }} />
+                    <Bar dataKey="votes" fill="#8884d8" />
+                    <Brush
+                      dataKey="date"
+                      height={30}
+                      stroke="#8884d8"
+                      tickFormatter={(str) => format(new Date(str * 1000), 'MMM yyyy')}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
+        <Footer />
       </SpaceContext.Provider>
     </>
   );
