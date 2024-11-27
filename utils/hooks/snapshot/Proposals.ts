@@ -27,14 +27,21 @@ export function useProposalsByID(
   return ret;
 }
 
-export function useProposalsWithFilter(
-  space: string,
-  active: boolean,
-  keyword: string,
-  address: string,
-  first: number,
-  skip: number,
-) {
+export function useProposalsWithFilter({
+  space,
+  active,
+  keyword,
+  address,
+  first,
+  skip
+}: {
+  space?: string;
+  active?: boolean;
+  keyword?: string;
+  address?: string;
+  first?: number;
+  skip?: number;
+}) {
   return useProposalsWithCustomQuery(
     PROPOSALS_QUERY,
     {
@@ -44,7 +51,7 @@ export function useProposalsWithFilter(
       first: first,
       skip: skip,
     },
-    address,
+    address ? address : "",
   );
 }
 

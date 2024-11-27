@@ -46,7 +46,8 @@ query Proposals($first: Int, $skip: Int, $space: String, $state: String, $keywor
     quorum,
     scores_total,
     ipfs,
-    snapshot
+    snapshot,
+    votes
   }
 }
 `;
@@ -98,7 +99,7 @@ query ProposalsOverview($first: Int, $space: String, $address: String) {
     quorum,
     scores_total
   }
-  
+
   votes (
     first: $first
     skip: 0
