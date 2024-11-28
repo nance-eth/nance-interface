@@ -6,10 +6,7 @@ import {
   formatNumber,
   numToPrettyString,
 } from "@/utils/functions/NumberFormatter";
-import {
-  useProposals,
-  useSpaceInfo,
-} from "@/utils/hooks/NanceHooks";
+import { useProposals, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { useProposalsWithFilter } from "@/utils/hooks/snapshot/Proposals";
 import { Proposal } from "@nance/nance-sdk";
 import { format } from "date-fns";
@@ -31,6 +28,7 @@ import {
 } from "recharts";
 import Image from "next/image";
 import PoweredByNance from "@/components/Analysis/PoweredByNance";
+import { classNames } from "@/utils/functions/tailwind";
 
 export default function Analysis() {
   const params = useParams<{ space: string; proposal: string }>();
@@ -124,10 +122,10 @@ export default function Analysis() {
         count,
         approvalRate: authorApprovals[author]
           ? (
-            (authorApprovals[author].approved /
+              (authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-          ).toFixed(1) + "%"
+            ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -287,7 +285,7 @@ export default function Analysis() {
                   <PoweredByNance />
                 </div>
               </div>
-              <figure className="h-80">
+              <figure className={classNames("h-80", loading && "skeleton")}>
                 <ResponsiveContainer>
                   <PieChart>
                     <Pie
@@ -322,7 +320,7 @@ export default function Analysis() {
                   <PoweredByNance />
                 </div>
               </div>
-              <figure className="h-80">
+              <figure className={classNames("h-80", loading && "skeleton")}>
                 <div className="overflow-x-auto">
                   <table className="table">
                     {/* head */}
@@ -378,7 +376,7 @@ export default function Analysis() {
                   <PoweredByNance size={100} />
                 </div>
               </div>
-              <figure className="h-80">
+              <figure className={classNames("h-80", loading && "skeleton")}>
                 <ResponsiveContainer>
                   <BarChart data={voteData} width={400} height={400}>
                     <XAxis
