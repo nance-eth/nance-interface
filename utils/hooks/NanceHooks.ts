@@ -185,6 +185,38 @@ export function useProposal(
   return useSWR<ProposalQueryResponse>(shouldFetch ? url : null, getFetch);
 }
 
+interface DiffEntry {
+  from: string;
+  to: string;
+}
+
+interface DiffObject {
+  added: boolean;
+  removed: boolean;
+  count: number;
+  value: string;
+}
+
+export interface ProposalHistoryEntry {
+  version: number;
+  datetime: string;
+  status?: DiffEntry;
+  title?: DiffEntry;
+  body?: DiffObject[];
+  metadata: string;
+}
+
+export function useProposalHistory(
+  args: ProposalRequest,
+  shouldFetch: boolean = true
+) {
+  const url = `/${args.space}/proposal/${args.uuid}/history`;
+  return useSWR<APIResponse<ProposalHistoryEntry[]>>(
+    shouldFetch ? url : null,
+    getFetch
+  );
+}
+
 // TODO move these two types into nance-sdk
 interface ActionRequest extends BaseRequest {
   aid: string;

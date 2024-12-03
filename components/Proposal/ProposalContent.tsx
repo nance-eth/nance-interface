@@ -12,6 +12,7 @@ import { ArrowLongLeftIcon } from "@heroicons/react/24/outline";
 import ProposalStatusMenu from "./ProposalStatusMenu";
 import TooltipInfo from "../common/TooltipInfo";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
+import ProposalHistory from "./ProposalHistory";
 
 export default function ProposalContent() {
   const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
@@ -20,10 +21,6 @@ export default function ProposalContent() {
   const preTitleDisplay =
     proposalIdPrefix && proposalId ? `${proposalIdPrefix}${proposalId}: ` : "";
   const { body } = commonProps;
-
-  const edited = commonProps.edited !== commonProps.created;
-  const editedDate = toDate(commonProps.edited * 1000);
-  const editedDateFormatted = format(editedDate, "MM/dd/yy hh:mm a");
 
   return (
     <div className="">
@@ -59,8 +56,8 @@ export default function ProposalContent() {
                 <TooltipInfo
                   content={`The intended author does not have sufficient voting power to submit a proposal.\
                     An address with atleast ${formatNumber(
-                commonProps.minVotingPowerSubmissionBalance
-              )}\
+                      commonProps.minVotingPowerSubmissionBalance
+                    )}\
                     voting power must sponsor the proposal.`}
                 />
               </div>
@@ -86,15 +83,7 @@ export default function ProposalContent() {
                     />
                   </span>
                 ))}
-                <span
-                  className="tooltip cursor-pointer"
-                  data-tip={editedDateFormatted}
-                >
-                  &nbsp;{edited ? "edited" : "created"}&nbsp;
-                  {formatDistanceToNowStrict(editedDate, {
-                    addSuffix: true,
-                  })}
-                </span>
+                <ProposalHistory />
               </div>
             )}
           </span>
