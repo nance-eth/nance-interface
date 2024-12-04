@@ -1,7 +1,14 @@
-import { format, formatDistanceToNowStrict, toDate } from "date-fns";
+import {
+  compareDesc,
+  format,
+  formatDistanceToNowStrict,
+  toDate,
+} from "date-fns";
 import { useContext } from "react";
 import { ProposalContext } from "./context/ProposalContext";
-import { useProposalHistory } from "@/utils/hooks/NanceHooks";
+import { useProposalVersionList } from "@/utils/hooks/NanceHooks";
+import Link from "next/link";
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 
 export default function ProposalHistory() {
   const { commonProps } = useContext(ProposalContext);
@@ -9,11 +16,13 @@ export default function ProposalHistory() {
   const editedDate = toDate(commonProps.edited * 1000);
   const editedDateFormatted = format(editedDate, "MM/dd/yy hh:mm a");
 
-  const { data } = useProposalHistory({
+  const { data } = useProposalVersionList({
     space: commonProps.space,
     uuid: commonProps.uuid,
   });
-  const versions = data?.data?.sort((a, b) => b.version - a.version);
+  const versions = data?.data?.sort((a, b) =>
+    compareDesc(new Date(a.date), new Date(b.date))
+  );
 
   return (
     <>
@@ -35,17 +44,22 @@ export default function ProposalHistory() {
         <div className="modal-box">
           <h3 className="font-bold text-lg pb-2">Edit history</h3>
           {versions?.map((v, index) => (
-            <p key={v.version} className="pt-2">
-              {v.version === 0
-                ? "Created "
-                : !v.body && !v.title && v.status
-                ? `${v.status.to} `
-                : "Edited "}
-              {formatDistanceToNowStrict(new Date(v.datetime), {
-                addSuffix: true,
-                unit: "day",
-              })}
-            </p>
+            <div key={v.hash} className="flex justify-between pt-2">
+              <p>
+                {"Edited "}
+                {formatDistanceToNowStrict(new Date(v.date), {
+                  addSuffix: true,
+                  unit: "day",
+                })}
+              </p>
+              <Link
+                href={`/s/${commonProps.space}/${commonProps.uuid}/diff/${v.hash}`}
+                className="flex items-center gap-x-1"
+              >
+                View diff
+                <ArrowTopRightOnSquareIcon className="h-3 w-3" />
+              </Link>
+            </div>
           ))}
 
           <div className="modal-action">

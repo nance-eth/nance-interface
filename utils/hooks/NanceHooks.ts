@@ -185,36 +185,43 @@ export function useProposal(
   return useSWR<ProposalQueryResponse>(shouldFetch ? url : null, getFetch);
 }
 
-interface DiffEntry {
-  from: string;
-  to: string;
+interface ProposalVersionEntry {
+  hash: string;
+  date: string;
+  message: string;
 }
 
-interface DiffObject {
-  added: boolean;
-  removed: boolean;
-  count: number;
-  value: string;
-}
-
-export interface ProposalHistoryEntry {
-  version: number;
-  datetime: string;
-  status?: DiffEntry;
-  title?: DiffEntry;
-  body?: DiffObject[];
-  metadata: string;
-}
-
-export function useProposalHistory(
+export function useProposalVersionList(
   args: ProposalRequest,
   shouldFetch: boolean = true
 ) {
-  const url = `/${args.space}/proposal/${args.uuid}/history`;
-  return useSWR<APIResponse<ProposalHistoryEntry[]>>(
+  const url = `/${args.space}/proposal/${args.uuid}/version`;
+  return useSWR<APIResponse<ProposalVersionEntry[]>>(
     shouldFetch ? url : null,
     getFetch
   );
+}
+
+interface ProposalDiff {
+  hash: string;
+  date: string;
+  message: string;
+  fromTitle: string;
+  toTitle: string;
+  fromBody: string;
+  toBody: string;
+}
+
+interface ProposalVersionRequest extends ProposalRequest {
+  hash: string;
+}
+
+export function useProposalVersion(
+  args: ProposalVersionRequest,
+  shouldFetch: boolean = true
+) {
+  const url = `/${args.space}/proposal/${args.uuid}/version/${args.hash}`;
+  return useSWR<APIResponse<ProposalDiff>>(shouldFetch ? url : null, getFetch);
 }
 
 // TODO move these two types into nance-sdk
