@@ -1,5 +1,3 @@
-import { Disclosure } from "@headlessui/react";
-import { MinusSmallIcon, PlusSmallIcon } from "@heroicons/react/24/outline";
 import { SparklesIcon } from "@heroicons/react/24/solid";
 import { ProposalContext } from "./context/ProposalContext";
 import { useContext, useState } from "react";
@@ -17,22 +15,27 @@ export default function ProposalSummaries() {
   const { proposalSummary, threadSummary } = useContext(ProposalContext);
   const { status: walletStatus } = useSession();
   const authenticated = walletStatus === "authenticated";
-  {
-    if (!proposalSummary && !threadSummary && !authenticated) return null;
-  }
+
+  const cantGetSummary = !proposalSummary && !threadSummary && !authenticated;
+
   return (
-    <div className="rounded-md border bg-gray-100">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-4xl divide-y divide-gray-900/10">
-          <dl className="mb-2 space-y-2 divide-y divide-gray-900/10">
+    <dialog id="summary_modal" className="modal modal-bottom sm:modal-middle">
+      <div className="modal-box">
+        {cantGetSummary && <p className="text-error">No wallet connected</p>}
+
+        {!cantGetSummary && (
+          <div role="tablist" className="tabs tabs-lifted tabs-lg">
             <Summary type="Proposal" markdown={proposalSummary} />
             {!threadSummary && !authenticated ? null : (
               <Summary type="Discussion" markdown={threadSummary} />
             )}
-          </dl>
-        </div>
+          </div>
+        )}
       </div>
-    </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   );
 }
 
@@ -62,52 +65,43 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
   };
 
   return (
-    <Disclosure as="div" className="pt-2">
-      {({ open }) => (
-        <>
-          <dt>
-            <Disclosure.Button className="flex w-full items-start justify-between text-left text-gray-900">
-              <span className="text-base font-semibold leading-7">{`${type} Summary `}</span>
-              <span className="ml-6 flex h-7 items-center">
-                {open ? (
-                  <MinusSmallIcon className="h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <PlusSmallIcon className="h-6 w-6" aria-hidden="true" />
-                )}
-              </span>
-            </Disclosure.Button>
-          </dt>
-          <Disclosure.Panel as="dd" className="mt-2 pr-12">
-            {summary && (
-              <article className="prose mx-auto break-words text-gray-500">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeSlug]}
-                >
-                  {summary?.replace(/^#/gm, "###")}
-                </ReactMarkdown>
-              </article>
-            )}
-            <div
-              className={classNames(
-                "mt-2 ml-2 justify-center text-cyan-500",
-                !summaryLoading && "hover:cursor-pointer",
-                authenticated ? "" : "hidden"
-              )}
-              onClick={async () => handleGenerateSummary()}
+    <>
+      <input
+        type="radio"
+        name="summary_tabs"
+        role="tab"
+        className="tab"
+        aria-label={type}
+      />
+      <div role="tabpanel" className="tab-content p-2">
+        {summary && (
+          <article className="prose mx-auto break-words text-gray-500">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeSlug]}
             >
-              {summaryLoading ? (
-                <SummarySkeleton />
-              ) : (
-                <div className="flex flex-row space-x-1">
-                  <SparklesIcon width={20} height={20} /> <p>Nancearize</p>
-                </div>
-              )}
+              {summary?.replace(/^#/gm, "###")}
+            </ReactMarkdown>
+          </article>
+        )}
+        <div
+          className={classNames(
+            "mt-2 ml-2 justify-center text-cyan-500",
+            !summaryLoading && "hover:cursor-pointer",
+            authenticated ? "" : "hidden"
+          )}
+          onClick={async () => handleGenerateSummary()}
+        >
+          {summaryLoading ? (
+            <SummarySkeleton />
+          ) : (
+            <div className="flex flex-row space-x-1">
+              <SparklesIcon width={20} height={20} /> <p>Nancearize</p>
             </div>
-          </Disclosure.Panel>
-        </>
-      )}
-    </Disclosure>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

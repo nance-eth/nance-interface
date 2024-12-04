@@ -5,8 +5,6 @@ import ProposalMetadata from "./ProposalMetadata";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import MarkdownViewer from "@/components/Markdown/MarkdownViewer";
 import { ProposalContext } from "./context/ProposalContext";
-import { format, formatDistanceToNowStrict, toDate } from "date-fns";
-import ProposalSummaries from "./ProposalSummaries";
 import ProposalMenu from "./ProposalMenu";
 import { ArrowLongLeftIcon } from "@heroicons/react/24/outline";
 import ProposalStatusMenu from "./ProposalStatusMenu";
@@ -89,7 +87,6 @@ export default function ProposalContent() {
           </span>
         </div>
         <ProposalMetadata />
-        <ProposalSummaries />
       </div>
 
       <div className="px-4 sm:px-6">

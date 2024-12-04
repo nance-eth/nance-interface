@@ -18,37 +18,45 @@ import ResultModal from "../modal/ResultModal";
 import { ProposalContext } from "./context/ProposalContext";
 import { useProposalDelete, useProposalUpload } from "@/utils/hooks/NanceHooks";
 import { Proposal } from "@nance/nance-sdk";
-
+import { SparklesIcon } from "@heroicons/react/24/solid";
+import ProposalSummaries from "./ProposalSummaries";
 
 export default function ProposalMenu() {
   const proposalContext = useContext(ProposalContext);
   const { commonProps } = proposalContext;
   const { uuid, proposalId, space } = commonProps;
   const router = useRouter();
-  
+
   // hooks
   const { trigger: deleteTrigger } = useProposalDelete(space, uuid);
   const { trigger: uploadTrigger } = useProposalUpload(space, uuid);
   const { status: walletStatus } = useSession();
 
   // state
-  const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
-  const [archiveConfirmModalIsOpen, setArchiveConfirmModalIsOpen] = useState(false);
+  const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] =
+    useState(false);
+  const [archiveConfirmModalIsOpen, setArchiveConfirmModalIsOpen] =
+    useState(false);
 
   const status = proposalContext.commonProps.status;
   const authenticated = walletStatus === "authenticated";
-  const showVariableActions = authenticated && (
-    status === "Archived" || status === "Draft" || status === "Discussion" || status === "Temperature Check"
-  );
+  const showVariableActions =
+    authenticated &&
+    (status === "Archived" ||
+      status === "Draft" ||
+      status === "Discussion" ||
+      status === "Temperature Check");
 
   const handleUnarchive = () => {
     const proposal = { uuid, status: "Discussion" } as unknown as Proposal;
-    uploadTrigger({ proposal }).then(() => {
-      toast.success("Proposal unarchived successfully");
-      router.reload();
-    }).catch((e) => {
-      toast.error(`Failed to unarchive proposal: ${e}`);
-    });
+    uploadTrigger({ proposal })
+      .then(() => {
+        toast.success("Proposal unarchived successfully");
+        router.reload();
+      })
+      .catch((e) => {
+        toast.error(`Failed to unarchive proposal: ${e}`);
+      });
   };
 
   return (
@@ -60,12 +68,14 @@ export default function ProposalMenu() {
         buttonText="Delete it"
         onClick={() => {
           setDeleteConfirmModalIsOpen(false);
-          deleteTrigger().then(() => {
-            toast.success("Proposal deleted successfully");
-            router.push(`/s/${space}`);
-          }).catch((e) => {
-            toast.error(`Failed to delete proposal: ${e}`);
-          });
+          deleteTrigger()
+            .then(() => {
+              toast.success("Proposal deleted successfully");
+              router.push(`/s/${space}`);
+            })
+            .catch((e) => {
+              toast.error(`Failed to delete proposal: ${e}`);
+            });
         }}
         close={() => setDeleteConfirmModalIsOpen(false)}
         shouldOpen={deleteConfirmModalIsOpen}
@@ -79,16 +89,22 @@ export default function ProposalMenu() {
         onClick={() => {
           setArchiveConfirmModalIsOpen(false);
           const proposal = { uuid, status: "Archived" } as unknown as Proposal;
-          uploadTrigger({ proposal }).then(() => {
-            toast.success("Proposal archived successfully");
-            router.push(`/s/${space}`);
-          }).catch((e) => {
-            toast.error(`Failed to archive proposal: ${e}`);
-          });
+          uploadTrigger({ proposal })
+            .then(() => {
+              toast.success("Proposal archived successfully");
+              router.push(`/s/${space}`);
+            })
+            .catch((e) => {
+              toast.error(`Failed to archive proposal: ${e}`);
+            });
         }}
         close={() => setArchiveConfirmModalIsOpen(false)}
         shouldOpen={archiveConfirmModalIsOpen}
       />
+
+      <div className="">
+        <ProposalSummaries />
+      </div>
 
       <Menu as="div" className="relative inline-block">
         <div>
@@ -120,7 +136,28 @@ export default function ProposalMenu() {
                   }}
                 >
                   <ShareIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                    Copy Link
+                  Copy Link
+                </button>
+              )}
+            </Menu.Item>
+          </div>
+          <div className="px-1 py-1">
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  className={`${
+                    active ? "bg-violet-500 text-white" : "text-gray-900"
+                  } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                  onClick={() => {
+                    (
+                      document.getElementById(
+                        "summary_modal"
+                      ) as HTMLDialogElement
+                    ).showModal();
+                  }}
+                >
+                  <SparklesIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                  Nancearize
                 </button>
               )}
             </Menu.Item>
@@ -133,10 +170,15 @@ export default function ProposalMenu() {
                     className={`${
                       active ? "bg-green-500 text-white" : "text-gray-900"
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                    href={`/s/${space}/edit?&proposalId=${proposalId || uuid}&fork=true`}
+                    href={`/s/${space}/edit?&proposalId=${
+                      proposalId || uuid
+                    }&fork=true`}
                   >
-                    <ArrowUpOnSquareStackIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                        Fork
+                    <ArrowUpOnSquareStackIcon
+                      className="mr-2 h-5 w-5"
+                      aria-hidden="true"
+                    />
+                    Fork
                   </Link>
                 )}
               </Menu.Item>
@@ -151,7 +193,9 @@ export default function ProposalMenu() {
                       className={`${
                         active ? "bg-blue-500 text-white" : "text-gray-900"
                       } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                      href={`/s/${space}/edit?&proposalId=${proposalId || uuid}`}
+                      href={`/s/${space}/edit?&proposalId=${
+                        proposalId || uuid
+                      }`}
                     >
                       <PencilIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                       Edit
@@ -175,7 +219,7 @@ export default function ProposalMenu() {
                           className="mr-2 h-5 w-5"
                           aria-hidden="true"
                         />
-                      Unarchive
+                        Unarchive
                       </button>
                     )}
                   </Menu.Item>
