@@ -2,6 +2,7 @@ import { SiteNav } from "@/components/Site";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { ZERO_ADDRESS } from "@/constants/Contract";
 import { getParagraphOfMarkdown } from "@/utils/functions/markdown";
+import { classNames } from "@/utils/functions/tailwind";
 import { useProposalVersion } from "@/utils/hooks/NanceHooks";
 import { Switch } from "@headlessui/react";
 import Link from "next/link";
@@ -26,6 +27,8 @@ export default function ProposalVersionDiffPage() {
   );
   const diff = data?.data;
 
+  const isLoading = !params || !diff;
+
   return (
     <>
       <SiteNav
@@ -41,7 +44,10 @@ export default function ProposalVersionDiffPage() {
           <ul>
             {diff?.fromTitle !== diff?.toTitle && <li>{diff?.fromTitle}</li>}
             <li>
-              <Link href={`/s/${params?.space}/${params?.proposal}`}>
+              <Link
+                href={`/s/${params?.space}/${params?.proposal}`}
+                className={classNames(isLoading && "h-7 w-60 skeleton")}
+              >
                 {diff?.toTitle}
               </Link>
             </li>
@@ -55,7 +61,13 @@ export default function ProposalVersionDiffPage() {
           setEnabled={setSplitView}
         />
 
-        <div className="w-full max-w-screen-lg bg-white shadow-md rounded-lg overflow-auto mt-2">
+        <div
+          className={classNames(
+            "w-full max-w-screen-lg shadow-md rounded-lg overflow-auto mt-2",
+            isLoading && "h-screen skeleton",
+            !isLoading && "bg-white"
+          )}
+        >
           <ReactDiffViewer
             oldValue={diff?.fromBody}
             newValue={diff?.toBody}
