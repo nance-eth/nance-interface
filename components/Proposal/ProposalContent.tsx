@@ -86,7 +86,9 @@ export default function ProposalContent() {
             )}
           </span>
         </div>
-        <ProposalMetadata />
+        {commonProps.status !== "Draft" && (
+          <ProposalMetadata />
+        )}
       </div>
 
       <div className="px-4 sm:px-6">
