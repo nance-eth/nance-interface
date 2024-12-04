@@ -17,7 +17,11 @@ export default function ProposalVersionDiffPage() {
     proposal: string;
     hash: string;
   }>();
-  const { data } = useProposalVersion(
+  const {
+    data,
+    error,
+    isLoading: versionLoading,
+  } = useProposalVersion(
     {
       space: params?.space,
       uuid: params?.proposal,
@@ -27,7 +31,8 @@ export default function ProposalVersionDiffPage() {
   );
   const diff = data?.data;
 
-  const isLoading = !params || !diff;
+  const isLoading = !params || versionLoading;
+  const proposalTitleOrStatus = diff?.toTitle || error?.message;
 
   return (
     <>
@@ -42,13 +47,15 @@ export default function ProposalVersionDiffPage() {
       <div className="flex flex-col items-center p-4 sm:p-6 bg-gray-50">
         <div className="breadcrumbs text-xl font-medium">
           <ul>
-            {diff?.fromTitle !== diff?.toTitle && <li>{diff?.fromTitle}</li>}
+            {diff?.fromTitle !== diff?.toTitle && (
+              <li className="line-through">{diff?.fromTitle}</li>
+            )}
             <li>
               <Link
                 href={`/s/${params?.space}/${params?.proposal}`}
                 className={classNames(isLoading && "h-7 w-60 skeleton")}
               >
-                {diff?.toTitle}
+                {proposalTitleOrStatus}
               </Link>
             </li>
             {diff?.fromTitle === diff?.toTitle && <li>Diff</li>}
