@@ -14,11 +14,11 @@ import {
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import ResultModal from "../modal/ResultModal";
-import { ProposalContext } from "./context/ProposalContext";
 import { useProposalDelete, useProposalUpload } from "@/utils/hooks/NanceHooks";
 import { Proposal } from "@nance/nance-sdk";
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import ResultModal from "@/components/modal/ResultModal";
+import { ProposalContext } from "../context/ProposalContext";
 import ProposalSummaries from "./ProposalSummaries";
 
 export default function ProposalMenu() {

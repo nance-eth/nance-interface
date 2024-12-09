@@ -1,16 +1,14 @@
-import {
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { Menu } from "@headlessui/react";
 import { ProposalStatus, ProposalStatusNames } from "@nance/nance-sdk";
 import toast from "react-hot-toast";
-import ProposalBadgeLabel from "../Space/sub/card/ProposalBadgeLabel";
 import { useContext, useState } from "react";
-import { ProposalContext } from "./context/ProposalContext";
 import { useProposalPatchStatus, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { useSession } from "next-auth/react";
 import { classNames } from "@/utils/functions/tailwind";
-import TooltipInfo from "../common/TooltipInfo";
+import ProposalBadgeLabel from "@/components/Space/sub/card/ProposalBadgeLabel";
+import TooltipInfo from "@/components/common/TooltipInfo";
+import { ProposalContext } from "../context/ProposalContext";
 
 export default function ProposalStatusMenu() {
   const { commonProps, mutateNanceProposal } = useContext(ProposalContext);
@@ -44,9 +42,7 @@ export default function ProposalStatusMenu() {
       <div className="flex flex-row items-center space-x-2 overflow-x-clip">
         <Menu as="div" className="relative inline-block">
           <Menu.Button className="inline-flex text-left justify-center gap-x-1.5 rounded-md bg-gray px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 max-w-[150px] sm:max-w-fit">
-            <div className="truncate">
-              {editStatus || commonProps.status}
-            </div>
+            <div className="truncate">{editStatus || commonProps.status}</div>
             <ChevronDownIcon
               className="-mr-1 h-5 w-5 text-gray-400"
               aria-hidden="true"
@@ -62,7 +58,7 @@ export default function ProposalStatusMenu() {
                         className={`${
                           active ? "bg-blue-500 text-white" : "text-gray-900"
                         } group flex w-full items-center text-left rounded-md px-2 py-2 text-sm`}
-                        onClick={ () => setEditStatus(s) }
+                        onClick={() => setEditStatus(s)}
                       >
                         {s}
                       </button>
@@ -76,7 +72,9 @@ export default function ProposalStatusMenu() {
         <div
           className={classNames(
             "text-xs underline hover:cursor-pointer",
-            (editStatus && commonProps.status !== editStatus) && "animate-pulse text-blue-600 font-bold"
+            editStatus &&
+              commonProps.status !== editStatus &&
+              "animate-pulse text-blue-600 font-bold"
           )}
           onClick={() => {
             toast.promise(trigger(editStatus), {
@@ -93,7 +91,9 @@ export default function ProposalStatusMenu() {
           save
         </div>
         <div
-          className={classNames("text-xs underline hover:cursor-pointer text-gray-500")}
+          className={classNames(
+            "text-xs underline hover:cursor-pointer text-gray-500"
+          )}
           onClick={() => {
             setEditStatus(undefined);
             setIsEditing(false);
