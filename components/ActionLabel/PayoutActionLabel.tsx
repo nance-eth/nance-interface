@@ -8,18 +8,13 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
   const total = (amount * count).toLocaleString();
 
   return (
-    <div className="flex flex-col">
-      <span className="line-clamp-5">
+    <p>
+      <span className="">
         ${Number(amount).toLocaleString()}
         &nbsp;to
         <JBSplitEntry mod={payout2JBSplit(action)} />
         <GovernanceCyclesInfoLabel action={action} />
       </span>
-      {count > 1 && (
-        <div className="font-semibold italic text-emerald-600">
-          Total Amount: ${total}
-        </div>
-      )}
-    </div>
+    </p>
   );
 }
