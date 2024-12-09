@@ -3,6 +3,8 @@ import { dateRangesOfCycles } from "@/utils/functions/GovernanceCycle";
 import { Action, getPayoutCountAmount } from "@nance/nance-sdk";
 import { useContext } from "react";
 import { ProposalContext } from "../Proposal/context/ProposalContext";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import TooltipInfo from "../common/TooltipInfo";
 
 export default function GovernanceCyclesInfoLabel({
   action,
@@ -25,18 +27,23 @@ export default function GovernanceCyclesInfoLabel({
     currentCycle: spaceInfo?.currentCycle,
     cycleStartDate: cycleStartDate as string,
   });
+  console.debug("dateRanges", {
+    dateRanges,
+    cycle,
+    count,
+    cycleStartDate,
+    currentCycle: spaceInfo?.currentCycle,
+  });
 
   if (action.pollRequired) {
     return null;
   }
 
   return (
-    <>
-      {actionCycleStart &&
-        actionCycleStart > proposalCycle &&
-        `starting from GC-${actionCycleStart} `}
-      {count > 1 && `for ${count} cycles`} (
-      <span className="font-mono text-sm">{dateRanges}</span>)
-    </>
+    <div className="inline-block">
+      <TooltipInfo content={dateRanges}>
+        {count > 1 && `for ${count} cycles`}
+      </TooltipInfo>
+    </div>
   );
 }
