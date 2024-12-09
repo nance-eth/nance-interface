@@ -1,5 +1,4 @@
 import { SparklesIcon } from "@heroicons/react/24/solid";
-import { ProposalContext } from "./context/ProposalContext";
 import { useContext, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -10,6 +9,7 @@ import { classNames } from "@/utils/functions/tailwind";
 import { NANCE_API_URL } from "@/constants/Nance";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
+import { ProposalContext } from "../context/ProposalContext";
 
 export default function ProposalSummaries() {
   const { proposalSummary, threadSummary } = useContext(ProposalContext);

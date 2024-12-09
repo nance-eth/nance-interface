@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useProposalsByID } from "@/utils/hooks/snapshot/Proposals";
 import { getLastSlash } from "@/utils/functions/nance";
 import Custom404 from "../../../404";
-import ProposalSidebar from "@/components/Proposal/ProposalSidebar";
 import ProposalContent from "@/components/Proposal/ProposalContent";
-import ProposalOptions from "@/components/Proposal/ProposalOptions";
 import ProposalLoading from "@/components/Proposal/ProposalLoading";
 import { getParagraphOfMarkdown } from "@/utils/functions/markdown";
 import { ZERO_ADDRESS } from "@/constants/Contract";
@@ -16,6 +14,10 @@ import {
 import { STATUS } from "@/constants/Nance";
 import { useProposal } from "@/utils/hooks/NanceHooks";
 import { useParams } from "next/navigation";
+import ProposalTabs from "@/components/Proposal/ProposalTabs";
+import ProposalHeader from "@/components/Proposal/ProposalHeader";
+import ProposalOptions from "@/components/Proposal/sub/ProposalOptions";
+import ProposalVoteOverview from "@/components/Proposal/sub/ProposalVoteOverview";
 
 export default function NanceProposalPage() {
   // state
@@ -127,14 +129,15 @@ export default function NanceProposalPage() {
             }}
           >
             <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-              <div className="space-y-6 lg:col-span-2">
+              <div className="space-y-6 lg:col-span-2 lg:block hidden">
                 {/* Content */}
-                <section aria-labelledby="proposal-title">
+                <div className="space-y-4">
+                  <ProposalHeader />
                   <ProposalContent />
-                </section>
+                </div>
 
                 {/* Display Options if not basic (For Against) */}
-                <section aria-labelledby="options-title">
+                <div>
                   {snapshotProposal &&
                     [
                       "approval",
@@ -146,15 +149,44 @@ export default function NanceProposalPage() {
                         <ProposalOptions proposal={snapshotProposal} />
                       </div>
                     )}
-                </section>
+                </div>
               </div>
 
-              <section aria-labelledby="stats-title" className="lg:col-span-1">
+              <section
+                aria-labelledby="tabs"
+                className="col-span-3 lg:col-span-1"
+              >
                 {snapshotProposal && (
-                  <ProposalSidebar
-                    proposal={proposal}
-                    snapshotProposal={snapshotProposal}
-                  />
+                  <>
+                    <div
+                      className="hidden lg:block sticky lg:mt-5 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
+                      style={{
+                        maxHeight: "calc(100vh - 1rem)",
+                      }}
+                    >
+                      <ProposalVoteOverview />
+                      <div className="mt-4">
+                        <ProposalTabs
+                          proposal={proposal}
+                          snapshotProposal={snapshotProposal}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="block lg:hidden">
+                      <div className="p-4 space-y-2">
+                        <ProposalHeader />
+
+                        <div className="rounded-md border bg-gray-100 shadow p-2">
+                          <ProposalVoteOverview />
+                        </div>
+                        <ProposalTabs
+                          proposal={proposal}
+                          snapshotProposal={snapshotProposal}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </section>
             </div>
