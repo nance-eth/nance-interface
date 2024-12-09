@@ -4,18 +4,14 @@ import {
   NumberParam,
   createEnumParam,
 } from "next-query-params";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import {
   useProposalVotes,
   VOTES_PER_PAGE,
 } from "@/utils/hooks/snapshot/Proposals";
-import {
-  formatNumber,
-  numToPrettyString,
-} from "@/utils/functions/NumberFormatter";
+import { formatNumber } from "@/utils/functions/NumberFormatter";
 import { processChoices } from "@/utils/functions/snapshotUtil";
 import { classNames } from "@/utils/functions/tailwind";
-import ColorBar from "@/components/common/ColorBar";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
 import FormattedAddress from "@/components/AddressCard/FormattedAddress";
 import { ProposalContext } from "./context/ProposalContext";
@@ -86,91 +82,6 @@ export default function ProposalVotes({
       }}
     >
       <div className="overflow-y-scroll pt-2">
-        <div className="">
-          {isSimpleVoting && (
-            <>
-              <div className="flex justify-between">
-                <p
-                  className={classNames(
-                    "cursor-pointer text-sm text-green-500",
-                    query.filterBy === "for" ? "underline" : ""
-                  )}
-                  onClick={() => {
-                    if (query.filterBy === "for") setQuery({ filterBy: "" });
-                    else setQuery({ filterBy: "for" });
-                  }}
-                >
-                  FOR {formatNumber(proposalInfo?.scores[0] || 0)}
-                </p>
-
-                <p
-                  className={classNames(
-                    "cursor-pointer text-sm text-gray-500",
-                    query.filterBy === "abstain" ? "underline" : ""
-                  )}
-                  onClick={() => {
-                    if (query.filterBy === "abstain")
-                      setQuery({ filterBy: "" });
-                    else setQuery({ filterBy: "abstain" });
-                  }}
-                >
-                  ABSTAIN {formatNumber(proposalInfo?.scores[2] || 0)}
-                </p>
-
-                <p
-                  className={classNames(
-                    "cursor-pointer text-sm text-red-500",
-                    query.filterBy === "against" ? "underline" : ""
-                  )}
-                  onClick={() => {
-                    if (query.filterBy === "against")
-                      setQuery({ filterBy: "" });
-                    else setQuery({ filterBy: "against" });
-                  }}
-                >
-                  AGAINST {formatNumber(proposalInfo?.scores[1] || 0)}
-                </p>
-              </div>
-
-              <div className="p-3 text-sm text-gray-500">
-                <ColorBar
-                  greenScore={proposalInfo?.scores[0] || 0}
-                  redScore={proposalInfo?.scores[1] || 0}
-                  blueScore={proposalInfo?.scores[2] || 0}
-                  threshold={threshold}
-                  noTooltip
-                />
-              </div>
-            </>
-          )}
-
-          {!isSimpleVoting && (
-            <>
-              <div className="flex justify-between">
-                <p className="text-sm text-green-500">
-                  VOTES {formatNumber(proposalInfo?.scores_total || 0)}
-                </p>
-              </div>
-
-              <div className="p-3 text-sm text-gray-500">
-                <ColorBar
-                  greenScore={proposalInfo?.scores_total || 0}
-                  redScore={0}
-                  threshold={threshold}
-                  noTooltip
-                />
-              </div>
-            </>
-          )}
-
-          <div className="flex justify-between">
-            <p className="text-sm">QUORUM {formatNumber(threshold)}</p>
-            <p className="text-sm">
-              VOTERS {formatNumber(proposalInfo?.votes || 0)}
-            </p>
-          </div>
-        </div>
-
         {expand && (
           <ul role="list" className="space-y-2 pt-2">
             {loading && "loading..."}
