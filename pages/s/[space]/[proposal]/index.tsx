@@ -172,12 +172,10 @@ export default function NanceProposalPage() {
                     }}
                   >
                     <ProposalVoteOverview />
-                    <div className="mt-4">
-                      <ProposalTabs
-                        proposal={proposal}
-                        snapshotProposal={snapshotProposal}
-                      />
-                    </div>
+                    <ProposalTabs
+                      proposal={proposal}
+                      snapshotProposal={snapshotProposal}
+                    />
                   </div>
 
                   {/* On smaller screen, it take full width */}
