@@ -42,7 +42,7 @@ export default function ProposalTabs({
       >
         Content
       </a>
-      <div role="tabpanel" className="tab-content lg:hidden mt-4">
+      <div role="tabpanel" className="tab-content lg:hidden mt-4 w-[90vw]">
         <ProposalContent />
       </div>
 
