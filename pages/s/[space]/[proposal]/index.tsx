@@ -180,10 +180,10 @@ export default function NanceProposalPage() {
                     </div>
 
                     <div className="block lg:hidden">
-                      <div className="p-4 space-y-2">
+                      <div className="p-4 space-y-4">
                         <ProposalHeader />
 
-                        <div className="rounded-md border bg-gray-100 shadow p-2">
+                        <div className="">
                           <ProposalVoteOverview />
                         </div>
                         <ProposalTabs
