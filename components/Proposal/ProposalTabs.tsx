@@ -31,7 +31,7 @@ export default function ProposalTabs({
   const { commonProps } = useContext(ProposalContext);
 
   return (
-    <div role="tablist" className="tabs tabs-bordered font-medium">
+    <div role="tablist" className="tabs tabs-bordered">
       <a
         role="tab"
         className={classNames(
@@ -58,34 +58,37 @@ export default function ProposalTabs({
         Activity
       </a>
       <div role="tabpanel" className="tab-content mt-4">
-        <button
-          onClick={() => {
-            if (query.sortBy === "time") {
-              setQuery({ sortBy: "vp" });
-            } else {
-              setQuery({ sortBy: "time" });
-            }
-          }}
-          className="text-lg font-medium"
-        >
-          <span className="ml-2 text-center text-xs text-gray-300">
-            sort by {query.sortBy === "vp" ? "voting power" : "time"}
-          </span>
-        </button>
-
         {!snapshotProposal && (
-          <div className="mt-2 space-y-4">
-            <ColorBar
-              noTooltip={true}
-              greenScore={proposal?.temperatureCheckVotes?.[0] || 0}
-              redScore={proposal?.temperatureCheckVotes?.[1] || 0}
-              threshold={10}
-            />
-          </div>
+          <>
+            <p>No snapshot voting</p>
+            <div className="mt-2 space-y-4">
+              <ColorBar
+                noTooltip={true}
+                greenScore={proposal?.temperatureCheckVotes?.[0] || 0}
+                redScore={proposal?.temperatureCheckVotes?.[1] || 0}
+                threshold={10}
+              />
+            </div>
+          </>
         )}
 
         {snapshotProposal && (
           <>
+            <button
+              onClick={() => {
+                if (query.sortBy === "time") {
+                  setQuery({ sortBy: "vp" });
+                } else {
+                  setQuery({ sortBy: "time" });
+                }
+              }}
+              className="text-lg font-medium"
+            >
+              <span className="ml-2 text-center text-xs text-gray-300">
+                sort by {query.sortBy === "vp" ? "voting power" : "time"}
+              </span>
+            </button>
+
             <div className="hidden lg:block">
               <ProposalVotes snapshotSpace={commonProps.snapshotSpace} />
             </div>
