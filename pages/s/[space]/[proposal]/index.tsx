@@ -162,38 +162,36 @@ export default function NanceProposalPage() {
                 aria-labelledby="tabs"
                 className="col-span-3 lg:col-span-1"
               >
-                {snapshotProposal && (
-                  <>
-                    <div
-                      className="hidden lg:block sticky lg:mt-5 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
-                      style={{
-                        maxHeight: "calc(100vh - 1rem)",
-                      }}
-                    >
-                      <ProposalVoteOverview />
-                      <div className="mt-4">
-                        <ProposalTabs
-                          proposal={proposal}
-                          snapshotProposal={snapshotProposal}
-                        />
-                      </div>
+                <>
+                  <div
+                    className="hidden lg:block sticky lg:mt-5 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
+                    style={{
+                      maxHeight: "calc(100vh - 1rem)",
+                    }}
+                  >
+                    <ProposalVoteOverview />
+                    <div className="mt-4">
+                      <ProposalTabs
+                        proposal={proposal}
+                        snapshotProposal={snapshotProposal}
+                      />
                     </div>
+                  </div>
 
-                    <div className="block lg:hidden">
-                      <div className="p-4 space-y-4">
-                        <ProposalHeader />
+                  <div className="block lg:hidden">
+                    <div className="p-4 space-y-4">
+                      <ProposalHeader />
 
-                        <div className="">
-                          <ProposalVoteOverview />
-                        </div>
-                        <ProposalTabs
-                          proposal={proposal}
-                          snapshotProposal={snapshotProposal}
-                        />
+                      <div className="">
+                        <ProposalVoteOverview />
                       </div>
+                      <ProposalTabs
+                        proposal={proposal}
+                        snapshotProposal={snapshotProposal}
+                      />
                     </div>
-                  </>
-                )}
+                  </div>
+                </>
               </section>
             </div>
           </ProposalContext.Provider>
