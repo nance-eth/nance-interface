@@ -8,6 +8,7 @@ import { HomeIcon } from "@heroicons/react/24/solid";
 import ProposalHistory from "./sub/ProposalHistory";
 import ProposalMenu from "./sub/ProposalMenu";
 import ProposalStatusMenu from "./sub/ProposalStatusMenu";
+import Link from "next/link";
 
 /**
  Including title, author, create/edit time and requesting tokens
@@ -26,8 +27,19 @@ export default function ProposalHeader() {
           <div className="breadcrumbs text-sm">
             <ul>
               <li>
-                <HomeIcon className="w-4 h-4 mr-1" />
-                <a href={`/s/${commonProps.space}`}>Proposals</a>
+                <Link href={`/s/${commonProps.space}`}>
+                  <HomeIcon className="w-4 h-4" />
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={{
+                    pathname: `/s/${commonProps.space}`,
+                    query: { cycle: commonProps.governanceCycle },
+                  }}
+                >
+                  Cycle&nbsp;{commonProps.governanceCycle}
+                </Link>
               </li>
               <li>
                 {preTitleDisplay}
