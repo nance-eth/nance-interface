@@ -29,41 +29,43 @@ export interface ProposalCommonProps {
 export const ProposalContext = createContext<{
   commonProps: ProposalCommonProps;
   proposalInfo: SnapshotProposal | undefined;
+  isLoading: boolean;
   nextProposalId: number;
   proposalIdPrefix?: string;
   proposalSummary?: string;
   threadSummary?: string;
   mutateNanceProposal?: (data: Partial<ProposalPacket>) => void;
   refetchSnapshotProposal?: () => void;
-    }>({
-      commonProps: {
-        space: "",
-        snapshotSpace: "",
-        status: "",
-        title: "",
-        author: "",
-        coauthors: [],
-        body: "",
-        created: 0,
-        edited: 0,
-        voteStart: 0,
-        voteEnd: 0,
-        snapshot: "",
-        snapshotHash: "",
-        ipfs: "",
-        discussion: "",
-        governanceCycle: 0,
-        uuid: "",
-        actions: [],
-        proposalId: "",
-        minTokenPassingAmount: 0,
-        minVotingPowerSubmissionBalance: 0,
-      },
-      proposalInfo: undefined,
-      nextProposalId: 0,
-      proposalIdPrefix: undefined,
-      proposalSummary: undefined,
-      threadSummary: undefined,
-      mutateNanceProposal: undefined,
-      refetchSnapshotProposal: undefined,
-    });
+}>({
+  commonProps: {
+    space: "",
+    snapshotSpace: "",
+    status: "",
+    title: "",
+    author: "",
+    coauthors: [],
+    body: "",
+    created: 0,
+    edited: 0,
+    voteStart: 0,
+    voteEnd: 0,
+    snapshot: "",
+    snapshotHash: "",
+    ipfs: "",
+    discussion: "",
+    governanceCycle: 0,
+    uuid: "",
+    actions: [],
+    proposalId: "",
+    minTokenPassingAmount: 0,
+    minVotingPowerSubmissionBalance: 0,
+  },
+  isLoading: true,
+  proposalInfo: undefined,
+  nextProposalId: 0,
+  proposalIdPrefix: undefined,
+  proposalSummary: undefined,
+  threadSummary: undefined,
+  mutateNanceProposal: undefined,
+  refetchSnapshotProposal: undefined,
+});
