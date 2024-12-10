@@ -35,7 +35,7 @@ export default function ProposalVotes({
   snapshotSpace: string;
   limitedHeight?: boolean;
 }) {
-  const { proposalInfo, commonProps } = useContext(ProposalContext);
+  const { proposalInfo, commonProps, isLoading } = useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
@@ -94,8 +94,13 @@ export default function ProposalVotes({
       />
 
       <div className="overflow-y-scroll pt-2">
-        <ul role="list" className="space-y-2 pt-2">
-          {loading && "loading..."}
+        <ul
+          role="list"
+          className={classNames(
+            "space-y-2 pt-2",
+            (isLoading || loading) && "skeleton h-[50vh] w-full"
+          )}
+        >
           {votes?.map((vote) => (
             <li key={vote.id}>
               <div className="flex flex-col">
