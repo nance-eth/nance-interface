@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { getProposalNumber } from "@/utils/functions/ProposalIdNumber";
 import { ProposalContext } from "../context/ProposalContext";
 
+// FIXME this breaks when some proposalId dont point to existed proposal.
 export default function ProposalNavigator() {
   // pre load prev and next proposal
   let { commonProps, nextProposalId } = useContext(ProposalContext);
