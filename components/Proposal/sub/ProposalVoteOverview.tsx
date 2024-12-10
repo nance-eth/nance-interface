@@ -30,7 +30,7 @@ export default function ProposalVoteOverview() {
   ].includes(proposalType);
 
   return (
-    <div className="">
+    <div className={classNames(proposalInfo ? "mb-4" : "hidden")}>
       {isSimpleVoting && (
         <>
           <div className="flex justify-between">
