@@ -85,7 +85,17 @@ export default function ProposalTabs({
         )}
 
         {snapshotProposal && (
-          <ProposalVotes snapshotSpace={commonProps.snapshotSpace} expand />
+          <>
+            <div className="hidden lg:block">
+              <ProposalVotes snapshotSpace={commonProps.snapshotSpace} />
+            </div>
+            <div className="block lg:hidden">
+              <ProposalVotes
+                snapshotSpace={commonProps.snapshotSpace}
+                limitedHeight={false}
+              />
+            </div>
+          </>
         )}
       </div>
 
