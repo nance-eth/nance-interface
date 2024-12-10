@@ -103,12 +103,16 @@ export default function ProposalHeader() {
         </span>
       </div>
 
-      <div className="rounded-md border bg-gray-100 shadow p-2 mt-2">
-        Requesting
-        <div className="ml-1 inline font-medium">
-          <RequestingTokensOfProposal actions={commonProps.actions} />
+      {commonProps.actions.filter(
+        (a) => a.type === "Payout" || a.type === "Transfer"
+      ).length > 0 && (
+        <div className="rounded-md border bg-gray-100 shadow p-2 mt-2">
+          Requesting
+          <div className="ml-1 inline font-medium">
+            <RequestingTokensOfProposal actions={commonProps.actions} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
