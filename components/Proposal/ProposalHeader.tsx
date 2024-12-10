@@ -9,13 +9,15 @@ import ProposalHistory from "./sub/ProposalHistory";
 import ProposalMenu from "./sub/ProposalMenu";
 import ProposalStatusMenu from "./sub/ProposalStatusMenu";
 import Link from "next/link";
+import { classNames } from "@/utils/functions/tailwind";
 
 /**
  Including title, author, create/edit time and requesting tokens
  */
 // IFXME proposal menu fail to work
 export default function ProposalHeader() {
-  const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
+  const { commonProps, proposalIdPrefix, isLoading } =
+    useContext(ProposalContext);
   const proposalId = commonProps.proposalId;
   const preTitleDisplay =
     proposalIdPrefix && proposalId ? `${proposalIdPrefix}${proposalId}` : "";
@@ -56,7 +58,10 @@ export default function ProposalHeader() {
       </div>
       <h1
         id="applicant-information-title"
-        className="text-2xl font-medium mt-2"
+        className={classNames(
+          "text-2xl font-medium mt-2",
+          isLoading && "skeleton h-8 w-80"
+        )}
       >
         {commonProps.title}
       </h1>
