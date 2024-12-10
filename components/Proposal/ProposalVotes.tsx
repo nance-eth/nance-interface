@@ -30,10 +30,10 @@ const getColorOfChoice = (choice: string) => {
 
 export default function ProposalVotes({
   snapshotSpace,
-  expand = true,
+  limitedHeight = true,
 }: {
   snapshotSpace: string;
-  expand: boolean;
+  limitedHeight?: boolean;
 }) {
   const { proposalInfo, commonProps } = useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
@@ -77,62 +77,32 @@ export default function ProposalVotes({
   return (
     <div
       className="flex flex-col"
-      style={{
-        maxHeight: "calc(100vh - 14rem)",
-      }}
+      style={
+        limitedHeight
+          ? {
+              maxHeight: "calc(100vh - 20rem)",
+            }
+          : undefined
+      }
     >
+      <NewVoteButton
+        snapshotSpace={snapshotSpace}
+        snapshotProposal={proposalInfo}
+        refetch={() => {
+          refetchProposalVotes();
+        }}
+      />
+
       <div className="overflow-y-scroll pt-2">
-        {expand && (
-          <ul role="list" className="space-y-2 pt-2">
-            {loading && "loading..."}
-            {votes?.map((vote) => (
-              <li key={vote.id}>
-                <div className="flex flex-col">
-                  {isSimpleVoting && (
-                    <div className="flex justify-between text-sm">
-                      <div className="flex">
-                        <div className="inline">
-                          <FormattedAddress
-                            address={vote.voter}
-                            style="text-gray-900"
-                            minified
-                            copyable={false}
-                          />
-                        </div>
-                        &nbsp;
-                        <span
-                          className={classNames(
-                            getColorOfChoice(
-                              processChoices(
-                                proposalInfo?.type,
-                                vote.choice
-                              ) as string
-                            ),
-                            ""
-                          )}
-                        >
-                          voted{" "}
-                          {
-                            processChoices(
-                              proposalInfo?.type,
-                              vote.choice
-                            ) as string
-                          }
-                        </span>
-                      </div>
-
-                      <div>
-                        {`${formatNumber(vote.vp)} (${(
-                          (vote.vp * 100) /
-                          (proposalInfo?.scores_total ?? 1)
-                        ).toFixed()}%)`}
-                      </div>
-                    </div>
-                  )}
-
-                  {!isSimpleVoting && (
-                    <div className="flex flex-col text-sm">
-                      <div>
+        <ul role="list" className="space-y-2 pt-2">
+          {loading && "loading..."}
+          {votes?.map((vote) => (
+            <li key={vote.id}>
+              <div className="flex flex-col">
+                {isSimpleVoting && (
+                  <div className="flex justify-between text-sm">
+                    <div className="flex">
+                      <div className="inline">
                         <FormattedAddress
                           address={vote.voter}
                           style="text-gray-900"
@@ -140,52 +110,82 @@ export default function ProposalVotes({
                           copyable={false}
                         />
                       </div>
-
-                      <div className="text-xs font-semibold text-slate-700">
-                        {`${formatNumber(vote.vp)} (${(
-                          (vote.vp * 100) /
-                          (proposalInfo?.scores_total ?? 1)
-                        ).toFixed()}%)`}{" "}
-                        total
-                      </div>
-
-                      <div className="py-2 text-sm text-gray-600">
-                        {(
+                      &nbsp;
+                      <span
+                        className={classNames(
+                          getColorOfChoice(
+                            processChoices(
+                              proposalInfo?.type,
+                              vote.choice
+                            ) as string
+                          ),
+                          ""
+                        )}
+                      >
+                        voted{" "}
+                        {
                           processChoices(
                             proposalInfo?.type,
                             vote.choice
-                          ) as string[]
-                        ).map((choice, idx) => (
-                          <p key={`${vote.id} - ${idx}`}>{choice}</p>
-                        ))}
-                      </div>
+                          ) as string
+                        }
+                      </span>
                     </div>
-                  )}
 
-                  {vote.reason && (
-                    <div className="ml-1 flex flex-row">
-                      <div className="text-lg">↳</div>
-                      <div className="text-xs text-gray-600 ml-1 w-3/4 mt-1 border border-dashed border-gray-300 bg-gray-100 px-2 py-1 rounded-lg">
-                        {vote.reason}
-                      </div>
+                    <div>
+                      {`${formatNumber(vote.vp)} (${(
+                        (vote.vp * 100) /
+                        (proposalInfo?.scores_total ?? 1)
+                      ).toFixed()}%)`}
                     </div>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                  </div>
+                )}
+
+                {!isSimpleVoting && (
+                  <div className="flex flex-col text-sm">
+                    <div>
+                      <FormattedAddress
+                        address={vote.voter}
+                        style="text-gray-900"
+                        minified
+                        copyable={false}
+                      />
+                    </div>
+
+                    <div className="text-xs font-semibold text-slate-700">
+                      {`${formatNumber(vote.vp)} (${(
+                        (vote.vp * 100) /
+                        (proposalInfo?.scores_total ?? 1)
+                      ).toFixed()}%)`}{" "}
+                      total
+                    </div>
+
+                    <div className="py-2 text-sm text-gray-600">
+                      {(
+                        processChoices(
+                          proposalInfo?.type,
+                          vote.choice
+                        ) as string[]
+                      ).map((choice, idx) => (
+                        <p key={`${vote.id} - ${idx}`}>{choice}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {vote.reason && (
+                  <div className="ml-1 flex flex-row">
+                    <div className="text-lg">↳</div>
+                    <div className="text-xs text-gray-600 ml-1 w-3/4 mt-1 border border-dashed border-gray-300 bg-gray-100 px-2 py-1 rounded-lg">
+                      {vote.reason}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      {expand && (
-        <NewVoteButton
-          snapshotSpace={snapshotSpace}
-          snapshotProposal={proposalInfo}
-          refetch={() => {
-            refetchProposalVotes();
-          }}
-        />
-      )}
     </div>
   );
 }
