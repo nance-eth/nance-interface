@@ -91,5 +91,5 @@ export function VoterTurnoutChart({
         </ResponsiveContainer>
       </figure>
     </div>
-  )
+  );
 }
