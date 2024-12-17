@@ -52,43 +52,45 @@ export function VoterTurnoutChart({
         </div>
       </div>
       <figure className={classNames("h-80", loading && "skeleton")}>
-        <ResponsiveContainer>
-          <BarChart data={voteData} width={400} height={400}>
-            <XAxis
-              dataKey="date"
-              tickFormatter={(str) =>
-                format(new Date(str * 1000), "MMM yyyy")
-              }
-              minTickGap={30}
-            />
-            <YAxis
-              width={80}
-              label={{
-                value: "Voters",
-                angle: -90,
-                position: "insideLeft",
-                offset: 10,
-              }}
-            />
-            <Tooltip
-              content={<CustomBarTooltip />}
-              cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
-            />
-            <Bar
-              dataKey="votes"
-              fill="rgba(136, 132, 216, 0.7)"
-              isAnimationActive={false}
-            />
-            <Brush
-              dataKey="date"
-              height={30}
-              stroke="rgba(136, 132, 216, 0.7)"
-              tickFormatter={(str) =>
-                format(new Date(str * 1000), "MMM yyyy")
-              }
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        { voteData?.length > 0 && (
+          <ResponsiveContainer>
+            <BarChart data={voteData} width={400} height={400}>
+              <XAxis
+                dataKey="date"
+                tickFormatter={(str) =>
+                  format(new Date(str * 1000), "MMM yyyy")
+                }
+                minTickGap={30}
+              />
+              <YAxis
+                width={80}
+                label={{
+                  value: "Voters",
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: 10,
+                }}
+              />
+              <Tooltip
+                content={<CustomBarTooltip />}
+                cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
+              />
+              <Bar
+                dataKey="votes"
+                fill="rgba(136, 132, 216, 0.7)"
+                isAnimationActive={false}
+              />
+              <Brush
+                dataKey="date"
+                height={30}
+                stroke="rgba(136, 132, 216, 0.7)"
+                tickFormatter={(str) =>
+                  format(new Date(str * 1000), "MMM yyyy")
+                }
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </figure>
     </div>
   );

@@ -11,6 +11,7 @@ type PieData = {
 const STATUS_COLORS = {
   Approved: "#bae09d",
   Cancelled: "#ed9595",
+  Unknown: "#e3e3e3",
 } as const;
 
 const RADIAN = Math.PI / 180;

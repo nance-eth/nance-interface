@@ -28,9 +28,9 @@ export function TopAuthorTable({
         </div>
       </div>
       <figure className="h-80">
-        {!loading && (
+        {!loading && topAuthors && topAuthors.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="table">
+            <table className="table mb-4">
               <thead>
                 <tr>
                   <th>Author</th>

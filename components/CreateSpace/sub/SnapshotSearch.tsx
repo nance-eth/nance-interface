@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Session } from "next-auth";
 import { Tooltip } from "flowbite-react";
 import BasicFormattedCard from "@/components/common/BasicFormattedCard";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const canEditSnapshotSpace = (space: SpaceSearch, address: string) => {
   return space.admins.includes(address) || space.moderators.includes(address);
@@ -16,12 +17,12 @@ const canEditSnapshotSpace = (space: SpaceSearch, address: string) => {
 
 export default function SnapshotSearch({
   session,
-  val,
   setVal,
+  showAddNanceButton = true,
 }: {
-  session: Session;
-  val: string;
+  session?: Session;
   setVal: (v: any) => void;
+  showAddNanceButton?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [selectedSpace, setSelectedSpace] = useState<SpaceSearch | null>(null);
@@ -35,7 +36,7 @@ export default function SnapshotSearch({
     <div>
       <div className="mt-2 block text-sm font-medium leading-6 text-gray-900">
         {" "}
-        Select a snapshot.org space
+        Select a Snapshot space
       </div>
       {selectedSpace && (
         <BasicFormattedCard
@@ -61,10 +62,16 @@ export default function SnapshotSearch({
         >
           <div className="relative mt-2">
             <Combobox.Input
-              className="rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              className="rounded-lg border-0 bg-white py-3 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               onChange={(event) => setQuery(event.target.value)}
               autoComplete="off"
             />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon
+                className="h-5 w-5 text-gray-400"
+                aria-hidden="true"
+              />
+            </div>
 
             {spaces && spaces.length > 0 && (
               <Combobox.Options className="absolute z-10 mt-1 max-h-56 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
@@ -118,7 +125,7 @@ export default function SnapshotSearch({
           </div>
         </Combobox>
       )}
-      {selectedSpace && selectedSpace.id && (
+      {selectedSpace && selectedSpace.id && showAddNanceButton && (
         <>
           <div className="mt-4">
             {(() => {
