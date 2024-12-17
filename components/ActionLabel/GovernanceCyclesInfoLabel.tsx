@@ -27,13 +27,6 @@ export default function GovernanceCyclesInfoLabel({
     currentCycle: spaceInfo?.currentCycle,
     cycleStartDate: cycleStartDate as string,
   });
-  console.debug("dateRanges", {
-    dateRanges,
-    cycle,
-    count,
-    cycleStartDate,
-    currentCycle: spaceInfo?.currentCycle,
-  });
 
   if (action.pollRequired) {
     return null;
