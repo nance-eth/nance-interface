@@ -13,12 +13,14 @@ import { VoterTurnoutChart } from "@/components/Analysis/VoterTurnoutChart";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import Custom404 from "pages/404";
 import SnapshotSearch from "@/components/CreateSpace/sub/SnapshotSearch";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SnapshotBadge } from "@/components/common/SnapshotBadge";
 import { TypePieChart } from "@/components/Analysis/TypePieChart";
 import { StringParam, useQueryParam, withDefault } from "next-query-params";
 
 export default function Analysis() {
   const [initialized, setInitialized] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
   const [snapshotSearch, setSnapshotSearch] = useQueryParam(
     "spaceId",
     withDefault(StringParam, "")
@@ -199,6 +201,33 @@ export default function Analysis() {
           withProposalButton={false}
           withWallet
         />
+
+        {!spaceInfo?.name && showBanner && (
+          <div className="relative isolate flex items-center gap-x-6 overflow-hidden px-6 py-2.5 sm:px-3.5 sm:before:flex-1 bg-gradient-to-r from-indigo-400 via-purple-200 to-pink-400">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <a
+                href="https://juicebox.money/@nance-app"
+                className="text-sm/6 text-gray-900"
+              >
+                Like this governance analysis?{" "}
+                <span className="font-medium">Support us</span> on
+                Juicebox!&nbsp;
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+            <div className="flex flex-1 justify-end">
+              <button
+                type="button"
+                className="-m-3 p-3 focus-visible:outline-offset-[-4px]"
+                onClick={() => setShowBanner(false)}
+              >
+                <span className="sr-only">Dismiss</span>
+                <XMarkIcon aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col items-center ">
           <div className="w-full max-w-5xl mt-8">
             {spaceInfo?.name ? (
