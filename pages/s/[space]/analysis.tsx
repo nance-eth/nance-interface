@@ -15,10 +15,14 @@ import Custom404 from "pages/404";
 import SnapshotSearch from "@/components/CreateSpace/sub/SnapshotSearch";
 import { SnapshotBadge } from "@/components/common/SnapshotBadge";
 import { TypePieChart } from "@/components/Analysis/TypePieChart";
+import { StringParam, useQueryParam, withDefault } from "next-query-params";
 
 export default function Analysis() {
   const [initialized, setInitialized] = useState(false);
-  const [snapshotSearch, setSnapshotSearch] = useState("");
+  const [snapshotSearch, setSnapshotSearch] = useQueryParam(
+    "spaceId",
+    withDefault(StringParam, "")
+  );
   const params = useParams<{ space: string; proposal: string }>();
   const args = { space: params?.space };
   const space = args.space;
@@ -34,12 +38,18 @@ export default function Analysis() {
     (_, i) => i
   ).join(",");
 
-  const { data: proposalData, isLoading: isProposalLoading } = useProposals({
-    space,
-    cycle: all,
-  }, !!spaceInfo?.snapshotSpace);
+  const { data: proposalData, isLoading: isProposalLoading } = useProposals(
+    {
+      space,
+      cycle: all,
+    },
+    !!spaceInfo?.snapshotSpace
+  );
   const { data: snapshotData, loading: isSnapshotLoading } =
-    useProposalsWithFilter({ space: spaceInfo?.snapshotSpace || snapshotSearch, first: 1_000 });
+    useProposalsWithFilter({
+      space: spaceInfo?.snapshotSpace || snapshotSearch,
+      first: 1_000,
+    });
   const loading = isProposalLoading || isSnapshotLoading || isSpaceInfoLoading;
   const {
     allProposals: voteData,
@@ -54,12 +64,10 @@ export default function Analysis() {
       };
 
     const allProposals = [
-      ...snapshotData.proposalsData.map((d) => (
-        {
-          ...d,
-          space: spaceInfo?.snapshotSpace || snapshotSearch
-        }
-      ))
+      ...snapshotData.proposalsData.map((d) => ({
+        ...d,
+        space: spaceInfo?.snapshotSpace || snapshotSearch,
+      })),
     ].map((d) => ({
       date: d.created,
       space: d.space,
@@ -78,7 +86,12 @@ export default function Analysis() {
 
   const { pieData, totalProposals, topAuthors, totalAuthors } = useMemo(() => {
     if (!snapshotData?.proposalsData)
-      return { pieData: [], totalProposals: 0, topAuthors: [], totalAuthors: 0 };
+      return {
+        pieData: [],
+        totalProposals: 0,
+        topAuthors: [],
+        totalAuthors: 0,
+      };
     const statusCounts = {
       Approved: 0,
       Cancelled: 0,
@@ -101,7 +114,8 @@ export default function Analysis() {
 
         const { type, scores, scores_total } = proposal as SnapshotProposal;
         if (type === "basic") {
-          if (scores[0] / scores_total > 0.5) { // basic approval check
+          if (scores[0] / scores_total > 0.5) {
+            // basic approval check
             statusCounts["Approved"] += 1;
             authorApprovals[author].approved++;
           } else {
@@ -111,7 +125,8 @@ export default function Analysis() {
           statusCounts["Unknown"] += 1;
         }
       });
-    } else { // we have Nance Proposal data
+    } else {
+      // we have Nance Proposal data
       proposalData?.data.proposals.forEach((proposal: Proposal) => {
         const author = proposal.authorAddress || "unknown";
         authorCounts[author] = (authorCounts[author] || 0) + 1;
@@ -143,10 +158,10 @@ export default function Analysis() {
         count,
         approvalRate: authorApprovals[author]
           ? (
-            (authorApprovals[author].approved /
+              (authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-          ).toFixed(1) + "%"
+            ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -158,7 +173,8 @@ export default function Analysis() {
         .map(([name, value]) => ({
           name,
           value,
-          percentage: total > 0 ? ((value / total) * 100).toFixed(1) + "%" : "0%",
+          percentage:
+            total > 0 ? ((value / total) * 100).toFixed(1) + "%" : "0%",
         })),
       totalProposals: total,
       topAuthors,
@@ -185,11 +201,15 @@ export default function Analysis() {
         />
         <div className="flex flex-col items-center ">
           <div className="w-full max-w-5xl mt-8">
-            { spaceInfo?.name ? (
+            {spaceInfo?.name ? (
               <SpaceHeader />
-            ): (
+            ) : (
               <div className="flex flex-row items-center gap-6 mb-10">
-                <SnapshotSearch setVal={setSnapshotSearch} showAddNanceButton={false} />
+                <SnapshotSearch
+                  val={snapshotSearch}
+                  setVal={setSnapshotSearch}
+                  showAddNanceButton={false}
+                />
                 {snapshotSearch && <SnapshotBadge space={snapshotSearch} />}
               </div>
             )}

@@ -20,7 +20,7 @@ export default function SnapshotForm({ session }: { session: Session }) {
           required: "Can't be empty",
         }}
         render={({ field: { onChange, value } }) => (
-          <SnapshotSearch session={session} setVal={onChange} />
+          <SnapshotSearch val={value} session={session} setVal={onChange} />
         )}
         shouldUnregister
       />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { Combobox } from "@headlessui/react";
 import { classNames } from "@/utils/functions/tailwind";
@@ -17,19 +17,23 @@ const canEditSnapshotSpace = (space: SpaceSearch, address: string) => {
 
 export default function SnapshotSearch({
   session,
+  val,
   setVal,
   showAddNanceButton = true,
 }: {
   session?: Session;
-  setVal: (v: any) => void;
+  val: string;
+  setVal: (v: string) => void;
   showAddNanceButton?: boolean;
 }) {
   const [query, setQuery] = useState("");
-  const [selectedSpace, setSelectedSpace] = useState<SpaceSearch | null>(null);
+  const [selectedSpace, setSelectedSpace] = useState<SpaceSearch | null>(
+    val ? { id: val, name: val, avatar: "", admins: [], moderators: [] } : null
+  );
 
   const { data: spaces } = useSnapshotSearch(query);
   const { trigger, value, loading, reset } = useAddBotToSnapshot(
-    selectedSpace ? selectedSpace.id : "",
+    selectedSpace ? selectedSpace.id : ""
   );
 
   return (
@@ -82,7 +86,7 @@ export default function SnapshotSearch({
                     className={({ active }) =>
                       classNames(
                         active ? "bg-indigo-600 text-white" : "text-gray-900",
-                        "relative cursor-default select-none py-2 pl-3 pr-9",
+                        "relative cursor-default select-none py-2 pl-3 pr-9"
                       )
                     }
                   >
@@ -99,7 +103,7 @@ export default function SnapshotSearch({
                           <span
                             className={classNames(
                               selected ? "font-semibold" : "font-normal",
-                              "ml-3 block truncate",
+                              "ml-3 block truncate"
                             )}
                           >
                             {space.id}
@@ -110,7 +114,7 @@ export default function SnapshotSearch({
                           <span
                             className={classNames(
                               active ? "text-white" : "text-indigo-600",
-                              "absolute inset-y-0 right-0 flex items-center pr-4",
+                              "absolute inset-y-0 right-0 flex items-center pr-4"
                             )}
                           >
                             <CheckIcon className="h-5 w-5" aria-hidden="true" />
@@ -131,7 +135,7 @@ export default function SnapshotSearch({
             {(() => {
               const canUserEdit = canEditSnapshotSpace(
                 selectedSpace,
-                session?.user?.name?.toLowerCase() as string,
+                session?.user?.name?.toLowerCase() as string
               );
 
               const addNanceSnapshotButton = (
