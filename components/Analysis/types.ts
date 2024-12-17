@@ -5,4 +5,5 @@ export type SimpleVoteData = {
   tokens: number;
   title: string;
   author: string;
+  type: string;
 }

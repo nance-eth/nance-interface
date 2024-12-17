@@ -13,10 +13,8 @@ import { VoterTurnoutChart } from "@/components/Analysis/VoterTurnoutChart";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import Custom404 from "pages/404";
 import SnapshotSearch from "@/components/CreateSpace/sub/SnapshotSearch";
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
-import Image from "next/image";
 import { SnapshotBadge } from "@/components/common/SnapshotBadge";
+import { TypePieChart } from "@/components/Analysis/TypePieChart";
 
 export default function Analysis() {
   const [initialized, setInitialized] = useState(false);
@@ -69,6 +67,7 @@ export default function Analysis() {
       tokens: d.scores_total,
       title: d.title,
       author: d.author,
+      type: d.type,
     }));
     const maxVotesInfo = allProposals.sort((a, b) => b.votes - a.votes)[0];
     const maxTokensInfo = allProposals.sort((a, b) => b.tokens - a.tokens)[0];
@@ -205,9 +204,12 @@ export default function Analysis() {
             />
           </div>
           <div className="max-w-5xl flex flex-wrap gap-6 w-full px-4">
-            <StatusPieChart loading={loading} pieData={pieData} />
             <TopAuthorTable loading={loading} topAuthors={topAuthors} />
-            <VoterTurnoutChart loading={loading} voteData={voteData} />
+            <TypePieChart loading={loading} pieData={voteData} />
+            <StatusPieChart loading={loading} pieData={pieData} />
+            <div className="max-w-5xl flex w-full">
+              <VoterTurnoutChart loading={loading} voteData={voteData} />
+            </div>
           </div>
         </div>
         <Footer />

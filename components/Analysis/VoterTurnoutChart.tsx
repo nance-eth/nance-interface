@@ -83,7 +83,7 @@ export function VoterTurnoutChart({
               <Brush
                 dataKey="date"
                 height={30}
-                stroke="rgba(136, 132, 216, 0.7)"
+                stroke="#CCE5FF"
                 tickFormatter={(str) =>
                   format(new Date(str * 1000), "MMM yyyy")
                 }
