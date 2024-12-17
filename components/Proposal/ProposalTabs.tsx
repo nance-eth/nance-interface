@@ -57,7 +57,7 @@ export default function ProposalTabs({
       >
         Activity
       </a>
-      <div role="tabpanel" className="tab-content mt-4">
+      <div role="tabpanel" className="tab-content mt-4 max-lg:w-[90vw]">
         {!snapshotProposal && (
           <>
             <p>No snapshot voting</p>
@@ -109,7 +109,10 @@ export default function ProposalTabs({
       >
         Actions
       </a>
-      <div role="tabpanel" className="tab-content mt-4">
+      <div
+        role="tabpanel"
+        className="tab-content mt-4 max-lg:w-[90vw] overflow-x-auto"
+      >
         {commonProps.status !== "Draft" && <ProposalMetadata />}
       </div>
     </div>
