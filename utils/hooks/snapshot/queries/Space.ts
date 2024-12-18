@@ -1,5 +1,5 @@
 export const SPACE_INFO_QUERY = `
-query SpaceInfo($spaceId: String) {
+query SpaceInfo($spaceId: String!) {
   space(id: $spaceId) {
     name
     about
@@ -59,7 +59,7 @@ query Ranking($search: String) {
 `;
 
 export const SPACE_SETTINGS_QUERY = `
-query SpaceSettings($spaceId: String) {
+query SpaceSettings($spaceId: String!) {
   space(id: $spaceId) {
     name
     private
