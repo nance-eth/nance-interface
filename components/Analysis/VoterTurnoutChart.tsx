@@ -5,15 +5,16 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
 } from "recharts";
 import { format } from "date-fns";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import PoweredByNance from "./PoweredByNance";
 import { classNames } from "@/utils/functions/tailwind";
 import { SimpleVoteData } from "./types";
+import useSnapshotSpaceInfo from "@/utils/hooks/snapshot/SpaceInfo";
 
-const CustomBarTooltip = ({ active, payload, label }: any) => {
+const CustomBarTooltip = ({ active, payload, label, symbol }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -28,7 +29,7 @@ const CustomBarTooltip = ({ active, payload, label }: any) => {
         </p>
         <p>
           {numToPrettyString(data.tokens)}{" "}
-          <span className="text-xs text-gray-500 font-bold">$JBX</span>
+          <span className="text-xs text-gray-500 font-bold">${symbol}</span>
         </p>
       </div>
     );
@@ -39,10 +40,14 @@ const CustomBarTooltip = ({ active, payload, label }: any) => {
 export function VoterTurnoutChart({
   loading,
   voteData,
+  spaceId,
 }: {
   loading: boolean;
-  voteData: SimpleVoteData[]
+  voteData: SimpleVoteData[];
+  spaceId: string;
 }) {
+  const { data: spaceInfo } = useSnapshotSpaceInfo(spaceId);
+
   return (
     <div className="card bg-base-100 w-80 sm:w-96 grow">
       <div className="card-body">
@@ -52,7 +57,7 @@ export function VoterTurnoutChart({
         </div>
       </div>
       <figure className={classNames("h-80", loading && "skeleton")}>
-        { voteData?.length > 0 && (
+        {voteData?.length > 0 && (
           <ResponsiveContainer>
             <BarChart data={voteData} width={400} height={400}>
               <XAxis
@@ -72,7 +77,9 @@ export function VoterTurnoutChart({
                 }}
               />
               <Tooltip
-                content={<CustomBarTooltip />}
+                content={
+                  <CustomBarTooltip symbol={spaceInfo?.symbol || "TOKEN"} />
+                }
                 cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
               />
               <Bar

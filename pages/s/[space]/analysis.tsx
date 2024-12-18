@@ -259,7 +259,11 @@ export default function Analysis() {
             <TypePieChart loading={loading} pieData={voteData} />
             <StatusPieChart loading={loading} pieData={pieData} />
             <div className="max-w-5xl flex w-full">
-              <VoterTurnoutChart loading={loading} voteData={voteData} />
+              <VoterTurnoutChart
+                loading={loading}
+                voteData={voteData}
+                spaceId={spaceInfo?.snapshotSpace || selectedSnapshotSpace}
+              />
             </div>
           </div>
         </div>
