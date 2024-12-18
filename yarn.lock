@@ -12514,6 +12514,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fancy-canvas@npm:2.1.0":
+  version: 2.1.0
+  resolution: "fancy-canvas@npm:2.1.0"
+  checksum: 2463ca8a9254fb4cc69bbe33a2996b2a0ba8f725721d51464d9e87b4f3c3e8759e2289b0d592f56265501d5cff0b363bb7c72bb9c38212c19114dbd006ec8959
+  languageName: node
+  linkType: hard
+
 "fast-check@npm:3.1.1":
   version: 3.1.1
   resolution: "fast-check@npm:3.1.1"
@@ -15469,6 +15476,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lightweight-charts@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "lightweight-charts@npm:4.2.2"
+  dependencies:
+    fancy-canvas: 2.1.0
+  checksum: 85fede2450fc2accb0c94948adce8409e0c6bd3f36c83e58a41f7849aebcbb0826baf51fa7273940dc42b663c84d8ce661cd3f886079fbb16bed6f809f2accc2
+  languageName: node
+  linkType: hard
+
 "lilconfig@npm:^2.0.5, lilconfig@npm:^2.1.0":
   version: 2.1.0
   resolution: "lilconfig@npm:2.1.0"
@@ -17041,6 +17057,7 @@ __metadata:
     graphql-hooks-memcache: ^3.1.0
     gray-matter: ^4.0.3
     ioredis: ^5.3.2
+    lightweight-charts: ^4.2.2
     next: ^14.2.5
     next-auth: ^4.24.7
     next-query-params: ^3.0.0
