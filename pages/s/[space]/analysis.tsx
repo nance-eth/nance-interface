@@ -5,21 +5,20 @@ import { useProposals, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { useProposalsWithFilter } from "@/utils/hooks/snapshot/Proposals";
 import { Proposal } from "@nance/nance-sdk";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { TextStatisticsBar } from "@/components/Analysis/TextStatisticsBar";
 import { StatusPieChart } from "@/components/Analysis/StatusPieChart";
 import { TopAuthorTable } from "@/components/Analysis/TopAuthorTable";
 import { VoterTurnoutChart } from "@/components/Analysis/VoterTurnoutChart";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
-import Custom404 from "pages/404";
 import SnapshotSearch from "@/components/CreateSpace/sub/SnapshotSearch";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SnapshotBadge } from "@/components/common/SnapshotBadge";
 import { TypePieChart } from "@/components/Analysis/TypePieChart";
 import { StringParam, useQueryParam, withDefault } from "next-query-params";
+import { NANCE_API_URL } from "@/constants/Nance";
 
 export default function Analysis() {
-  const [initialized, setInitialized] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [snapshotSearch, setSnapshotSearch] = useQueryParam(
     "spaceId",
@@ -160,10 +159,10 @@ export default function Analysis() {
         count,
         approvalRate: authorApprovals[author]
           ? (
-              (authorApprovals[author].approved /
+            (authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-            ).toFixed(1) + "%"
+          ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -183,15 +182,6 @@ export default function Analysis() {
       totalAuthors,
     };
   }, [snapshotData?.proposalsData, proposalData?.data.proposals, snapshot]);
-
-  // 404, is there a better way?
-  useEffect(() => {
-    setInitialized(true);
-  }, []);
-
-  if (initialized && !snapshot && !loading && !spaceInfo) {
-    return <Custom404 />;
-  }
 
   return (
     <>
@@ -265,4 +255,18 @@ export default function Analysis() {
       </SpaceContext.Provider>
     </>
   );
+}
+
+export async function getServerSideProps({ params }: { params: { space: string } }) {
+  const res = await fetch(`${NANCE_API_URL}/${params.space}`);
+  const json = await res.json();
+  if (params.space !== "snapshot" && !json.data) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {},
+  };
 }
