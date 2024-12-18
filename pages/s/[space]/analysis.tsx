@@ -16,7 +16,6 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { SnapshotBadge } from "@/components/common/SnapshotBadge";
 import { TypePieChart } from "@/components/Analysis/TypePieChart";
 import { StringParam, useQueryParam, withDefault } from "next-query-params";
-import { NANCE_API_URL } from "@/constants/Nance";
 
 export default function Analysis() {
   const [showBanner, setShowBanner] = useState(true);
@@ -168,11 +167,10 @@ export default function Analysis() {
         author,
         count,
         approvalRate: authorApprovals[author]
-          ? (
-              (authorApprovals[author].approved /
+          ? ((authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-            ).toFixed(1) + "%"
+          ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -271,22 +269,4 @@ export default function Analysis() {
       </SpaceContext.Provider>
     </>
   );
-}
-
-export async function getServerSideProps({
-  params,
-}: {
-  params: { space: string };
-}) {
-  const res = await fetch(`${NANCE_API_URL}/${params.space}`);
-  const json = await res.json();
-  if (params.space !== "snapshot" && !json.data) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {},
-  };
 }

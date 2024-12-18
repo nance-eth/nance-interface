@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Time, createChart, IChartApi } from "lightweight-charts";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { classNames } from "@/utils/functions/tailwind";
 import { SimpleVoteData } from "./types";
@@ -61,9 +61,11 @@ export function VoterTurnoutChart({
             top: 0.2,
             bottom: 0,
           },
+          ticksVisible: true,
         },
         rightPriceScale: {
           visible: false,
+          alignLabels: false
         },
         grid: {
           vertLines: {
@@ -125,7 +127,8 @@ export function VoterTurnoutChart({
       chartContainerRef.current.appendChild(toolTip);
 
       const toolTipHeight = 100;
-      const toolTipMargin = 15;
+      const toolTipWidth = 200;
+      const toolTipMargin = -70;
 
       chartRef.current.subscribeCrosshairMove((param) => {
         if (
@@ -149,7 +152,7 @@ export function VoterTurnoutChart({
                 ${data.title}
               </div>
               <div>
-                ${numToPrettyString(data.value)} <span class="text-xs text-gray-600">VOTERS</span>
+                ${numToPrettyString(data.value, data.value < 1_000 ? 'auto' : 2)} <span class="text-xs text-gray-600">VOTERS</span>
               </div>
               <div>
                 ${numToPrettyString(data.tokens)} <span class="text-xs text-gray-600">$${spaceInfo?.symbol}</span>
@@ -157,11 +160,17 @@ export function VoterTurnoutChart({
             `;
 
             let left = param.point.x + toolTipMargin;
-
-            let top = param.point.y + toolTipMargin;
-            if (top > chartContainerRef.current!.clientHeight - toolTipHeight) {
-              top = param.point.y - toolTipHeight - toolTipMargin;
+            if (param.point.x < chartContainerRef.current!.clientWidth / 2) {
+              left = param.point.x + toolTipWidth + (toolTipMargin / 2);
             }
+            let top = param.point.y + toolTipMargin;
+            if (param.point.y > chartContainerRef.current!.clientHeight / 2) {
+              top = param.point.y - toolTipHeight + toolTipMargin;
+            } else if(param.point.y < chartContainerRef.current!.clientHeight / 4) {
+              top = param.point.y + toolTipHeight + toolTipMargin;
+            }
+            console.log("top", param.point.y)
+            // top = Math.min(, 320)
 
             toolTip.style.left = left + 'px';
             toolTip.style.top = top + 'px';
@@ -193,7 +202,7 @@ export function VoterTurnoutChart({
   }, [voteData]);
 
   return (
-    <div className="card bg-base-100 w-80 sm:w-96 grow">
+    <div className="card bg-base-100 w-80 sm:w-96 grow pb-12">
       <div className="card-body">
         <h2 className="card-title">Proposal Voter Turnout</h2>
       </div>
