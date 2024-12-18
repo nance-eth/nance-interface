@@ -20,17 +20,17 @@ import { NANCE_API_URL } from "@/constants/Nance";
 
 export default function Analysis() {
   const [showBanner, setShowBanner] = useState(true);
-  const [snapshotSearch, setSnapshotSearch] = useQueryParam(
+  const [selectedSnapshotSpace, setSelectedSnapshotSpace] = useQueryParam(
     "spaceId",
     withDefault(StringParam, "")
   );
   const params = useParams<{ space: string; proposal: string }>();
   const args = { space: params?.space };
   const space = args.space;
-  const snapshot = space === "snapshot"; // load a generic interface for spaces not in Nance
+  const isGenericMode = space === "snapshot"; // load a generic interface for spaces not in Nance
   const { data: spaceInfoData, isLoading: isSpaceInfoLoading } = useSpaceInfo(
     { space },
-    !snapshot && !!params
+    !isGenericMode && !!params
   );
 
   const spaceInfo = spaceInfoData?.data;
@@ -48,16 +48,26 @@ export default function Analysis() {
   );
   const { data: snapshotData, loading: isSnapshotLoading } =
     useProposalsWithFilter({
-      space: spaceInfo?.snapshotSpace || snapshotSearch,
+      space: spaceInfo?.snapshotSpace || selectedSnapshotSpace,
       first: 1_000,
     });
   const loading = isProposalLoading || isSnapshotLoading || isSpaceInfoLoading;
+
+  // block data if noSpaceSelected
+  const noSpaceSelected = isGenericMode && !selectedSnapshotSpace;
+  const nanceProposalData = noSpaceSelected
+    ? undefined
+    : proposalData?.data.proposals;
+  const snapshotProposalData = noSpaceSelected
+    ? undefined
+    : snapshotData?.proposalsData;
+
   const {
     allProposals: voteData,
     maxVotesInfo,
     maxTokensInfo,
   } = useMemo(() => {
-    if (!snapshotData?.proposalsData)
+    if (!snapshotProposalData)
       return {
         allProposals: [],
         maxVotesInfo: undefined,
@@ -65,9 +75,9 @@ export default function Analysis() {
       };
 
     const allProposals = [
-      ...snapshotData.proposalsData.map((d) => ({
+      ...snapshotProposalData.map((d) => ({
         ...d,
-        space: spaceInfo?.snapshotSpace || snapshotSearch,
+        space: spaceInfo?.snapshotSpace || selectedSnapshotSpace,
       })),
     ].map((d) => ({
       date: d.created,
@@ -83,10 +93,10 @@ export default function Analysis() {
     allProposals.sort((a, b) => a.date - b.date);
 
     return { allProposals, maxVotesInfo, maxTokensInfo };
-  }, [snapshotData?.proposalsData]);
+  }, [snapshotProposalData]);
 
   const { pieData, totalProposals, topAuthors, totalAuthors } = useMemo(() => {
-    if (!snapshotData?.proposalsData)
+    if (!snapshotProposalData)
       return {
         pieData: [],
         totalProposals: 0,
@@ -103,8 +113,8 @@ export default function Analysis() {
     const authorApprovals: Record<string, { approved: number; total: number }> =
       {};
 
-    if (snapshot) {
-      snapshotData.proposalsData.forEach((proposal) => {
+    if (isGenericMode) {
+      snapshotProposalData.forEach((proposal) => {
         const author = proposal.author || "unknown";
         authorCounts[author] = (authorCounts[author] || 0) + 1;
 
@@ -128,7 +138,7 @@ export default function Analysis() {
       });
     } else {
       // we have Nance Proposal data
-      proposalData?.data.proposals.forEach((proposal: Proposal) => {
+      nanceProposalData?.forEach((proposal: Proposal) => {
         const author = proposal.authorAddress || "unknown";
         authorCounts[author] = (authorCounts[author] || 0) + 1;
 
@@ -159,10 +169,10 @@ export default function Analysis() {
         count,
         approvalRate: authorApprovals[author]
           ? (
-            (authorApprovals[author].approved /
+              (authorApprovals[author].approved /
                 authorApprovals[author].total) *
               100
-          ).toFixed(1) + "%"
+            ).toFixed(1) + "%"
           : "0%",
       }))
       .filter((a) => a.author !== "unknown");
@@ -181,7 +191,7 @@ export default function Analysis() {
       topAuthors,
       totalAuthors,
     };
-  }, [snapshotData?.proposalsData, proposalData?.data.proposals, snapshot]);
+  }, [snapshotProposalData, nanceProposalData, isGenericMode]);
 
   return (
     <>
@@ -225,11 +235,13 @@ export default function Analysis() {
             ) : (
               <div className="flex flex-row items-center gap-6 mb-10">
                 <SnapshotSearch
-                  val={snapshotSearch}
-                  setVal={setSnapshotSearch}
+                  val={selectedSnapshotSpace}
+                  setVal={setSelectedSnapshotSpace}
                   showAddNanceButton={false}
                 />
-                {snapshotSearch && <SnapshotBadge space={snapshotSearch} />}
+                {selectedSnapshotSpace && (
+                  <SnapshotBadge space={selectedSnapshotSpace} />
+                )}
               </div>
             )}
           </div>
@@ -257,7 +269,11 @@ export default function Analysis() {
   );
 }
 
-export async function getServerSideProps({ params }: { params: { space: string } }) {
+export async function getServerSideProps({
+  params,
+}: {
+  params: { space: string };
+}) {
   const res = await fetch(`${NANCE_API_URL}/${params.space}`);
   const json = await res.json();
   if (params.space !== "snapshot" && !json.data) {
