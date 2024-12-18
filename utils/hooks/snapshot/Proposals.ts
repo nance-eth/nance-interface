@@ -12,7 +12,7 @@ import {
 export function useProposalsByID(
   proposalIds: string[],
   address: string,
-  skip: boolean = false,
+  skip: boolean = false
 ) {
   const ret = useProposalsWithCustomQuery(
     PROPOSALS_BY_ID_QUERY,
@@ -21,7 +21,7 @@ export function useProposalsByID(
       proposalIds,
     },
     address,
-    skip,
+    skip
   );
 
   return ret;
@@ -33,7 +33,7 @@ export function useProposalsWithFilter({
   keyword,
   address,
   first,
-  skip
+  skip,
 }: {
   space?: string;
   active?: boolean;
@@ -51,7 +51,7 @@ export function useProposalsWithFilter({
       first: first,
       skip: skip,
     },
-    address ? address : "",
+    address ? address : ""
   );
 }
 
@@ -59,7 +59,7 @@ export function useProposalsWithCustomQuery(
   query: string,
   variables: object,
   address: string,
-  skip: boolean = false,
+  skip: boolean = false
 ): {
   loading: boolean;
   error: APIError<object> | undefined;
@@ -106,7 +106,7 @@ export function useProposalsWithCustomQuery(
         choice: mapChoiceIndex(
           vote.proposal.type,
           vote.proposal.choices,
-          vote.choice,
+          vote.choice
         ),
       };
     });
@@ -117,8 +117,7 @@ export function useProposalsWithCustomQuery(
       proposalsData: proposalsData?.proposals,
       votedData,
     },
-    // FIXME: this is a hack to get around the flashing issue, need to find a better way
-    loading: proposalsLoading && votedLoading,
+    loading: proposalsLoading || votedLoading,
     error: proposalsError || votedError,
     refetch: () => {
       proposalsRefetch();
@@ -133,7 +132,7 @@ export function useVotesOfAddress(
   address: string,
   skip: number,
   limit: number,
-  spaceFilter: string = "",
+  spaceFilter: string = ""
 ): {
   loading: boolean;
   error: APIError<object> | undefined;
@@ -182,7 +181,7 @@ export function useVotesOfAddress(
           choice: mapChoiceIndex(
             vote.proposal.type,
             vote.proposal.choices,
-            vote.choice,
+            vote.choice
           ),
         };
       }) || [];
@@ -208,7 +207,7 @@ export function useProposalVotes(
   orderBy: "created" | "vp" = "created",
   withField: "" | "reason" | "app",
   skipThisHook: boolean = false,
-  overrideLimit: number = 0,
+  overrideLimit: number = 0
 ): {
   loading: boolean;
   error: APIError<object> | undefined;
@@ -240,8 +239,8 @@ export function useProposalVotes(
       first: sortAfterQuery
         ? Math.min(proposal?.votes ?? 0, 1000)
         : overrideLimit === 0
-          ? VOTES_PER_PAGE
-          : Math.min(overrideLimit, 1000),
+        ? VOTES_PER_PAGE
+        : Math.min(overrideLimit, 1000),
       skip: sortAfterQuery ? 0 : skip,
       orderBy: orderBy,
       id: proposal?.id ?? "",
