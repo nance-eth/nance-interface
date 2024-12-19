@@ -70,27 +70,6 @@ export default function SiteNav({
         <meta name="twitter:title" content={meta.title} />
         <meta name="twitter:description" content={meta.description} />
         <meta name="twitter:image" content={meta.image} />
-
-        {/* Frame */}
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:button:1" content="⬅️" />
-        <meta property="fc:frame:button:2" content="➡️" />
-        <meta property="fc:frame:button:3" content="↩️" />
-        <meta property="fc:frame:button:4" content="full 📜" />
-        <meta property="fc:frame:button:4:action" content="link" />
-        <meta
-          property="fc:frame:button:4:target"
-          content={`${origin}/s/${space}/${proposalId}`}
-        />
-        <meta
-          property="fc:frame:image"
-          content={`${origin}/api/imageProposal?space=${space}&proposalId=${proposalId}`}
-        />
-        <meta property="fc:frame:image:aspect_ratio" content="1:1" />
-        <meta
-          property="fc:frame:post_url"
-          content={`${origin}/api/frame?space=${space}&proposalId=${proposalId}`}
-        />
       </Head>
       <header className="min-h-full w-full">
         <Disclosure as="nav" className="border-b border-gray-200 bg-white">
