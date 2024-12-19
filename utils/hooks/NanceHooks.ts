@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import useSWRInfinite from "swr/infinite";
@@ -348,11 +349,20 @@ export function useProposalPatchStatus(
   return useSWRMutation(shouldFetch ? url : null, patcher);
 }
 
+export function useProposalPatchSnapshot(
+  space: string,
+  uuid: string | undefined,
+  shouldFetch: boolean = true
+) {
+  let url = `/${space}/proposal/${uuid}/sync`;
+  return useSWRMutation(shouldFetch ? url : null, patcher);
+}
+
 async function patcher(
   url: RequestInfo | URL,
-  { arg }: { arg: ProposalStatus }
+  { arg }: { arg?: ProposalStatus }
 ) {
-  const res = await fetch(NANCE_PROXY_API_URL + url + arg, {
+  const res = await fetch(NANCE_PROXY_API_URL + url + (arg ? arg : ""), {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

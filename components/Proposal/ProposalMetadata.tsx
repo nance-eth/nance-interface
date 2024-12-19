@@ -8,7 +8,7 @@ import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ActionLabel from "@/components/ActionLabel/ActionLabel";
 import { ProposalContext } from "./context/ProposalContext";
-import { useSpaceInfo } from "@/utils/hooks/NanceHooks";
+import { useProposalPatchSnapshot, useSpaceInfo } from "@/utils/hooks/NanceHooks";
 import { SpaceContext } from "@/context/SpaceContext";
 import { Spinner } from "flowbite-react";
 import {
@@ -34,6 +34,12 @@ export default function ProposalMetadata() {
   >(commonProps.discussion);
   const [retries, setRetries] = useState(0);
   const retryLimit = 3;
+  console.log("commonProps", commonProps);
+  // admin can sync snapshot results
+    const { trigger } = useProposalPatchSnapshot(
+    commonProps.space,
+    commonProps.uuid
+  );
 
   useEffect(() => {
     if (!discussionThreadURL || discussionThreadURL === "") {
@@ -220,15 +226,34 @@ export default function ProposalMetadata() {
                         <span className="font-medium">
                             Snapshot view:
                         </span>
-                        <a
-                          className="col-span-2 w-fit"
-                          target="_blank"
-                          rel="noreferrer"
-                          href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}
-                        >
-                          {commonProps.snapshotHash.substring(0, 8)}
-                          <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
-                        </a>
+                        <div className="flex flex-row items-center space-x-1">
+                          <a
+                            className="col-span-2 w-fit"
+                            target="_blank"
+                            rel="noreferrer"
+                            href={`https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`}
+                          >
+                            {commonProps.snapshotHash.substring(0, 8)}
+                            <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
+                          </a>
+                          {address &&
+                              spaceInfo?.spaceOwners.includes(address) && (
+                            <ArrowPathIcon
+                              className="h-3 w-3 hover:cursor-pointer"
+                              onClick={async () => {
+                                const loading = toast.loading("Syncing snapshot...");
+                                try {
+                                  await trigger();
+                                  toast.success("Snapshot synced!");
+                                } catch (e: any) {
+                                  toast.error(e.toString());
+                                } finally {
+                                  toast.dismiss(loading);
+                                }
+                              }}
+                            />
+                          )}
+                        </div>
                       </>
                     )}
                   </div>
