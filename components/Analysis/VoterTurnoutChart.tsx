@@ -65,7 +65,7 @@ export function VoterTurnoutChart({
         },
         rightPriceScale: {
           visible: false,
-          alignLabels: false
+          alignLabels: false,
         },
         grid: {
           vertLines: {
@@ -116,7 +116,7 @@ export function VoterTurnoutChart({
 
       volumeSeries.setData(formattedData);
       chartRef.current?.timeScale().fitContent();
-      const toolTip = document.createElement('div');
+      const toolTip = document.createElement("div");
 
       toolTip.className = classNames(
         "absolute hidden p-2 pointer-events-none",
@@ -139,11 +139,11 @@ export function VoterTurnoutChart({
           param.point.y < 0 ||
           param.point.y > chartContainerRef.current!.clientHeight
         ) {
-          toolTip.style.display = 'none';
+          toolTip.style.display = "none";
         } else {
-          const data = formattedData.find(d => d.time === param.time);
+          const data = formattedData.find((d) => d.time === param.time);
           if (data) {
-            toolTip.style.display = 'block';
+            toolTip.style.display = "block";
             toolTip.innerHTML = `
               <div class="text-gray-600 italic">
                 ${format(new Date(data.time as number), "MMMM d, yyyy")}
@@ -152,28 +152,37 @@ export function VoterTurnoutChart({
                 ${data.title}
               </div>
               <div>
-                ${numToPrettyString(data.value, data.value < 1_000 ? 'auto' : 2)} <span class="text-xs text-gray-600">VOTERS</span>
+                ${numToPrettyString(
+                  data.value,
+                  data.value < 1_000 ? "auto" : 2
+                )} <span class="text-xs text-gray-600">VOTERS</span>
               </div>
               <div>
-                ${numToPrettyString(data.tokens)} <span class="text-xs text-gray-600">$${spaceInfo?.symbol}</span>
+                ${numToPrettyString(
+                  data.tokens
+                )} <span class="text-xs text-gray-600">
+                  $${spaceInfo?.symbol}</span>
               </div>
             `;
 
             let left = param.point.x + toolTipMargin;
             if (param.point.x < chartContainerRef.current!.clientWidth / 2) {
-              left = param.point.x + toolTipWidth + (toolTipMargin / 2);
+              left = param.point.x + toolTipWidth + toolTipMargin / 2;
             }
             let top = param.point.y + toolTipMargin;
             if (param.point.y > chartContainerRef.current!.clientHeight / 2) {
               top = param.point.y - toolTipHeight + toolTipMargin;
-            } else if(param.point.y < chartContainerRef.current!.clientHeight / 4) {
+            } else if (
+              param.point.y <
+              chartContainerRef.current!.clientHeight / 4
+            ) {
               top = param.point.y + toolTipHeight + toolTipMargin;
             }
-            console.log("top", param.point.y)
+            console.log("top", param.point.y);
             // top = Math.min(, 320)
 
-            toolTip.style.left = left + 'px';
-            toolTip.style.top = top + 'px';
+            toolTip.style.left = left + "px";
+            toolTip.style.top = top + "px";
           }
         }
       });
