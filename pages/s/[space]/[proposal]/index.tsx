@@ -28,7 +28,7 @@ export default function NanceProposalPage() {
   const proposal = data?.data;
   const proposalHash = getLastSlash(proposal?.voteURL);
 
-  const skipSnapshotProposalsQuery = proposalHash === undefined;
+  const skipSnapshotProposalsQuery = proposalHash === "";
   const {
     data: { proposalsData },
     loading: proposalsLoading,
@@ -42,11 +42,16 @@ export default function NanceProposalPage() {
     !skipSnapshotProposalsQuery &&
     proposalsData === undefined;
   const isLoading =
-    nanceProposalLoading || proposalsLoading || willLoadSnapshotProposalsQuery;
+    nanceProposalLoading ||
+    proposalsLoading ||
+    willLoadSnapshotProposalsQuery ||
+    // If used in Pages Router, useParams will return null on the initial render
+    //   and updates with properties following the rules above once the router is ready.
+    !params;
 
   const snapshotProposal = proposalsData?.[0];
 
-  if (nanceProposalLoading || proposalsLoading) {
+  if (isLoading) {
     return <ProposalLoading />;
   }
 
