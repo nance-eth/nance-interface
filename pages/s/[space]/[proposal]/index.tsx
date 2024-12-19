@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useProposalsByID } from "@/utils/hooks/snapshot/Proposals";
 import { getLastSlash } from "@/utils/functions/nance";
 import Custom404 from "../../../404";
@@ -18,34 +17,36 @@ import { useProposal } from "@/utils/hooks/NanceHooks";
 import { useParams } from "next/navigation";
 
 export default function NanceProposalPage() {
-  // state
-  const [loading, setLoading] = useState<boolean>(true);
-
   const params = useParams<{ space: string; proposal: string }>();
   const args = { space: params?.space, uuid: params?.proposal };
   const space = args.space;
   const {
     data,
-    isLoading: proposalLoading,
+    isLoading: nanceProposalLoading,
     mutate: mutateNanceProposal,
   } = useProposal(args, !!params);
   const proposal = data?.data;
   const proposalHash = getLastSlash(proposal?.voteURL);
 
+  const skipSnapshotProposalsQuery = proposalHash === undefined;
   const {
     data: { proposalsData },
+    loading: proposalsLoading,
     refetch: refetchSnapshotProposal,
-  } = useProposalsByID([proposalHash], "", proposalHash === undefined);
+  } = useProposalsByID([proposalHash], "", skipSnapshotProposalsQuery);
+
+  // it takes some time to enable votesQuery after proposalQuery succeed
+  //   this should be consider as loading state.
+  const willLoadSnapshotProposalsQuery =
+    data !== undefined &&
+    !skipSnapshotProposalsQuery &&
+    proposalsData === undefined;
+  const isLoading =
+    nanceProposalLoading || proposalsLoading || willLoadSnapshotProposalsQuery;
 
   const snapshotProposal = proposalsData?.[0];
 
-  useEffect(() => {
-    if (proposalsData) {
-      setLoading(false);
-    }
-  }, [proposalsData]);
-
-  if (loading || proposalLoading) {
+  if (nanceProposalLoading || proposalsLoading) {
     return <ProposalLoading />;
   }
 
@@ -142,10 +143,10 @@ export default function NanceProposalPage() {
                       "quadratic",
                       "weighted",
                     ].includes(snapshotProposal.type) && (
-                    <div className="mt-6 flow-root">
-                      <ProposalOptions proposal={snapshotProposal} />
-                    </div>
-                  )}
+                      <div className="mt-6 flow-root">
+                        <ProposalOptions proposal={snapshotProposal} />
+                      </div>
+                    )}
                 </section>
               </div>
 

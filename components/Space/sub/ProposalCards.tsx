@@ -84,64 +84,64 @@ function sortProposals(
   }
 
   switch (sortBy) {
-  case "status":
-    proposals.sort(
-      (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
-    );
-    break;
-  case "approval":
-    const sumScores = (p: Proposal) => {
-      return (p?.voteResults?.scores ?? []).reduce(
-        (partialSum, a) => partialSum + a,
-        0
+    case "status":
+      proposals.sort(
+        (a, b) => getValueOfStatus(b.status) - getValueOfStatus(a.status)
       );
-    };
-    proposals.sort((a, b) => sumScores(b) - sumScores(a));
-    break;
-  case "participants":
-    proposals.sort(
-      (a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0)
-    );
-    break;
-  case "voted":
-    const votedWeightOf = (p: Proposal) => {
-      const voted = votedData?.[p.voteURL!] !== undefined;
-      const hasSnapshotVoting = snapshotProposalDict[p.voteURL!];
+      break;
+    case "approval":
+      const sumScores = (p: Proposal) => {
+        return (p?.voteResults?.scores ?? []).reduce(
+          (partialSum, a) => partialSum + a,
+          0
+        );
+      };
+      proposals.sort((a, b) => sumScores(b) - sumScores(a));
+      break;
+    case "participants":
+      proposals.sort(
+        (a, b) => (b.voteResults?.votes ?? 0) - (a.voteResults?.votes ?? 0)
+      );
+      break;
+    case "voted":
+      const votedWeightOf = (p: Proposal) => {
+        const voted = votedData?.[p.voteURL!] !== undefined;
+        const hasSnapshotVoting = snapshotProposalDict[p.voteURL!];
 
-      if (hasSnapshotVoting) {
-        if (voted) return 2;
-        else return 1;
-      } else {
+        if (hasSnapshotVoting) {
+          if (voted) return 2;
+          else return 1;
+        } else {
+          return 0;
+        }
+      };
+      proposals.sort((a, b) => votedWeightOf(b) - votedWeightOf(a));
+      break;
+    case "title":
+      proposals.sort((a, b) => {
+        const nameA = a.title;
+        const nameB = b.title;
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+
+        // names must be equal
         return 0;
-      }
-    };
-    proposals.sort((a, b) => votedWeightOf(b) - votedWeightOf(a));
-    break;
-  case "title":
-    proposals.sort((a, b) => {
-      const nameA = a.title;
-      const nameB = b.title;
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
-
-      // names must be equal
-      return 0;
-    });
-    break;
-  case "date":
-    proposals.sort((a, b) => {
-      const bD = b.createdTime || "";
-      const aD = a.createdTime || "";
-      return bD.localeCompare(aD);
-    });
-    break;
-  default:
-    proposals.sort();
-    break;
+      });
+      break;
+    case "date":
+      proposals.sort((a, b) => {
+        const bD = b.createdTime || "";
+        const aD = a.createdTime || "";
+        return bD.localeCompare(aD);
+      });
+      break;
+    default:
+      proposals.sort();
+      break;
   }
 
   if (!sortDesc) {
@@ -222,6 +222,7 @@ export default function ProposalCards({
     proposalsPacket?.proposals
       ?.filter((p) => p.voteURL)
       .map((p) => p.voteURL!) || [];
+  const skipSnapshotProposalsQuery = snapshotProposalIds.length === 0;
   const {
     data,
     loading: snapshotLoading,
@@ -230,8 +231,17 @@ export default function ProposalCards({
   } = useProposalsByID(
     snapshotProposalIds,
     address ?? "",
-    snapshotProposalIds.length === 0
+    skipSnapshotProposalsQuery
   );
+
+  // it takes some time to enable votesQuery after proposalQuery succeed
+  //   this should be consider as loading state.
+  const willLoadSnapshotProposalsQuery =
+    proposalsPacket !== undefined &&
+    !skipSnapshotProposalsQuery &&
+    data?.proposalsData === undefined;
+  const isLoading =
+    proposalsLoading || snapshotLoading || willLoadSnapshotProposalsQuery;
 
   // convert proposalsData to dict with proposal id as key
   const snapshotProposalDict: { [id: string]: SnapshotProposal } = {};
@@ -254,8 +264,6 @@ export default function ProposalCards({
     snapshotProposalDict,
     votedData
   );
-
-  const isLoading = snapshotLoading || proposalsLoading;
 
   if (!isLoading && sortedProposals.length === 0) {
     return (

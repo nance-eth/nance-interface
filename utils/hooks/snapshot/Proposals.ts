@@ -78,7 +78,12 @@ export function useProposalsWithCustomQuery(
     error: proposalsError,
     refetch: proposalsRefetch,
   } = useQuery<{ proposals: SnapshotProposal[] }>(query, { variables, skip });
+
   // Load voted proposals
+  const skipVotesQuery =
+    skip ||
+    address.length !== 42 || // address not ready, don't run this query yet
+    !proposalsData?.proposals.length; // dont run if length is 0, doesnt make any sense
   const {
     loading: votedLoading,
     data: votedRawData,
@@ -90,12 +95,22 @@ export function useProposalsWithCustomQuery(
       proposalIds: proposalsData?.proposals.map((proposal) => proposal.id),
       first: Math.min(proposalsData?.proposals.length || 0, 1000),
     },
-    skip:
-      skip ||
-      address.length !== 42 || // address not ready, don't run this query yet
-      !proposalsData?.proposals.length, // dont run if length is 0, doesnt make any sense
+    skip: skipVotesQuery,
   });
-  // console.debug("🔧 useProposalsWithCustomQuery.cacheHit", cacheHit);
+  // it takes some time to enable votesQuery after proposalQuery succeed
+  //   this should be consider as loading state.
+  const willLoadVotesQuery =
+    proposalsData !== undefined &&
+    !skipVotesQuery &&
+    votedRawData === undefined;
+  const loading = proposalsLoading || votedLoading || willLoadVotesQuery;
+  // console.debug(
+  //   "🔧 useProposalsWithCustomQuery",
+  //   proposalsLoading,
+  //   votedLoading,
+  //   proposalsData,
+  //   loading
+  // );
 
   // Find voted proposals
   let votedData: { [id: string]: SnapshotVotedData } = {};
@@ -117,7 +132,7 @@ export function useProposalsWithCustomQuery(
       proposalsData: proposalsData?.proposals,
       votedData,
     },
-    loading: proposalsLoading || votedLoading,
+    loading,
     error: proposalsError || votedError,
     refetch: () => {
       proposalsRefetch();
