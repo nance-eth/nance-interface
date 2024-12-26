@@ -60,7 +60,7 @@ export default function ProposalHeader() {
         id="applicant-information-title"
         className={classNames(
           "text-2xl font-medium mt-2",
-          isLoading && "skeleton h-8 w-80"
+          isLoading && "skeleton h-16 w-80"
         )}
       >
         {commonProps.title}
