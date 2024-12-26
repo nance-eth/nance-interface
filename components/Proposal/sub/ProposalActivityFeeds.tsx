@@ -25,6 +25,28 @@ import {
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
 
+type ActivityItem = ProgressActivity | VoteActivity;
+
+interface BaseActivity {
+  id: string;
+  date: string; // Formatted date, e.g., "MMM dd"
+  time: number; // Unix timestamp
+}
+
+interface ProgressActivity extends BaseActivity {
+  type: "progress";
+  label: string;
+  link?: string; // Optional, for edited proposals
+}
+
+interface VoteActivity extends BaseActivity {
+  type: "vote";
+  address: string; // Voter address
+  comment?: string; // Optional comment by the voter
+  choice: string | string[]; // Processed choice
+  vp: number; // Voting power
+}
+
 export default function ProposalActivityFeeds() {
   const { proposalInfo, commonProps, isLoading } = useContext(ProposalContext);
   const [query, setQuery] = useQueryParams({
@@ -82,7 +104,29 @@ export default function ProposalActivityFeeds() {
     },
     votes,
   };
-  const activity = [
+  const editActivity: ActivityItem[] = data.versions.map((v) => {
+    return {
+      id: "proposalEdit" + v.hash,
+      type: "progress",
+      label: "Proposal edited",
+      date: format(new Date(v.date), "MMM dd"),
+      time: getUnixTime(new Date(v.date)),
+      link: `/s/${commonProps.space}/${commonProps.uuid}/diff/${v.hash}`,
+    };
+  });
+  const voteActivity: ActivityItem[] = votes.map((v) => {
+    return {
+      id: v.id,
+      type: "vote",
+      address: v.voter,
+      comment: v.reason,
+      choice: processChoices(proposalType, v.choice),
+      date: format(toDate(v.created * 1000), "MMM dd"),
+      time: v.created,
+      vp: v.vp,
+    };
+  });
+  const progressActivity: ActivityItem[] = [
     {
       id: "proposalCreate",
       type: "progress",
@@ -90,16 +134,6 @@ export default function ProposalActivityFeeds() {
       date: format(toDate(data.proposal.create * 1000), "MMM dd"),
       time: data.proposal.create,
     },
-    ...data.versions.map((v) => {
-      return {
-        id: "proposalEdit" + v.hash,
-        type: "progress",
-        label: "Proposal edited",
-        date: format(new Date(v.date), "MMM dd"),
-        time: getUnixTime(new Date(v.date)),
-        link: `/s/${commonProps.space}/${commonProps.uuid}/diff/${v.hash}`,
-      };
-    }),
     {
       id: "snapshotStart",
       type: "progress",
@@ -116,19 +150,13 @@ export default function ProposalActivityFeeds() {
       time: data.snapshot.end,
       link: `https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`,
     },
-    ...votes.map((v) => {
-      return {
-        id: v.id,
-        type: "vote",
-        address: v.voter,
-        comment: v.reason,
-        choice: processChoices(proposalType, v.choice),
-        date: format(toDate(v.created * 1000), "MMM dd"),
-        time: v.created,
-        vp: v.vp,
-      };
-    }),
   ];
+  const activity: ActivityItem[] = [
+    ...editActivity,
+    ...voteActivity,
+    ...progressActivity,
+  ];
+
   activity.sort((a, b) => b.time - a.time);
 
   return (
@@ -192,11 +220,13 @@ export default function ProposalActivityFeeds() {
                       </div>
                       {!isSimpleVoting && (
                         <div className="mt-2 text-sm text-gray-700 break-words">
-                          {activityItem.choice.map((choice, idx) => (
-                            <p key={`${activityItem.address} - ${idx}`}>
-                              {choice}
-                            </p>
-                          ))}
+                          {(activityItem.choice as string[]).map(
+                            (choice, idx) => (
+                              <p key={`${activityItem.address} - ${idx}`}>
+                                {choice}
+                              </p>
+                            )
+                          )}
                         </div>
                       )}
                       <div className="mt-2 text-sm text-gray-700">

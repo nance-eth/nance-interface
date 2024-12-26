@@ -26,7 +26,7 @@ export function mapChoiceIndex(
   }
 }
 
-export function getColorOfChoice(choice: string) {
+export function getColorOfChoice(choice: string | string[]) {
   if (choice == "For") {
     return "text-green-500";
   } else if (choice == "Against") {
