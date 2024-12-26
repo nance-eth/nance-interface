@@ -152,10 +152,10 @@ export default function NanceProposalPage() {
                       "quadratic",
                       "weighted",
                     ].includes(snapshotProposal.type) && (
-                    <div className="mt-6 flow-root">
-                      <ProposalOptions proposal={snapshotProposal} />
-                    </div>
-                  )}
+                      <div className="mt-6 flow-root">
+                        <ProposalOptions proposal={snapshotProposal} />
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -166,12 +166,14 @@ export default function NanceProposalPage() {
                 <>
                   {/* On large screen, it become a sticky sidebar */}
                   <div
-                    className="hidden lg:block sticky lg:mt-5 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
+                    className="hidden lg:block sticky h-[90vh] overflow-y-auto lg:mt-2 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
                     style={{
                       maxHeight: "calc(100vh - 1rem)",
                     }}
                   >
-                    <ProposalVoteOverview />
+                    <ProposalVoteOverview
+                      temperatureCheckVotes={proposal?.temperatureCheckVotes}
+                    />
                     <ProposalTabs
                       proposal={proposal}
                       snapshotProposal={snapshotProposal}
@@ -184,7 +186,11 @@ export default function NanceProposalPage() {
                       <ProposalHeader />
 
                       <div className="">
-                        <ProposalVoteOverview />
+                        <ProposalVoteOverview
+                          temperatureCheckVotes={
+                            proposal?.temperatureCheckVotes
+                          }
+                        />
                       </div>
                       <ProposalTabs
                         proposal={proposal}
