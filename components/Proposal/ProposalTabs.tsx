@@ -24,22 +24,10 @@ export default function ProposalTabs() {
   return (
     <>
       <div>
-        <div className="grid grid-cols-1 sm:hidden">
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-          <select
-            value={query.tab}
-            onChange={(v) => setQuery({ tab: v.target.value })}
-            aria-label="Select a tab"
-            className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
-          >
-            {tabs.map((tab) => (
-              <option key={tab}>{tab}</option>
-            ))}
-          </select>
-        </div>
-        <div className="hidden sm:block">
+        <div className="">
           <div className="border-b border-gray-200">
-            <nav aria-label="Tabs" className="-mb-px flex space-x-8">
+            {/* Activity tab is by default "active" on Large screen */}
+            <nav aria-label="Tabs" className="-mb-px hidden lg:flex space-x-8">
               {tabs
                 .filter((t) => t !== "Content")
                 .map((tab) => (
@@ -61,6 +49,28 @@ export default function ProposalTabs() {
                     {tab}
                   </a>
                 ))}
+            </nav>
+            {/* Content tab is by default "active" otherwise */}
+            <nav aria-label="Tabs" className="-mb-px flex lg:hidden space-x-8">
+              {tabs.map((tab) => (
+                <a
+                  key={tab}
+                  onClick={() => setQuery({ tab })}
+                  aria-current={
+                    (!query.tab && tab === "Content") || tab === query.tab
+                      ? "page"
+                      : undefined
+                  }
+                  className={classNames(
+                    (!query.tab && tab === "Content") || tab === query.tab
+                      ? "border-indigo-500 text-indigo-600"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+                    "whitespace-nowrap border-b-2 p-1 text-sm font-medium"
+                  )}
+                >
+                  {tab}
+                </a>
+              ))}
             </nav>
           </div>
         </div>
