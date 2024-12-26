@@ -13,7 +13,7 @@ export interface DiscordUser {
   mfa_enabled: boolean;
   premium_type: number;
   avatar_decoration: string | null;
-};
+}
 
 export interface DiscordGuild {
   id: string;
@@ -24,7 +24,7 @@ export interface DiscordGuild {
   features: string[];
   approximate_member_count: number;
   approximate_presence_count: number;
-};
+}
 
 export interface DiscordChannel {
   id: string;
@@ -41,7 +41,7 @@ export interface DiscordChannel {
   user_limit: number;
   parent_id: string | null;
   last_pin_timestamp: string | null;
-};
+}
 
 export interface DiscordRole {
   id: string;
@@ -53,7 +53,7 @@ export interface DiscordRole {
   managed: boolean;
   mentionable: boolean;
   flags: number;
-};
+}
 
 export interface DiscordUserAuthResponse {
   access_token: string;
@@ -62,4 +62,18 @@ export interface DiscordUserAuthResponse {
   scope: string;
   token_type: string;
   state: string;
-};
+}
+
+export interface DiscordMessage {
+  id: string;
+  content: string;
+  author: DiscordUser;
+  // ISO8601 timestamp
+  // e.g "2024-10-25T15:23:24.647000+00:00"
+  timestamp: string;
+  // 0 for default, 19 for reply
+  type: number;
+  mentions: DiscordUser[];
+  mention_roles: DiscordRole[];
+  mention_everyone: boolean;
+}

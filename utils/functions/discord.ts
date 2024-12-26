@@ -3,6 +3,7 @@ import {
   GUILD_TEXT_CHANNEL,
   BOT_COMMANDS,
   GUILD_ANNOUNCEMENT_CHANNEL,
+  avatarBaseUrl,
 } from "@/constants/Discord";
 import {
   discordAuthUrl,
@@ -48,8 +49,8 @@ export function discordMessage(form: Record<string, any>) {
         fields: Object.entries(form).map(([key, value]) => ({
           name: key.charAt(0).toUpperCase() + key.slice(1),
           value: value ? value.toString() : `No ${key} provided.`,
-          inline: false
-        }))
+          inline: false,
+        })),
       },
     ],
   };
@@ -145,4 +146,8 @@ export async function fetchDiscordInitialValues(args: {
   if (role) role = formatRoles([role])[0];
 
   return { guild, proposalChannel, alertChannel, role };
+}
+
+export function discordUserAvatarUrlOf(userId: string, avatar: string) {
+  return `${avatarBaseUrl}/${userId}/${avatar}.png`;
 }

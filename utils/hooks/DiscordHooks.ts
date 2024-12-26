@@ -5,6 +5,7 @@ import {
   DiscordUser,
   DiscordChannel,
   DiscordRole,
+  DiscordMessage,
 } from "../../models/DiscordTypes";
 import { BOT_COMMANDS, USER_COMMANDS } from "@/constants/Discord";
 import {
@@ -20,7 +21,7 @@ function jsonFetcher(): Fetcher<any, string> {
     const json = await res.json();
     if (json?.success === "false") {
       throw new Error(
-        `An error occurred while fetching the data: ${json?.error}`,
+        `An error occurred while fetching the data: ${json?.error}`
       );
     }
     return json;
@@ -33,7 +34,7 @@ function isBotMemberFetcher(): Fetcher<any, string> {
     const json = await res.json();
     if (json?.success === "false") {
       throw new Error(
-        `An error occurred while fetching the data: ${json?.error}`,
+        `An error occurred while fetching the data: ${json?.error}`
       );
     }
     return json.code ? false : true;
@@ -42,35 +43,35 @@ function isBotMemberFetcher(): Fetcher<any, string> {
 
 export function useFetchDiscordUser(
   args: { address: string | undefined | null },
-  shouldFetch: boolean = false,
+  shouldFetch: boolean = false
 ) {
   return useSWR<DiscordUser, string>(
     shouldFetch
       ? `${DISCORD_PROXY_USER_URL}?address=${args.address}&command=${USER_COMMANDS.user}`
       : null,
-    jsonFetcher(),
+    jsonFetcher()
   );
 }
 
 export function useLogoutDiscordUser(
   args: { address: string },
-  shouldFetch: boolean = false,
+  shouldFetch: boolean = false
 ) {
   return useSWRMutation<DiscordUser, string>(
     shouldFetch ? `${DISCORD_PROXY_LOGOUT_URL}?address=${args.address}` : null,
-    jsonFetcher(),
+    jsonFetcher()
   );
 }
 
 export function useFetchDiscordGuilds(
   address: string | undefined,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   return useSWR<DiscordGuild[], string>(
     shouldFetch && address
       ? `${DISCORD_PROXY_USER_URL}?address=${address}&command=${USER_COMMANDS.guilds}`
       : null,
-    jsonFetcher(),
+    jsonFetcher()
   );
 }
 
@@ -78,42 +79,57 @@ export function useFetchDiscordGuilds(
 
 export function useFetchDiscordChannels(
   guildId: string | undefined,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   const command = BOT_COMMANDS.channels.replace("{guildId}", guildId || "");
   return useSWR<DiscordChannel[], string>(
     shouldFetch && guildId
       ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
       : null,
-    jsonFetcher(),
+    jsonFetcher()
   );
 }
 
 export function useIsBotMemberOfGuild(
   guildId: string | undefined,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   const command = `${BOT_COMMANDS.member.replace(
     "{guildId}",
-    guildId || "",
+    guildId || ""
   )}/${DISCORD_CLIENT_ID}`;
   return useSWR<boolean, string>(
     shouldFetch && guildId
       ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
       : null,
-    isBotMemberFetcher(),
+    isBotMemberFetcher()
   );
 }
 
 export function useDiscordGuildRoles(
   guildId: string | undefined,
-  shouldFetch: boolean = true,
+  shouldFetch: boolean = true
 ) {
   const command = BOT_COMMANDS.roles.replace("{guildId}", guildId || "");
   return useSWR<DiscordRole[], string>(
     shouldFetch && guildId
       ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
       : null,
-    jsonFetcher(),
+    jsonFetcher()
+  );
+}
+
+// doc: https://discord.com/developers/docs/resources/message#get-channel-messages
+export function useDiscordChannelMessages(
+  channelId: string | undefined,
+  limit: number = 50,
+  shouldFetch: boolean = true
+) {
+  const command = `/channels/${channelId}/messages?limit=${limit}`;
+  return useSWR<DiscordMessage[], string>(
+    shouldFetch && channelId
+      ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
+      : null,
+    jsonFetcher()
   );
 }
