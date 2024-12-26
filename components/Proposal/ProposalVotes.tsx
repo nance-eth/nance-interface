@@ -80,8 +80,8 @@ export default function ProposalVotes({
       style={
         limitedHeight
           ? {
-              maxHeight: "calc(100vh - 20rem)",
-            }
+            maxHeight: "calc(100vh - 20rem)",
+          }
           : undefined
       }
     >

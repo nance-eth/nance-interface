@@ -153,14 +153,14 @@ export function VoterTurnoutChart({
               </div>
               <div>
                 ${numToPrettyString(
-                  data.value,
-                  data.value < 1_000 ? "auto" : 2
-                )} <span class="text-xs text-gray-600">VOTERS</span>
+    data.value,
+    data.value < 1_000 ? "auto" : 2
+  )} <span class="text-xs text-gray-600">VOTERS</span>
               </div>
               <div>
                 ${numToPrettyString(
-                  data.tokens
-                )} <span class="text-xs text-gray-600">
+    data.tokens
+  )} <span class="text-xs text-gray-600">
                   $${spaceInfo?.symbol}</span>
               </div>
             `;

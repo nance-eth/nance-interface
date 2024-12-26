@@ -134,24 +134,24 @@ export default function ProposalMetadata() {
                 {address &&
                   spaceInfo?.spaceOwners.includes(address) &&
                   canEditProposal(commonProps.status) && (
-                    <ArrowPathIcon
-                      className="h-3 w-3 hover:cursor-pointer"
-                      onClick={async () => {
-                        toast.promise(
-                          getOrRefreshProposalDiscussion(
-                            commonProps.space,
-                            commonProps.uuid,
-                            NANCE_API_URL
-                          ),
-                          {
-                            loading: "Updating Discord",
-                            success: "Discord updated!",
-                            error: (err) => `${err.toString()}`,
-                          }
-                        );
-                      }}
-                    />
-                  )}
+                  <ArrowPathIcon
+                    className="h-3 w-3 hover:cursor-pointer"
+                    onClick={async () => {
+                      toast.promise(
+                        getOrRefreshProposalDiscussion(
+                          commonProps.space,
+                          commonProps.uuid,
+                          NANCE_API_URL
+                        ),
+                        {
+                          loading: "Updating Discord",
+                          success: "Discord updated!",
+                          error: (err) => `${err.toString()}`,
+                        }
+                      );
+                    }}
+                  />
+                )}
               </div>
               <div></div>
             </>
@@ -159,30 +159,30 @@ export default function ProposalMetadata() {
 
           {discussionThreadURL === "ERROR" &&
             commonProps.status === "Discussion" && (
-              <>
-                <span className="font-medium">Discussion:</span>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  className="col-span-2 cursor-pointer text-sky-800"
-                  onClick={async () => {
-                    try {
-                      setDiscussionThreadURL(undefined);
-                      await getOrRefreshProposalDiscussion(
-                        commonProps.space,
-                        commonProps.uuid,
-                        NANCE_API_URL
-                      );
-                    } catch (e: any) {
-                      toast.error(e.toString());
-                    }
-                  }}
-                >
+            <>
+              <span className="font-medium">Discussion:</span>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                className="col-span-2 cursor-pointer text-sky-800"
+                onClick={async () => {
+                  try {
+                    setDiscussionThreadURL(undefined);
+                    await getOrRefreshProposalDiscussion(
+                      commonProps.space,
+                      commonProps.uuid,
+                      NANCE_API_URL
+                    );
+                  } catch (e: any) {
+                    toast.error(e.toString());
+                  }
+                }}
+              >
                   start discussion
-                  <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-                </a>
-              </>
-            )}
+                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+              </a>
+            </>
+          )}
 
           {commonProps.snapshotSpace && commonProps.snapshotHash && (
             <>

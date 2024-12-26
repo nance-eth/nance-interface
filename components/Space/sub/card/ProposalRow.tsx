@@ -176,9 +176,9 @@ export default function ProposalRow({
                           content={`The intended author does not have sufficient voting power to submit a proposal.\
                             An address with atleast\
                             ${formatNumber(
-                              spaceInfo?.proposalSubmissionValidation
-                                ?.minBalance || 0
-                            )}\
+                        spaceInfo?.proposalSubmissionValidation
+                          ?.minBalance || 0
+                      )}\
                             voting power must sponsor the proposal.`}
                         />
                       </div>

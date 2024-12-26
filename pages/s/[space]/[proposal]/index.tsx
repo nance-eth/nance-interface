@@ -152,10 +152,10 @@ export default function NanceProposalPage() {
                       "quadratic",
                       "weighted",
                     ].includes(snapshotProposal.type) && (
-                      <div className="mt-6 flow-root">
-                        <ProposalOptions proposal={snapshotProposal} />
-                      </div>
-                    )}
+                    <div className="mt-6 flow-root">
+                      <ProposalOptions proposal={snapshotProposal} />
+                    </div>
+                  )}
                 </div>
               </div>
 
