@@ -5,10 +5,10 @@ import {
   toDate,
 } from "date-fns";
 import { useContext } from "react";
-import { ProposalContext } from "./context/ProposalContext";
 import { useProposalVersionList } from "@/utils/hooks/NanceHooks";
 import Link from "next/link";
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
+import { ProposalContext } from "../context/ProposalContext";
 
 export default function ProposalHistory() {
   const { commonProps } = useContext(ProposalContext);

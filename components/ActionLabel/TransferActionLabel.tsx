@@ -17,7 +17,7 @@ export default function TransferActionLabel({ action }: { action: Action }) {
 
   const amount = transfer.amount.toString(); // transfer.amount can be number type, use toString to make sure it be string
   return (
-    <span className="line-clamp-5">
+    <span className="">
       {numToPrettyString(amount, "auto")}
       &nbsp;
       <TokenSymbol address={transfer.contract} />

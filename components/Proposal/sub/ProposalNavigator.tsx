@@ -3,9 +3,10 @@ import {
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useContext } from "react";
-import { ProposalContext } from "./context/ProposalContext";
 import { getProposalNumber } from "@/utils/functions/ProposalIdNumber";
+import { ProposalContext } from "../context/ProposalContext";
 
+// FIXME this breaks when some proposalId dont point to existed proposal.
 export default function ProposalNavigator() {
   // pre load prev and next proposal
   let { commonProps, nextProposalId } = useContext(ProposalContext);
@@ -19,8 +20,7 @@ export default function ProposalNavigator() {
           href={`/s/${commonProps.space}/${proposalNumber - 1}`}
           className="w-full md:w-1/2"
         >
-          <ArrowLeftCircleIcon className="inline h-5 w-5" />{" "}
-          previous proposal
+          <ArrowLeftCircleIcon className="inline h-5 w-5" /> previous proposal
         </a>
       )}
 
@@ -29,8 +29,7 @@ export default function ProposalNavigator() {
           href={`/s/${commonProps.space}/${proposalNumber + 1}`}
           className="w-full md:w-1/2"
         >
-          <ArrowRightCircleIcon className="inline h-5 w-5" />{" "}
-          next proposal
+          <ArrowRightCircleIcon className="inline h-5 w-5" /> next proposal
         </a>
       )}
     </div>

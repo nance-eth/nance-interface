@@ -52,15 +52,7 @@ export function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
     );
   });
 
-  return (
-    <div className="flex items-center gap-x-1">
-      <BanknotesIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
-      <div>
-        <p className="text-gray-500">Requesting</p>
-        <div className="text-center text-black">{tokens}</div>
-      </div>
-    </div>
-  );
+  return <span>{tokens}</span>;
 }
 
 export default function ProposalRow({
@@ -106,9 +98,7 @@ export default function ProposalRow({
         const total = snapshotProposal.scores_total;
         const div = score / total;
         const percent = isNaN(div) ? 0 : div * 100;
-        return (
-          `${choice} ${formatNumber(score)} (${(percent).toFixed(0)}%)`
-        );
+        return `${choice} ${formatNumber(score)} (${percent.toFixed(0)}%)`;
       })
       .slice(0, 3)
       .join(", ");
@@ -186,9 +176,9 @@ export default function ProposalRow({
                           content={`The intended author does not have sufficient voting power to submit a proposal.\
                             An address with atleast\
                             ${formatNumber(
-                        spaceInfo?.proposalSubmissionValidation
-                          ?.minBalance || 0
-                      )}\
+                              spaceInfo?.proposalSubmissionValidation
+                                ?.minBalance || 0
+                            )}\
                             voting power must sponsor the proposal.`}
                         />
                       </div>
@@ -213,7 +203,15 @@ export default function ProposalRow({
                 </div>
               </div>
               {/* Tokens */}
-              <RequestingTokensOfProposal actions={actions} />
+              <div className="flex items-center gap-x-1">
+                <BanknotesIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
+                <div>
+                  <p className="text-gray-500">Requesting</p>
+                  <div className="text-center text-black">
+                    <RequestingTokensOfProposal actions={actions} />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <p className="flex-wrap gap-x-1 text-xs text-gray-500 hidden md:flex">

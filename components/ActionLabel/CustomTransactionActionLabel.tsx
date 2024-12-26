@@ -22,7 +22,7 @@ export default function CustomTransactionActionLabel({
   const customTransaction = action.payload as CustomTransaction;
   if (customTransaction.contract === DEPLOY_CONTRACT_FAKE_ADDRESS) {
     return (
-      <span className="line-clamp-6">
+      <span className="">
         deployContract
         <span>{`(${customTransaction.args[0].value})`}</span>
         {BigNumber.from(customTransaction.value).gt(0) && (
@@ -39,7 +39,7 @@ export default function CustomTransactionActionLabel({
   }
 
   return (
-    <span className="line-clamp-6">
+    <span className="">
       <ResolvedContract
         address={customTransaction.contract}
         style="inline ml-1"
