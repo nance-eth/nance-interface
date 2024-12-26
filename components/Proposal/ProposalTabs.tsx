@@ -3,9 +3,7 @@ import {
   withDefault,
   createEnumParam,
 } from "next-query-params";
-import { useContext } from "react";
-import { SnapshotProposal } from "@/models/SnapshotTypes";
-import type { Proposal } from "@nance/nance-sdk";
+import { useContext, useEffect } from "react";
 import { ProposalContext } from "./context/ProposalContext";
 import { classNames } from "@/utils/functions/tailwind";
 import ProposalContent from "./ProposalContent";
@@ -16,10 +14,33 @@ export default function ProposalTabs() {
   const tabs = ["Content", "Activity", "Actions"];
   const [query, setQuery] = useQueryParams({
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
-    tab: withDefault(createEnumParam(tabs), ""),
+    tab: withDefault(createEnumParam(tabs), "Content"),
   });
 
   const { commonProps } = useContext(ProposalContext);
+
+  useEffect(() => {
+    function correctContentTabOnLgScreen(width: number, tab: string) {
+      const lgMinWidth = 1024;
+      if (width >= lgMinWidth && tab === "Content") {
+        setQuery({ tab: "Activity" });
+      }
+    }
+
+    correctContentTabOnLgScreen(window.innerWidth, query.tab);
+    // Handler to update screen size
+    const handleResize = () => {
+      correctContentTabOnLgScreen(window.innerWidth, query.tab);
+    };
+
+    // Add event listener on mount
+    window.addEventListener("resize", handleResize);
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [query]);
 
   return (
     <>
@@ -34,13 +55,9 @@ export default function ProposalTabs() {
                   <a
                     key={tab}
                     onClick={() => setQuery({ tab })}
-                    aria-current={
-                      (!query.tab && tab === "Activity") || tab === query.tab
-                        ? "page"
-                        : undefined
-                    }
+                    aria-current={tab === query.tab ? "page" : undefined}
                     className={classNames(
-                      (!query.tab && tab === "Activity") || tab === query.tab
+                      tab === query.tab
                         ? "border-indigo-500 text-indigo-600"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                       "whitespace-nowrap border-b-2 p-1 text-sm font-medium"
@@ -56,13 +73,9 @@ export default function ProposalTabs() {
                 <a
                   key={tab}
                   onClick={() => setQuery({ tab })}
-                  aria-current={
-                    (!query.tab && tab === "Content") || tab === query.tab
-                      ? "page"
-                      : undefined
-                  }
+                  aria-current={tab === query.tab ? "page" : undefined}
                   className={classNames(
-                    (!query.tab && tab === "Content") || tab === query.tab
+                    tab === query.tab
                       ? "border-indigo-500 text-indigo-600"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                     "whitespace-nowrap border-b-2 p-1 text-sm font-medium"
