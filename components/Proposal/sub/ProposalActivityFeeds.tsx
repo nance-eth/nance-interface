@@ -200,7 +200,7 @@ export default function ProposalActivityFeeds() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div>
-                        <div className="text-sm flex items-center gap-x-1">
+                        <div className="text-sm flex items-center gap-x-1 flex-wrap">
                           <FormattedAddress
                             address={activityItem.address}
                             style="text-gray-900"
