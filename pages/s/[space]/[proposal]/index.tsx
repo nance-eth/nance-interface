@@ -152,10 +152,10 @@ export default function NanceProposalPage() {
                       "quadratic",
                       "weighted",
                     ].includes(snapshotProposal.type) && (
-                      <div className="mt-6 flow-root">
-                        <ProposalOptions proposal={snapshotProposal} />
-                      </div>
-                    )}
+                    <div className="mt-6 flow-root">
+                      <ProposalOptions proposal={snapshotProposal} />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -165,19 +165,11 @@ export default function NanceProposalPage() {
               >
                 <>
                   {/* On large screen, it become a sticky sidebar */}
-                  <div
-                    className="hidden lg:block sticky h-[90vh] overflow-y-auto lg:mt-2 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6"
-                    style={{
-                      maxHeight: "calc(100vh - 1rem)",
-                    }}
-                  >
+                  <div className="hidden lg:block sticky h-[90vh] overflow-y-auto lg:mt-2 bottom-6 top-6 bg-white px-4 py-5 opacity-100 shadow sm:rounded-lg sm:px-6 space-y-4">
                     <ProposalVoteOverview
                       temperatureCheckVotes={proposal?.temperatureCheckVotes}
                     />
-                    <ProposalTabs
-                      proposal={proposal}
-                      snapshotProposal={snapshotProposal}
-                    />
+                    <ProposalTabs />
                   </div>
 
                   {/* On smaller screen, it take full width */}
@@ -192,10 +184,7 @@ export default function NanceProposalPage() {
                           }
                         />
                       </div>
-                      <ProposalTabs
-                        proposal={proposal}
-                        snapshotProposal={snapshotProposal}
-                      />
+                      <ProposalTabs />
                     </div>
                   </div>
                 </>

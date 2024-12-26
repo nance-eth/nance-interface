@@ -4,26 +4,19 @@ import {
   createEnumParam,
 } from "next-query-params";
 import { useContext } from "react";
-import ColorBar from "@/components/common/ColorBar";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import type { Proposal } from "@nance/nance-sdk";
-import ProposalVotes from "./ProposalVotes";
 import { ProposalContext } from "./context/ProposalContext";
 import { classNames } from "@/utils/functions/tailwind";
 import ProposalContent from "./ProposalContent";
 import ProposalMetadata from "./sub/ProposalMetadata";
+import ProposalActivityFeeds from "./sub/ProposalActivityFeeds";
 
-export default function ProposalTabs({
-  proposal,
-  snapshotProposal,
-}: {
-  proposal: Proposal | undefined;
-  snapshotProposal: SnapshotProposal | undefined;
-}) {
+export default function ProposalTabs() {
   const tabs = ["Content", "Activity", "Actions"];
   const [query, setQuery] = useQueryParams({
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
-    tab: withDefault(createEnumParam(tabs), "Content"),
+    tab: withDefault(createEnumParam(tabs), ""),
   });
 
   const { commonProps } = useContext(ProposalContext);
@@ -53,9 +46,13 @@ export default function ProposalTabs({
                   <a
                     key={tab}
                     onClick={() => setQuery({ tab })}
-                    aria-current={tab === query.tab ? "page" : undefined}
+                    aria-current={
+                      (!query.tab && tab === "Activity") || tab === query.tab
+                        ? "page"
+                        : undefined
+                    }
                     className={classNames(
-                      tab === query.tab
+                      (!query.tab && tab === "Activity") || tab === query.tab
                         ? "border-indigo-500 text-indigo-600"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
                       "whitespace-nowrap border-b-2 p-1 text-sm font-medium"
@@ -72,6 +69,7 @@ export default function ProposalTabs({
           <div
             className={classNames(
               "hidden mt-4 w-[90vw]",
+              !query.tab && "max-lg:block",
               query.tab === "Content" && "max-lg:block"
             )}
           >
@@ -80,52 +78,12 @@ export default function ProposalTabs({
           <div
             className={classNames(
               "mt-4 max-lg:w-[90vw]",
+              !query.tab && "lg:block",
               query.tab === "Activity" && "block",
               query.tab !== "Activity" && "hidden"
             )}
           >
-            {!snapshotProposal && (
-              <>
-                <p>No snapshot voting</p>
-                <div className="mt-2 space-y-4">
-                  <ColorBar
-                    noTooltip={true}
-                    greenScore={proposal?.temperatureCheckVotes?.[0] || 0}
-                    redScore={proposal?.temperatureCheckVotes?.[1] || 0}
-                    threshold={10}
-                  />
-                </div>
-              </>
-            )}
-
-            {snapshotProposal && (
-              <>
-                <button
-                  onClick={() => {
-                    if (query.sortBy === "time") {
-                      setQuery({ sortBy: "vp" });
-                    } else {
-                      setQuery({ sortBy: "time" });
-                    }
-                  }}
-                  className="text-lg font-medium"
-                >
-                  <span className="ml-2 text-center text-xs text-gray-300">
-                    sort by {query.sortBy === "vp" ? "voting power" : "time"}
-                  </span>
-                </button>
-
-                <div className="hidden lg:block">
-                  <ProposalVotes snapshotSpace={commonProps.snapshotSpace} />
-                </div>
-                <div className="block lg:hidden">
-                  <ProposalVotes
-                    snapshotSpace={commonProps.snapshotSpace}
-                    limitedHeight={false}
-                  />
-                </div>
-              </>
-            )}
+            <ProposalActivityFeeds />
           </div>
           <div
             className={classNames(
