@@ -24,8 +24,10 @@ import {
 } from "@/utils/functions/snapshotUtil";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
+import { discordUserAvatarUrlOf } from "@/utils/functions/discord";
+import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
 
-type ActivityItem = ProgressActivity | VoteActivity;
+type ActivityItem = ProgressActivity | VoteActivity | CommentActivity;
 
 interface BaseActivity {
   id: string;
@@ -45,6 +47,14 @@ interface VoteActivity extends BaseActivity {
   comment?: string; // Optional comment by the voter
   choice: string | string[]; // Processed choice
   vp: number; // Voting power
+}
+
+interface CommentActivity extends BaseActivity {
+  type: "comment";
+  userId: string;
+  avatar: string;
+  username: string;
+  comment: string;
 }
 
 export default function ProposalActivityFeeds() {
@@ -91,6 +101,11 @@ export default function ProposalActivityFeeds() {
     votes = votes.filter((v) => v.choice === "Abstain");
   }
 
+  const { data: messages } = useDiscordChannelMessages(
+    commonProps.discussion.split("/").pop(),
+    100
+  );
+
   const data = {
     versions: versions || [],
     snapshot: {
@@ -126,6 +141,22 @@ export default function ProposalActivityFeeds() {
       vp: v.vp,
     };
   });
+  const messageActivity: ActivityItem[] =
+    messages
+      // dont display messages from nance-bot
+      ?.filter((v) => v.author.id !== "1093511877813870592")
+      .map((v) => {
+        return {
+          id: v.id,
+          type: "comment",
+          userId: v.author.id,
+          avatar: v.author.avatar,
+          username: v.author.username,
+          comment: v.content,
+          date: format(new Date(v.timestamp), "MMM dd"),
+          time: getUnixTime(new Date(v.timestamp)),
+        };
+      }) || [];
   const progressActivity: ActivityItem[] = [
     {
       id: "proposalCreate",
@@ -155,6 +186,7 @@ export default function ProposalActivityFeeds() {
     ...editActivity,
     ...voteActivity,
     ...progressActivity,
+    ...messageActivity,
   ];
 
   activity.sort((a, b) => b.time - a.time);
@@ -229,6 +261,42 @@ export default function ProposalActivityFeeds() {
                           )}
                         </div>
                       )}
+                      <div className="mt-2 text-sm text-gray-700">
+                        <p>{activityItem.comment}</p>
+                      </div>
+                    </div>
+                  </>
+                ) : activityItem.type === "comment" ? (
+                  <>
+                    <div className="relative">
+                      <img
+                        alt=""
+                        src={discordUserAvatarUrlOf(
+                          activityItem.userId,
+                          activityItem.avatar
+                        )}
+                        className="flex w-6 h-6 items-center justify-center rounded-full bg-gray-400"
+                      />
+
+                      {activityItem.comment && (
+                        <span className="absolute -bottom-0.5 -right-1 rounded-tl bg-white px-0.5 py-px">
+                          <ChatBubbleLeftEllipsisIcon
+                            aria-hidden="true"
+                            className="w-3 h-3 text-gray-400"
+                          />
+                        </span>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div>
+                        <div className="text-sm flex items-center gap-x-1 flex-wrap">
+                          <span>{activityItem.username}</span>
+                          <span className="text-gray-500">commented</span>
+                          <span className="text-gray-500">
+                            ·&nbsp;{activityItem.date}
+                          </span>
+                        </div>
+                      </div>
                       <div className="mt-2 text-sm text-gray-700">
                         <p>{activityItem.comment}</p>
                       </div>
