@@ -261,7 +261,7 @@ export default function ProposalActivityFeeds() {
                           )}
                         </div>
                       )}
-                      <div className="mt-2 text-sm text-gray-700">
+                      <div className="mt-2 text-sm text-gray-700 break-words">
                         <p>{activityItem.comment}</p>
                       </div>
                     </div>
@@ -297,7 +297,7 @@ export default function ProposalActivityFeeds() {
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-sm text-gray-700">
+                      <div className="mt-2 text-sm text-gray-700 break-words">
                         <p>{activityItem.comment}</p>
                       </div>
                     </div>
