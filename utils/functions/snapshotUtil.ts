@@ -26,6 +26,18 @@ export function mapChoiceIndex(
   }
 }
 
+export function getColorOfChoice(choice: string) {
+  if (choice == "For") {
+    return "text-green-500";
+  } else if (choice == "Against") {
+    return "text-red-500";
+  } else if (choice == "Abstain") {
+    return "text-gray-500";
+  } else {
+    return "text-gray-500";
+  }
+}
+
 export function processChoices(
   type: string | undefined,
   choice: any
