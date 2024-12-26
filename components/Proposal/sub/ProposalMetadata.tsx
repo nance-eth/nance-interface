@@ -75,10 +75,6 @@ export default function ProposalMetadata() {
 
   return (
     <div className="gaps-4">
-      {commonProps.actions && commonProps.actions.length > 0 && (
-        <p className="col-span-2 font-medium">Actions: </p>
-      )}
-
       <SpaceContext.Provider value={spaceInfo}>
         <div className="col-span-2 mt-2 flex w-full flex-col space-y-2">
           {commonProps.actions.slice(0, 2).map((action, index) => (
