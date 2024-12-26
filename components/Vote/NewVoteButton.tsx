@@ -23,16 +23,13 @@ export default function NewVoteButton({
   const { openConnectModal } = useConnectModal();
 
   let buttonLabel = "Vote";
-  if (snapshotProposal === undefined) {
-    buttonLabel = "Loading";
+
+  if (snapshotProposal === undefined || snapshotProposal?.state === "closed") {
+    return null;
   }
 
-  if (snapshotProposal === undefined) {
-    buttonLabel = "No voting";
-  } else if (snapshotProposal?.state === "pending") {
+  if (snapshotProposal?.state === "pending") {
     buttonLabel = "Voting not started";
-  } else if (snapshotProposal?.state === "closed") {
-    buttonLabel = "Voting closed";
   } else if (isConnected) {
     buttonLabel = "Vote";
   } else {
