@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import Image from "next/image";
 import {
   ChatBubbleLeftEllipsisIcon,
   LinkIcon,
@@ -222,8 +223,10 @@ export default function ProposalActivityFeeds() {
                 {activityItem.type === "vote" ? (
                   <>
                     <div className="relative">
-                      <img
+                      <Image
                         alt=""
+                        width={100}
+                        height={100}
                         src={`https://cdn.stamp.fyi/avatar/${activityItem.address}?h=100&w=100`}
                         className="flex w-6 h-6 items-center justify-center rounded-full bg-gray-400"
                       />
@@ -276,8 +279,10 @@ export default function ProposalActivityFeeds() {
                 ) : activityItem.type === "comment" ? (
                   <>
                     <div className="relative">
-                      <img
+                      <Image
                         alt=""
+                        width={100}
+                        height={100}
                         src={discordUserAvatarUrlOf(
                           activityItem.userId,
                           activityItem.avatar
