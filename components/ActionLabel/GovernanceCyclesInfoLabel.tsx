@@ -3,7 +3,6 @@ import { dateRangesOfCycles } from "@/utils/functions/GovernanceCycle";
 import { Action, getPayoutCountAmount } from "@nance/nance-sdk";
 import { useContext } from "react";
 import { ProposalContext } from "../Proposal/context/ProposalContext";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import TooltipInfo from "../common/TooltipInfo";
 
 export default function GovernanceCyclesInfoLabel({

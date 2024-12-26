@@ -57,7 +57,7 @@ export default function ProposalStatusMenu() {
                       <button
                         className={`${
                           active ? "bg-blue-500 text-white" : "text-gray-900"
-                        } group flex w-full items-center text-left rounded-md px-2 py-2 text-sm`}
+                        } group flex w-full items-center text-left rounded-md px-2 py-2 text-sm whitespace-break-spaces`}
                         onClick={() => setEditStatus(s)}
                       >
                         {s}

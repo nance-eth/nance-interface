@@ -1,4 +1,3 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { PropsWithChildren } from "react";
 
 export default function TooltipInfo({
@@ -11,7 +10,7 @@ export default function TooltipInfo({
       data-tip={content}
     >
       {children}
-      <InformationCircleIcon className="w-4 h-4 inline" />
+      <span className="font-xs text-gray-400">[ ? ]</span>
     </div>
   );
 }

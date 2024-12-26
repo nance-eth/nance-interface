@@ -26,7 +26,7 @@ export default function ProposalHeader() {
     <div className="flex flex-col">
       <div className="flex items-center justify-between">
         <div className="inline-block">
-          <div className="breadcrumbs text-sm">
+          <div className="breadcrumbs text-sm overflow-visible">
             <ul>
               <li>
                 <Link href={`/s/${commonProps.space}`}>
