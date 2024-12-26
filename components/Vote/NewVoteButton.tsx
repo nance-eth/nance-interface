@@ -27,7 +27,9 @@ export default function NewVoteButton({
     buttonLabel = "Loading";
   }
 
-  if (snapshotProposal?.state === "pending") {
+  if (snapshotProposal === undefined) {
+    buttonLabel = "No voting";
+  } else if (snapshotProposal?.state === "pending") {
     buttonLabel = "Voting not started";
   } else if (snapshotProposal?.state === "closed") {
     buttonLabel = "Voting closed";
