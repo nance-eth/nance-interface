@@ -103,7 +103,7 @@ export default function ProposalActivityFeeds() {
 
   const { data: messages } = useDiscordChannelMessages(
     commonProps.discussion.split("/").pop(),
-    100
+    50
   );
 
   const data = {
@@ -146,13 +146,20 @@ export default function ProposalActivityFeeds() {
       // dont display messages from nance-bot
       ?.filter((v) => v.author.id !== "1093511877813870592")
       .map((v) => {
+        let comment = v.content;
+        if (v.mentions) {
+          v.mentions.forEach((u) => {
+            comment = comment.replaceAll(`<@${u.id}>`, `@${u.username}`);
+          });
+        }
+
         return {
           id: v.id,
           type: "comment",
           userId: v.author.id,
           avatar: v.author.avatar,
           username: v.author.username,
-          comment: v.content,
+          comment,
           date: format(new Date(v.timestamp), "MMM dd"),
           time: getUnixTime(new Date(v.timestamp)),
         };
