@@ -301,7 +301,7 @@ export default function ProposalActivityFeeds() {
                         </div>
                       </div>
                       {!isSimpleVoting && (
-                        <div className="mt-2 text-sm text-gray-700 break-words">
+                        <div className="mt-1 text-sm text-gray-700 break-words">
                           {(activityItem.choice as string[]).map(
                             (choice, idx) => (
                               <p key={`${activityItem.address} - ${idx}`}>

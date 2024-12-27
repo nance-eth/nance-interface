@@ -1,5 +1,9 @@
 import { DiscordMessage } from "@/models/DiscordTypes";
-import { DocumentTextIcon, PhotoIcon } from "@heroicons/react/24/solid";
+import {
+  DocumentTextIcon,
+  FilmIcon,
+  PhotoIcon,
+} from "@heroicons/react/24/solid";
 import Image from "next/image";
 
 export default function DiscordMessageView({
@@ -18,10 +22,10 @@ export default function DiscordMessageView({
   }
 
   return (
-    <div className="mt-2 text-sm text-gray-700 break-words">
+    <div className="mt-1 text-sm text-gray-700 break-words">
       {/* Reference comment */}
       {message.referenced_message && (
-        <div className="bg-gray-100 p-2 rounded-md mb-2">
+        <div className="bg-gray-50 p-2 rounded-md mb-1">
           <div className="text-gray-500">
             <a
               href={`#comment-${message.referenced_message.id}`}
@@ -45,39 +49,65 @@ export default function DiscordMessageView({
         {renderMentions(message)}
       </p>
 
-      {/* Render attachments */}
-      {message.attachments.map((attachment, idx) => {
-        if (!attachment.content_type?.startsWith("image/")) {
-          return (
-            <a
-              key={attachment.id}
-              href={attachment.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:underline text-gray-500"
-            >
-              <DocumentTextIcon className="h-5 w-5" />
-            </a>
-          );
-        }
+      {/* Render embeds */}
+      {message.embeds.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1">
+          {message.embeds.map((embed, idx) => {
+            return (
+              <a
+                key={idx}
+                href={embed.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:underline text-gray-500 rounded-md bg-gray-50 p-2"
+              >
+                <FilmIcon className="h-5 w-5 shrink-0" />
+                <span className="line-clamp-1">
+                  {embed.title || "Untitled embed"}
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      )}
 
-        return (
-          <a
-            key={attachment.id}
-            href={attachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              alt=""
-              height={200}
-              width={200}
-              className="hover:underline"
-              src={attachment.url}
-            />
-          </a>
-        );
-      })}
+      {/* Render attachments */}
+      {message.attachments.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1">
+          {message.attachments.map((attachment, idx) => {
+            if (!attachment.content_type?.startsWith("image/")) {
+              return (
+                <a
+                  key={attachment.id}
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:underline text-gray-500"
+                >
+                  <DocumentTextIcon className="h-5 w-5" />
+                </a>
+              );
+            }
+
+            return (
+              <a
+                key={attachment.id}
+                href={attachment.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  alt=""
+                  height={200}
+                  width={200}
+                  className="hover:underline"
+                  src={attachment.url}
+                />
+              </a>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -76,6 +76,13 @@ export interface DiscordAttachment {
   url: string;
 }
 
+export interface DiscordEmbed {
+  type?: string;
+  title?: string;
+  description?: string;
+  url?: string;
+}
+
 export enum DiscordMessageType {
   DEFAULT = 0,
   CHANNEL_NAME_CHANGE = 4,
@@ -96,6 +103,7 @@ export interface DiscordMessage {
   mention_roles: string[];
   mention_everyone: boolean;
   attachments: DiscordAttachment[];
+  embeds: DiscordEmbed[];
   referenced_message?: DiscordMessage;
   // this only exists inside `referenced_message` if the message is a thread starter
   thread?: DiscordChannel;
