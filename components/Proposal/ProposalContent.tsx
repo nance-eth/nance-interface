@@ -9,7 +9,7 @@ export default function ProposalContent() {
   const { body } = commonProps;
 
   return (
-    <div className={classNames(!body && "skeleton w-full h-[70vh]")}>
+    <div className={classNames(!body && "skeleton w-full h-[80vh]")}>
       <MarkdownViewer body={body} />
     </div>
   );
