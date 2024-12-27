@@ -25,7 +25,10 @@ import {
 } from "@/utils/functions/snapshotUtil";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
-import { discordUserAvatarUrlOf } from "@/utils/functions/discord";
+import {
+  DiscordInAppChannelLinkPrefix,
+  discordUserAvatarUrlOf,
+} from "@/utils/functions/discord";
 import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
 
 type ActivityItem = ProgressActivity | VoteActivity | CommentActivity;
@@ -59,7 +62,14 @@ interface CommentActivity extends BaseActivity {
 }
 
 export default function ProposalActivityFeeds() {
-  const { proposalInfo, commonProps, isLoading } = useContext(ProposalContext);
+  const { proposalInfo, commonProps } = useContext(ProposalContext);
+  const discordGuildAndChannelIds: string[] | undefined = commonProps.discussion
+    .split("channels/")[1]
+    ?.split("/");
+  const discordGuildId = discordGuildAndChannelIds?.[0];
+  const discordChannelId = discordGuildAndChannelIds?.[1];
+  const canGetMessageLink = discordGuildId && discordChannelId;
+
   const [query, setQuery] = useQueryParams({
     page: withDefault(NumberParam, 1),
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
@@ -310,7 +320,16 @@ export default function ProposalActivityFeeds() {
                         </div>
                       </div>
                       <div className="mt-2 text-sm text-gray-700 break-words">
-                        <p>{activityItem.comment}</p>
+                        {canGetMessageLink ? (
+                          <a
+                            className="text-gray-500 hover:underline"
+                            href={`${DiscordInAppChannelLinkPrefix}${discordGuildId}/${discordChannelId}/${activityItem.id}`}
+                          >
+                            {activityItem.comment}
+                          </a>
+                        ) : (
+                          <p>{activityItem.comment}</p>
+                        )}
                       </div>
                     </div>
                   </>
