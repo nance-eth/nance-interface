@@ -74,6 +74,6 @@ export interface DiscordMessage {
   // 0 for default, 19 for reply
   type: number;
   mentions: DiscordUser[];
-  mention_roles: DiscordRole[];
+  mention_roles: string[];
   mention_everyone: boolean;
 }
