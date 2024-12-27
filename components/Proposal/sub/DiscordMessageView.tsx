@@ -1,4 +1,5 @@
 import { DiscordMessage } from "@/models/DiscordTypes";
+import { classNames } from "@/utils/functions/tailwind";
 import {
   DocumentTextIcon,
   FilmIcon,
@@ -59,7 +60,10 @@ export default function DiscordMessageView({
                 href={embed.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:underline text-gray-500 rounded-md bg-gray-50 p-2"
+                className={classNames(
+                  "flex items-center gap-2 text-gray-500 rounded-md bg-gray-50 p-2",
+                  embed.url && "hover:underline"
+                )}
               >
                 <FilmIcon className="h-5 w-5 shrink-0" />
                 <span className="line-clamp-1">
