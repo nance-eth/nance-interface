@@ -17,14 +17,14 @@ import {
 } from "@/models/DiscordTypes";
 import { DiscordConfig } from "@nance/nance-sdk";
 
-const discordLink = "https://discord.com/channels/";
-const discordProtocol = "discord://discord.com/channels/";
+export const DiscordChannelLinkPrefix = "https://discord.com/channels/";
+export const DiscordInAppChannelLinkPrefix = "discord://discord.com/channels/";
 export function openInDiscord(url: string) {
   try {
     if (url.includes("discord")) {
-      const splitUrl = url.split(discordLink)[1].split("/");
+      const splitUrl = url.split(DiscordChannelLinkPrefix)[1].split("/");
       const newUrl = splitUrl.join("/");
-      return `${discordProtocol}${newUrl}`;
+      return `${DiscordInAppChannelLinkPrefix}${newUrl}`;
     }
     return url;
   } catch (e) {

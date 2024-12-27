@@ -66,6 +66,7 @@ export interface DiscordUserAuthResponse {
 
 export interface DiscordMessage {
   id: string;
+  channel_id: string;
   content: string;
   author: DiscordUser;
   // ISO8601 timestamp
