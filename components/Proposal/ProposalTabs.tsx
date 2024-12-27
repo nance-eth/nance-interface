@@ -9,9 +9,11 @@ import { classNames } from "@/utils/functions/tailwind";
 import ProposalContent from "./ProposalContent";
 import ProposalMetadata from "./sub/ProposalMetadata";
 import ProposalActivityFeeds from "./sub/ProposalActivityFeeds";
+import { useRouter } from "next/router";
 
 export default function ProposalTabs() {
   const tabs = ["Content", "Activity", "Actions"];
+  const router = useRouter();
   const [query, setQuery] = useQueryParams({
     sortBy: withDefault(createEnumParam(["time", "vp"]), "time"),
     tab: withDefault(createEnumParam(tabs), "Content"),
@@ -20,17 +22,21 @@ export default function ProposalTabs() {
   const { commonProps } = useContext(ProposalContext);
 
   useEffect(() => {
-    function correctContentTabOnLgScreen(width: number, tab: string) {
+    function correctContentTabOnLgScreen(
+      width: number,
+      tab: string,
+      ready: boolean
+    ) {
       const lgMinWidth = 1024;
-      if (width >= lgMinWidth && tab === "Content") {
+      if (width >= lgMinWidth && tab === "Content" && ready) {
         setQuery({ tab: "Activity" });
       }
     }
 
-    correctContentTabOnLgScreen(window.innerWidth, query.tab);
+    correctContentTabOnLgScreen(window.innerWidth, query.tab, router.isReady);
     // Handler to update screen size
     const handleResize = () => {
-      correctContentTabOnLgScreen(window.innerWidth, query.tab);
+      correctContentTabOnLgScreen(window.innerWidth, query.tab, router.isReady);
     };
 
     // Add event listener on mount
@@ -40,7 +46,7 @@ export default function ProposalTabs() {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [query]);
+  }, [query.tab, router.isReady]);
 
   return (
     <>
