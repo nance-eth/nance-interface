@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ProposalContext } from "../context/ProposalContext";
+import { ProposalContext } from "./context/ProposalContext";
 import { classNames } from "@/utils/functions/tailwind";
 import {
   NumberParam,
