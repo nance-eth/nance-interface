@@ -70,6 +70,12 @@ export interface DiscordAttachment {
   url: string;
 }
 
+export enum DiscordMessageType {
+  DEFAULT = 0,
+  REPLY = 19,
+  THREAD_STARTER_MESSAGE = 21,
+}
+
 export interface DiscordMessage {
   id: string;
   channel_id: string;
@@ -78,8 +84,7 @@ export interface DiscordMessage {
   // ISO8601 timestamp
   // e.g "2024-10-25T15:23:24.647000+00:00"
   timestamp: string;
-  // 0 for default, 19 for reply
-  type: number;
+  type: DiscordMessageType;
   mentions: DiscordUser[];
   mention_roles: string[];
   mention_everyone: boolean;

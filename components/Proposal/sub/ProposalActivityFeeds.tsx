@@ -3,6 +3,7 @@ import { useContext } from "react";
 import Image from "next/image";
 import {
   ChatBubbleLeftEllipsisIcon,
+  DocumentTextIcon,
   LinkIcon,
   PhotoIcon,
   TagIcon,
@@ -32,7 +33,7 @@ import {
   discordUserAvatarUrlOf,
 } from "@/utils/functions/discord";
 import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
-import { DiscordAttachment, DiscordMessage } from "@/models/DiscordTypes";
+import { DiscordMessage, DiscordMessageType } from "@/models/DiscordTypes";
 
 type ActivityItem = ProgressActivity | VoteActivity | CommentActivity;
 
@@ -58,12 +59,7 @@ interface VoteActivity extends BaseActivity {
 
 interface CommentActivity extends BaseActivity {
   type: "comment";
-  userId: string;
-  avatar: string;
-  username: string;
-  comment: string;
-  attachments: DiscordAttachment[];
-  referenced_comment?: DiscordMessage;
+  message: DiscordMessage;
 }
 
 export default function ProposalActivityFeeds() {
@@ -162,24 +158,12 @@ export default function ProposalActivityFeeds() {
       // dont display messages from nance-bot
       ?.filter((v) => v.author.id !== "1093511877813870592")
       .map((v) => {
-        let comment = v.content;
-        if (v.mentions) {
-          v.mentions.forEach((u) => {
-            comment = comment.replaceAll(`<@${u.id}>`, `@${u.username}`);
-          });
-        }
-
         return {
           id: v.id,
           type: "comment",
-          userId: v.author.id,
-          avatar: v.author.avatar,
-          username: v.author.username,
-          comment,
           date: format(new Date(v.timestamp), "MMM dd"),
           time: getUnixTime(new Date(v.timestamp)),
-          attachments: v.attachments,
-          referenced_comment: v.referenced_message,
+          message: v,
         };
       }) || [];
   const progressActivity: ActivityItem[] = [
@@ -288,7 +272,7 @@ export default function ProposalActivityFeeds() {
                           )}
                         </div>
                       )}
-                      <div className="mt-2 text-sm text-gray-700 break-words">
+                      <div className="mt-2 text-sm break-words">
                         <p>{activityItem.comment}</p>
                       </div>
                     </div>
@@ -301,27 +285,26 @@ export default function ProposalActivityFeeds() {
                         width={100}
                         height={100}
                         src={discordUserAvatarUrlOf(
-                          activityItem.userId,
-                          activityItem.avatar
+                          activityItem.message.author.id,
+                          activityItem.message.author.avatar
                         )}
                         className="flex w-6 h-6 items-center justify-center rounded-full bg-gray-400"
                       />
 
-                      {activityItem.comment && (
-                        <span className="absolute -bottom-0.5 -right-1 rounded-tl bg-white px-0.5 py-px">
-                          <ChatBubbleLeftEllipsisIcon
-                            aria-hidden="true"
-                            className="w-3 h-3 text-gray-400"
-                          />
-                        </span>
-                      )}
+                      <span className="absolute -bottom-0.5 -right-1 rounded-tl bg-white px-0.5 py-px">
+                        <ChatBubbleLeftEllipsisIcon
+                          aria-hidden="true"
+                          className="w-3 h-3 text-gray-400"
+                        />
+                      </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <div>
                         <div className="text-sm flex items-center gap-x-1 flex-wrap">
-                          <span>{activityItem.username}</span>
+                          <span>{activityItem.message.author.username}</span>
                           <span className="text-gray-500">
-                            {activityItem.referenced_comment
+                            {activityItem.message.type ===
+                            DiscordMessageType.REPLY
                               ? "replied"
                               : "commented"}
                           </span>
@@ -330,59 +313,11 @@ export default function ProposalActivityFeeds() {
                           </span>
                         </div>
                       </div>
-                      <div className="mt-2 text-sm text-gray-700 break-words">
-                        {/* Reference comment */}
-                        {activityItem.referenced_comment && (
-                          <div className="bg-gray-100 p-2 rounded-md mb-2">
-                            <div className="text-gray-500">
-                              <a
-                                href={`${DiscordInAppChannelLinkPrefix}${discordGuildId}/${discordChannelId}/${activityItem.referenced_comment.id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:underline line-clamp-1"
-                              >
-                                {activityItem.referenced_comment.content}
-                                {activityItem.referenced_comment.attachments.map(
-                                  (attachment, idx) => (
-                                    <PhotoIcon
-                                      key={attachment.id}
-                                      className="w-5 h-5"
-                                    />
-                                  )
-                                )}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-
-                        {canGetMessageLink ? (
-                          <a
-                            className="text-gray-500 hover:underline"
-                            href={`${DiscordInAppChannelLinkPrefix}${discordGuildId}/${discordChannelId}/${activityItem.id}`}
-                          >
-                            {activityItem.comment}
-                          </a>
-                        ) : (
-                          <p>{activityItem.comment}</p>
-                        )}
-
-                        {activityItem.attachments.map((attachment, idx) => (
-                          <a
-                            key={attachment.id}
-                            href={attachment.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Image
-                              alt=""
-                              height={200}
-                              width={200}
-                              className="text-gray-500 hover:underline"
-                              src={attachment.url}
-                            />
-                          </a>
-                        ))}
-                      </div>
+                      <DiscordMessageView
+                        message={activityItem.message}
+                        guildId={discordGuildId}
+                        channelId={discordChannelId}
+                      />
                     </div>
                   </>
                 ) : activityItem.type === "progress" ? (
@@ -423,6 +358,104 @@ export default function ProposalActivityFeeds() {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function DiscordMessageView({
+  message,
+  guildId,
+  channelId,
+}: {
+  message: DiscordMessage;
+  guildId: string;
+  channelId: string;
+}) {
+  const canGetMessageLink = guildId && channelId;
+
+  function messageUrlOf(messageId: string) {
+    return `${DiscordInAppChannelLinkPrefix}${guildId}/${channelId}/${messageId}`;
+  }
+
+  function renderMentions(m: DiscordMessage) {
+    let ret = m.content;
+    if (m.mentions) {
+      m.mentions.forEach((u) => {
+        ret = ret.replaceAll(`<@${u.id}>`, `@${u.username}`);
+      });
+    }
+    return ret;
+  }
+
+  return (
+    <div className="mt-2 text-sm text-gray-700 break-words">
+      {/* Reference comment */}
+      {message.referenced_message && (
+        <div className="bg-gray-100 p-2 rounded-md mb-2">
+          <div className="text-gray-500">
+            <a
+              href={messageUrlOf(message.referenced_message.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline line-clamp-2"
+            >
+              {`@${message.referenced_message.author.username}: `}
+              {renderMentions(message.referenced_message)}
+              {message.referenced_message.attachments.map((attachment, idx) => (
+                <PhotoIcon key={attachment.id} className="w-5 h-5" />
+              ))}
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Content and link to discord */}
+      {canGetMessageLink ? (
+        <a
+          className="hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={messageUrlOf(message.id)}
+        >
+          {renderMentions(message)}
+        </a>
+      ) : (
+        <p>{renderMentions(message)}</p>
+      )}
+
+      {/* Render attachments */}
+      {message.attachments.map((attachment, idx) => {
+        if (!attachment.content_type?.startsWith("image/")) {
+          return (
+            <a
+              key={attachment.id}
+              href={attachment.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:underline text-gray-500"
+            >
+              <DocumentTextIcon className="h-5 w-5" />
+            </a>
+          );
+        }
+
+        return (
+          <a
+            key={attachment.id}
+            href={attachment.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              alt=""
+              height={200}
+              width={200}
+              className="hover:underline"
+              src={attachment.url}
+            />
+          </a>
+        );
+      })}
     </div>
   );
 }
