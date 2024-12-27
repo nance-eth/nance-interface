@@ -7,7 +7,10 @@ import { getDomain, openInDiscord } from "@/utils/functions/discord";
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ActionLabel from "@/components/ActionLabel/ActionLabel";
-import { useProposalPatchSnapshot, useSpaceInfo } from "@/utils/hooks/NanceHooks";
+import {
+  useProposalPatchSnapshot,
+  useSpaceInfo,
+} from "@/utils/hooks/NanceHooks";
 import { SpaceContext } from "@/context/SpaceContext";
 import { Spinner } from "flowbite-react";
 import {
@@ -108,7 +111,7 @@ export default function ProposalMetadata() {
               <span className="col-span-2">
                 <Link
                   className="col-span-2"
-                  href={`/s/${commonProps.space}/?cycle=${commonProps.governanceCycle}`}
+                  href={`/s/${commonProps.space}?cycle=${commonProps.governanceCycle}`}
                 >
                   {commonProps.governanceCycle}
                   <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3" />
@@ -137,7 +140,8 @@ export default function ProposalMetadata() {
                   {getDomain(discussionThreadURL)}
                   <ArrowTopRightOnSquareIcon className="ml-1 mb-1 inline h-3 w-3 text-xs" />
                 </a>
-                {address && spaceInfo?.spaceOwners.includes(address) &&
+                {address &&
+                  spaceInfo?.spaceOwners.includes(address) &&
                   canEditProposal(commonProps.status) && (
                     <ArrowPathIcon
                       className="h-3 w-3 hover:cursor-pointer"
@@ -162,37 +166,36 @@ export default function ProposalMetadata() {
             </>
           )}
 
-          {discussionThreadURL === "ERROR" && commonProps.status === "Discussion" && (
-            <>
-              <span className="font-medium">Discussion:</span>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                className="col-span-2 cursor-pointer text-sky-800"
-                onClick={async () => {
-                  try {
-                    setDiscussionThreadURL(undefined);
-                    await getOrRefreshProposalDiscussion(
-                      commonProps.space,
-                      commonProps.uuid,
-                      NANCE_API_URL
-                    );
-                  } catch (e: any) {
-                    toast.error(e.toString());
-                  }
-                }}
-              >
-                start discussion
-                <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
-              </a>
-            </>
-          )}
+          {discussionThreadURL === "ERROR" &&
+            commonProps.status === "Discussion" && (
+              <>
+                <span className="font-medium">Discussion:</span>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="col-span-2 cursor-pointer text-sky-800"
+                  onClick={async () => {
+                    try {
+                      setDiscussionThreadURL(undefined);
+                      await getOrRefreshProposalDiscussion(
+                        commonProps.space,
+                        commonProps.uuid,
+                        NANCE_API_URL
+                      );
+                    } catch (e: any) {
+                      toast.error(e.toString());
+                    }
+                  }}
+                >
+                  start discussion
+                  <ArrowTopRightOnSquareIcon className="inline h-3 w-3 text-xs" />
+                </a>
+              </>
+            )}
 
           {commonProps.snapshotSpace && commonProps.snapshotHash && (
             <>
-              <span className="font-medium">
-                Snapshot view:
-              </span>
+              <span className="font-medium">Snapshot view:</span>
               <div className="flex flex-row items-center space-x-1">
                 <a
                   className="col-span-2 w-fit"
