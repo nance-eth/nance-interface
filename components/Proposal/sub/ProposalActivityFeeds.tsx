@@ -3,9 +3,7 @@ import { useContext } from "react";
 import Image from "next/image";
 import {
   ChatBubbleLeftEllipsisIcon,
-  DocumentTextIcon,
   LinkIcon,
-  PhotoIcon,
   TagIcon,
 } from "@heroicons/react/24/solid";
 import { ProposalContext } from "../context/ProposalContext";
@@ -28,12 +26,10 @@ import {
 } from "@/utils/functions/snapshotUtil";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
-import {
-  DiscordInAppChannelLinkPrefix,
-  discordUserAvatarUrlOf,
-} from "@/utils/functions/discord";
+import { discordUserAvatarUrlOf } from "@/utils/functions/discord";
 import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
 import { DiscordMessage, DiscordMessageType } from "@/models/DiscordTypes";
+import DiscordMessageView from "./DiscordMessageView";
 
 type ActivityItem = ProgressActivity | VoteActivity | CommentActivity;
 
@@ -201,7 +197,7 @@ export default function ProposalActivityFeeds() {
   activity.sort((a, b) => b.time - a.time);
 
   return (
-    <div className="flow-root">
+    <div className="flow-root scroll-smooth">
       <NewVoteButton
         snapshotSpace={commonProps.snapshotSpace}
         snapshotProposal={proposalInfo}
@@ -313,11 +309,7 @@ export default function ProposalActivityFeeds() {
                           </span>
                         </div>
                       </div>
-                      <DiscordMessageView
-                        message={activityItem.message}
-                        guildId={discordGuildId}
-                        channelId={discordChannelId}
-                      />
+                      <DiscordMessageView message={activityItem.message} />
                     </div>
                   </>
                 ) : activityItem.type === "progress" ? (
@@ -358,104 +350,6 @@ export default function ProposalActivityFeeds() {
           </li>
         ))}
       </ul>
-    </div>
-  );
-}
-
-function DiscordMessageView({
-  message,
-  guildId,
-  channelId,
-}: {
-  message: DiscordMessage;
-  guildId: string;
-  channelId: string;
-}) {
-  const canGetMessageLink = guildId && channelId;
-
-  function messageUrlOf(messageId: string) {
-    return `${DiscordInAppChannelLinkPrefix}${guildId}/${channelId}/${messageId}`;
-  }
-
-  function renderMentions(m: DiscordMessage) {
-    let ret = m.content;
-    if (m.mentions) {
-      m.mentions.forEach((u) => {
-        ret = ret.replaceAll(`<@${u.id}>`, `@${u.username}`);
-      });
-    }
-    return ret;
-  }
-
-  return (
-    <div className="mt-2 text-sm text-gray-700 break-words">
-      {/* Reference comment */}
-      {message.referenced_message && (
-        <div className="bg-gray-100 p-2 rounded-md mb-2">
-          <div className="text-gray-500">
-            <a
-              href={messageUrlOf(message.referenced_message.id)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline line-clamp-2"
-            >
-              {`@${message.referenced_message.author.username}: `}
-              {renderMentions(message.referenced_message)}
-              {message.referenced_message.attachments.map((attachment, idx) => (
-                <PhotoIcon key={attachment.id} className="w-5 h-5" />
-              ))}
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* Content and link to discord */}
-      {canGetMessageLink ? (
-        <a
-          className="hover:underline"
-          target="_blank"
-          rel="noopener noreferrer"
-          href={messageUrlOf(message.id)}
-        >
-          {renderMentions(message)}
-        </a>
-      ) : (
-        <p>{renderMentions(message)}</p>
-      )}
-
-      {/* Render attachments */}
-      {message.attachments.map((attachment, idx) => {
-        if (!attachment.content_type?.startsWith("image/")) {
-          return (
-            <a
-              key={attachment.id}
-              href={attachment.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:underline text-gray-500"
-            >
-              <DocumentTextIcon className="h-5 w-5" />
-            </a>
-          );
-        }
-
-        return (
-          <a
-            key={attachment.id}
-            href={attachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              alt=""
-              height={200}
-              width={200}
-              className="hover:underline"
-              src={attachment.url}
-            />
-          </a>
-        );
-      })}
     </div>
   );
 }
