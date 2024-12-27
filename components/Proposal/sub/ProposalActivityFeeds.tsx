@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import { useContext } from "react";
 import Image from "next/image";
 import {
   ChatBubbleLeftEllipsisIcon,
   LinkIcon,
+  PhotoIcon,
   TagIcon,
 } from "@heroicons/react/24/solid";
 import { ProposalContext } from "../context/ProposalContext";
@@ -30,6 +32,7 @@ import {
   discordUserAvatarUrlOf,
 } from "@/utils/functions/discord";
 import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
+import { DiscordAttachment, DiscordMessage } from "@/models/DiscordTypes";
 
 type ActivityItem = ProgressActivity | VoteActivity | CommentActivity;
 
@@ -59,6 +62,8 @@ interface CommentActivity extends BaseActivity {
   avatar: string;
   username: string;
   comment: string;
+  attachments: DiscordAttachment[];
+  referenced_comment?: DiscordMessage;
 }
 
 export default function ProposalActivityFeeds() {
@@ -173,6 +178,8 @@ export default function ProposalActivityFeeds() {
           comment,
           date: format(new Date(v.timestamp), "MMM dd"),
           time: getUnixTime(new Date(v.timestamp)),
+          attachments: v.attachments,
+          referenced_comment: v.referenced_message,
         };
       }) || [];
   const progressActivity: ActivityItem[] = [
@@ -313,13 +320,41 @@ export default function ProposalActivityFeeds() {
                       <div>
                         <div className="text-sm flex items-center gap-x-1 flex-wrap">
                           <span>{activityItem.username}</span>
-                          <span className="text-gray-500">commented</span>
+                          <span className="text-gray-500">
+                            {activityItem.referenced_comment
+                              ? "replied"
+                              : "commented"}
+                          </span>
                           <span className="text-gray-500">
                             ·&nbsp;{activityItem.date}
                           </span>
                         </div>
                       </div>
                       <div className="mt-2 text-sm text-gray-700 break-words">
+                        {/* Reference comment */}
+                        {activityItem.referenced_comment && (
+                          <div className="bg-gray-100 p-2 rounded-md mb-2">
+                            <div className="text-gray-500">
+                              <a
+                                href={`${DiscordInAppChannelLinkPrefix}${discordGuildId}/${discordChannelId}/${activityItem.referenced_comment.id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline line-clamp-1"
+                              >
+                                {activityItem.referenced_comment.content}
+                                {activityItem.referenced_comment.attachments.map(
+                                  (attachment, idx) => (
+                                    <PhotoIcon
+                                      key={attachment.id}
+                                      className="w-5 h-5"
+                                    />
+                                  )
+                                )}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+
                         {canGetMessageLink ? (
                           <a
                             className="text-gray-500 hover:underline"
@@ -330,6 +365,23 @@ export default function ProposalActivityFeeds() {
                         ) : (
                           <p>{activityItem.comment}</p>
                         )}
+
+                        {activityItem.attachments.map((attachment, idx) => (
+                          <a
+                            key={attachment.id}
+                            href={attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Image
+                              alt=""
+                              height={200}
+                              width={200}
+                              className="text-gray-500 hover:underline"
+                              src={attachment.url}
+                            />
+                          </a>
+                        ))}
                       </div>
                     </div>
                   </>

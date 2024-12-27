@@ -64,6 +64,12 @@ export interface DiscordUserAuthResponse {
   state: string;
 }
 
+export interface DiscordAttachment {
+  id: string;
+  content_type: string;
+  url: string;
+}
+
 export interface DiscordMessage {
   id: string;
   channel_id: string;
@@ -77,4 +83,6 @@ export interface DiscordMessage {
   mentions: DiscordUser[];
   mention_roles: string[];
   mention_everyone: boolean;
+  attachments: DiscordAttachment[];
+  referenced_message?: DiscordMessage;
 }
