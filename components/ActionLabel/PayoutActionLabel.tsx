@@ -8,13 +8,11 @@ export default function PayoutActionLabel({ action }: { action: Action }) {
   const total = (amount * count).toLocaleString();
 
   return (
-    <p>
-      <span className="">
-        ${Number(amount).toLocaleString()}
-        &nbsp;to
-        <JBSplitEntry mod={payout2JBSplit(action)} />
-        <GovernanceCyclesInfoLabel action={action} />
-      </span>
-    </p>
+    <span className="">
+      ${Number(amount).toLocaleString()}
+      &nbsp;to
+      <JBSplitEntry mod={payout2JBSplit(action)} />
+      <GovernanceCyclesInfoLabel action={action} />
+    </span>
   );
 }
