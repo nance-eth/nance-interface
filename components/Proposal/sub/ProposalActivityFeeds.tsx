@@ -26,7 +26,10 @@ import {
 } from "@/utils/functions/snapshotUtil";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
-import { discordUserAvatarUrlOf } from "@/utils/functions/discord";
+import {
+  discordUserAvatarUrlOf,
+  openInDiscord,
+} from "@/utils/functions/discord";
 import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
 import { DiscordMessage, DiscordMessageType } from "@/models/DiscordTypes";
 import DiscordMessageView from "./DiscordMessageView";
@@ -149,10 +152,28 @@ export default function ProposalActivityFeeds() {
       vp: v.vp,
     };
   });
+
+  const threadStarterMessage = messages?.find(
+    (v) => v.type === DiscordMessageType.THREAD_STARTER_MESSAGE
+  )?.referenced_message;
+  const threadCreateProgressActivity: ProgressActivity | undefined =
+    threadStarterMessage
+      ? {
+          id: "threadCreate",
+          type: "progress",
+          label: `Thread created`,
+          date: format(new Date(threadStarterMessage.timestamp), "MMM dd"),
+          time: getUnixTime(new Date(threadStarterMessage.timestamp)),
+          link: openInDiscord(commonProps.discussion),
+        }
+      : undefined;
   const messageActivity: ActivityItem[] =
     messages
-      // dont display messages from nance-bot
-      ?.filter((v) => v.author.id !== "1093511877813870592")
+      ?.filter(
+        (v) =>
+          v.type === DiscordMessageType.DEFAULT ||
+          v.type === DiscordMessageType.REPLY
+      )
       .map((v) => {
         return {
           id: v.id,
@@ -162,6 +183,22 @@ export default function ProposalActivityFeeds() {
           message: v,
         };
       }) || [];
+  const lastMessageTimestamp = messageActivity.length
+    ? // the last one is the latest
+      messageActivity[0].time + 1
+    : 0;
+  const threadArchivedProgressActivity: ProgressActivity | undefined =
+    threadStarterMessage && lastMessageTimestamp
+      ? {
+          id: "threadArchive",
+          type: "progress",
+          label: `Thread archived (${threadStarterMessage.thread?.member_count}👤 ${threadStarterMessage.thread?.message_count}✉️)`,
+          date: format(new Date(lastMessageTimestamp * 1000), "MMM dd"),
+          time: lastMessageTimestamp,
+          link: openInDiscord(commonProps.discussion),
+        }
+      : undefined;
+
   const progressActivity: ActivityItem[] = [
     {
       id: "proposalCreate",
@@ -187,13 +224,19 @@ export default function ProposalActivityFeeds() {
       link: `https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`,
     },
   ];
+
   const activity: ActivityItem[] = [
     ...editActivity,
     ...voteActivity,
     ...progressActivity,
     ...messageActivity,
   ];
-
+  if (threadCreateProgressActivity) {
+    activity.push(threadCreateProgressActivity);
+  }
+  if (threadArchivedProgressActivity) {
+    activity.push(threadArchivedProgressActivity);
+  }
   activity.sort((a, b) => b.time - a.time);
 
   return (

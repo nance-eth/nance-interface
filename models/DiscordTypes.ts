@@ -30,6 +30,7 @@ export interface DiscordChannel {
   id: string;
   name: string;
   type: number;
+  // guild is also called server
   guild_id: string;
   position: number;
   permission_overwrites: any[];
@@ -41,6 +42,11 @@ export interface DiscordChannel {
   user_limit: number;
   parent_id: string | null;
   last_pin_timestamp: string | null;
+  // count
+  // an approximate count of users in a thread, stops counting at 50
+  member_count?: number;
+  message_count?: number;
+  total_message_sent?: number;
 }
 
 export interface DiscordRole {
@@ -72,6 +78,7 @@ export interface DiscordAttachment {
 
 export enum DiscordMessageType {
   DEFAULT = 0,
+  CHANNEL_NAME_CHANGE = 4,
   REPLY = 19,
   THREAD_STARTER_MESSAGE = 21,
 }
@@ -90,4 +97,6 @@ export interface DiscordMessage {
   mention_everyone: boolean;
   attachments: DiscordAttachment[];
   referenced_message?: DiscordMessage;
+  // this only exists inside `referenced_message` if the message is a thread starter
+  thread?: DiscordChannel;
 }
