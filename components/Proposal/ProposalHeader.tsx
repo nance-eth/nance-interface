@@ -16,8 +16,7 @@ import { classNames } from "@/utils/functions/tailwind";
  */
 // IFXME proposal menu fail to work
 export default function ProposalHeader() {
-  const { commonProps, proposalIdPrefix, isLoading } =
-    useContext(ProposalContext);
+  const { commonProps, proposalIdPrefix } = useContext(ProposalContext);
   const proposalId = commonProps.proposalId;
   const preTitleDisplay =
     proposalIdPrefix && proposalId ? `${proposalIdPrefix}${proposalId}` : "";
@@ -60,7 +59,7 @@ export default function ProposalHeader() {
         id="applicant-information-title"
         className={classNames(
           "text-2xl font-medium mt-2",
-          isLoading && "skeleton h-16 w-80"
+          !commonProps.title && "skeleton h-8 w-4/5"
         )}
       >
         {commonProps.title}
@@ -75,8 +74,8 @@ export default function ProposalHeader() {
               <TooltipInfo
                 content={`The intended author does not have sufficient voting power to submit a proposal.\
                 An address with atleast ${formatNumber(
-              commonProps.minVotingPowerSubmissionBalance
-            )}\
+                  commonProps.minVotingPowerSubmissionBalance
+                )}\
                 voting power must sponsor the proposal.`}
               />
             </div>
