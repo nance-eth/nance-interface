@@ -26,7 +26,7 @@ export default function DiscordMessageView({
     <div className="mt-1 text-sm text-gray-700 break-words">
       {/* Reference comment */}
       {message.referenced_message && (
-        <div className="bg-gray-50 p-2 rounded-md mb-1">
+        <div className="bg-gray-100 p-2 rounded-md mb-1">
           <div className="text-gray-500">
             <a
               href={`#comment-${message.referenced_message.id}`}
