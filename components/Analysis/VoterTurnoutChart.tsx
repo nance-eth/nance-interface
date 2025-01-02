@@ -39,8 +39,8 @@ export function VoterTurnoutChart({
 
       // Create chart instance
       chartRef.current = createChart(chartContainerRef.current, {
-        width: 800,
-        height: 320,
+        width: chartContainerRef.current.clientWidth,
+        height: chartContainerRef.current.clientHeight,
         layout: {
           background: { color: "#ffffff" },
           textColor: "#333",
@@ -117,20 +117,23 @@ export function VoterTurnoutChart({
       volumeSeries.setData(formattedData);
       chartRef.current?.timeScale().fitContent();
       const toolTip = document.createElement("div");
+      const chartHeight = chartContainerRef.current.clientHeight;
+      const chartWidth = chartContainerRef.current.clientWidth;
 
+      const toolTipWidth = 200;
       toolTip.className = classNames(
         "absolute hidden p-2 pointer-events-none",
-        "w-[200px] z-[1000]",
+        `w-[${toolTipWidth}px]`, "z-[1000]",
         "border border-gray-300 rounded",
         "bg-white text-sm font-sans antialiased"
       );
       chartContainerRef.current.appendChild(toolTip);
 
-      const toolTipHeight = 100;
-      const toolTipWidth = 200;
-      const toolTipMargin = -70;
-
+      const xMargin = 50;
+      const yMargin = 30;
       chartRef.current.subscribeCrosshairMove((param) => {
+        const toolTipHeight = toolTip.clientHeight;
+
         if (
           param.point === undefined ||
           !param.time ||
@@ -153,33 +156,26 @@ export function VoterTurnoutChart({
               </div>
               <div>
                 ${numToPrettyString(
-    data.value,
-    data.value < 1_000 ? "auto" : 2
-  )} <span class="text-xs text-gray-600">VOTERS</span>
+                  data.value,
+                  data.value < 1_000 ? "auto" : 2
+                )} <span class="text-xs text-gray-600">VOTERS</span>
               </div>
               <div>
                 ${numToPrettyString(
-    data.tokens
-  )} <span class="text-xs text-gray-600">
+                  data.tokens
+                )} <span class="text-xs text-gray-600">
                   $${spaceInfo?.symbol}</span>
               </div>
             `;
+            let left = param.point.x - toolTipWidth + xMargin;
+            if (param.point.x < chartWidth / 2) {
+              left = param.point.x + (2 * xMargin);
+            }
 
-            let left = param.point.x + toolTipMargin;
-            if (param.point.x < chartContainerRef.current!.clientWidth / 2) {
-              left = param.point.x + toolTipWidth + toolTipMargin / 2;
+            let top = 0;
+            if (param.point.y > chartHeight / 2) {
+              top = param.point.y - toolTipHeight + yMargin;
             }
-            let top = param.point.y + toolTipMargin;
-            if (param.point.y > chartContainerRef.current!.clientHeight / 2) {
-              top = param.point.y - toolTipHeight + toolTipMargin;
-            } else if (
-              param.point.y <
-              chartContainerRef.current!.clientHeight / 4
-            ) {
-              top = param.point.y + toolTipHeight + toolTipMargin;
-            }
-            console.log("top", param.point.y);
-            // top = Math.min(, 320)
 
             toolTip.style.left = left + "px";
             toolTip.style.top = top + "px";
@@ -191,6 +187,7 @@ export function VoterTurnoutChart({
         if (chartContainerRef.current && chartRef.current) {
           chartRef.current.applyOptions({
             width: chartContainerRef.current.clientWidth,
+            height: chartContainerRef.current.clientHeight,
           });
         }
       };
@@ -211,12 +208,12 @@ export function VoterTurnoutChart({
   }, [voteData]);
 
   return (
-    <div className="card bg-base-100 w-80 sm:w-96 grow pb-12">
+    <div className="card bg-base-100 w-full sm:w-96 grow pb-12">
       <div className="card-body">
         <h2 className="card-title">Proposal Voter Turnout</h2>
       </div>
-      <figure className={classNames("h-80 relative", loading && "skeleton")}>
-        {voteData?.length > 0 && <div ref={chartContainerRef} />}
+      <figure className={classNames("h-80 relative p-4", loading && "skeleton")}>
+        {voteData?.length > 0 && <div className="w-full h-full" ref={chartContainerRef} />}
       </figure>
     </div>
   );
