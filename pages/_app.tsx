@@ -129,6 +129,8 @@ function MyApp({ Component, pageProps }: any) {
 function WagmiWrappedApp({ Component, pageProps }: any) {
   return (
     <>
+      {/* react scan for debug */}
+      {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js"/> */}
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <Toaster />

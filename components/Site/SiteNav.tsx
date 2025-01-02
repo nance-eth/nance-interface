@@ -46,10 +46,6 @@ export default function SiteNav({
     image: image || "/images/opengraph/OG_splash.png",
   };
 
-  const origin =
-    process.env.NODE_ENV !== "development"
-      ? "https://nance.app"
-      : "http://localhost:3001";
   return (
     <>
       <Head>
