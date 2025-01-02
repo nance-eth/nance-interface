@@ -226,12 +226,12 @@ export default function Analysis() {
           </div>
         )}
 
-        <div className="flex flex-col items-center ">
+        <div className="flex flex-col items-center">
           <div className="w-full max-w-5xl mt-8">
             {spaceInfo?.name ? (
               <SpaceHeader />
             ) : (
-              <div className="flex flex-row items-center gap-6 mb-10">
+              <div className="flex flex-row justify-center sm:justify-start gap-3 sm:gap-6 mb-10">
                 <SnapshotSearch
                   val={selectedSnapshotSpace}
                   setVal={setSelectedSnapshotSpace}

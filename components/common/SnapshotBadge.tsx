@@ -27,7 +27,7 @@ export function SnapshotBadge({
     >
       <div className="
         flex flex-row gap-1
-        font-medium text-sm border border-transparent px-2 py-1
+        font-medium text-xs sm:text-sm border border-transparent px-2 py-1
         rounded-full text-white bg-gray-500 hover:bg-gray-800
       "
       >

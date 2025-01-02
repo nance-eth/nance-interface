@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { Combobox } from "@headlessui/react";
 import { classNames } from "@/utils/functions/tailwind";
@@ -38,7 +38,7 @@ export default function SnapshotSearch({
 
   return (
     <div>
-      <div className="mt-2 block text-sm font-medium leading-6 text-gray-900">
+      <div className="block text-sm font-medium leading-6 text-gray-900">
         {" "}
         Select a Snapshot space
       </div>
