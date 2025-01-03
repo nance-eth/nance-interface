@@ -114,7 +114,7 @@ export default function NanceProposalPage() {
         withSiteSuffixInTitle={false}
       />
       <div className="min-h-full">
-        <main className="py-2">
+        <main className="py-2 md:py-4 md:px-6">
           <ProposalContext.Provider
             value={{
               commonProps,
