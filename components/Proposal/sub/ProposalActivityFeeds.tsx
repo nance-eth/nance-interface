@@ -207,23 +207,28 @@ export default function ProposalActivityFeeds() {
       date: format(toDate(data.proposal.create * 1000), "MMM dd"),
       time: data.proposal.create,
     },
-    {
+  ];
+
+  if (commonProps.voteStart) {
+    progressActivity.push({
       id: "snapshotStart",
       type: "progress",
       label: "Voting started",
       date: format(toDate(data.snapshot.start * 1000), "MMM dd"),
       time: data.snapshot.start,
       link: `https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`,
-    },
-    {
+    });
+  }
+  if (commonProps.voteEnd) {
+    progressActivity.push({
       id: "snapshotEnd",
       type: "progress",
       label: "Voting ended",
       date: format(toDate(data.snapshot.end * 1000), "MMM dd"),
       time: data.snapshot.end,
       link: `https://snapshot.org/#/${commonProps.snapshotSpace}/proposal/${commonProps.snapshotHash}`,
-    },
-  ];
+    });
+  }
 
   const activity: ActivityItem[] = [
     ...editActivity,
