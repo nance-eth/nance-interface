@@ -53,7 +53,7 @@ export default function ProposalTabs() {
 
   const handleTabChange = (tab: typeof TABS[number]) => {
     setQuery(tab);
-    router.push({
+    router.replace({
       pathname: router.pathname,
       query: { ...router.query, tab },
     });
