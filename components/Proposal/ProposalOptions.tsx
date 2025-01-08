@@ -2,9 +2,22 @@ import { Tooltip } from "flowbite-react";
 import { useProposalVotes } from "@/utils/hooks/snapshot/Proposals";
 import { SnapshotProposal } from "@/models/SnapshotTypes";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
+import { processChoicesCount } from "@/utils/functions/snapshotUtil";
 
-// BasicVoting: For Against Abstain
-const SUPPORTED_VOTING_TYPES_FOR_GROUP = ["basic", "single-choice", "approval"];
+function merge(arrayOfObjects: { [choice: string]: number }[]) {
+  return arrayOfObjects.reduce((result, currentObj) => {
+    for (let key in currentObj) {
+      if (result.hasOwnProperty(key)) {
+        // If key exists, add values
+        result[key] += currentObj[key];
+      } else {
+        // If key doesn't exist, create new key-value pair
+        result[key] = currentObj[key];
+      }
+    }
+    return result;
+  }, {});
+}
 
 export default function ProposalOptions({
   proposal,
@@ -19,7 +32,7 @@ export default function ProposalOptions({
     "created",
     "",
     isOverview,
-    proposal.votes,
+    proposal.votes
   );
 
   let scores = proposal?.scores
@@ -30,22 +43,12 @@ export default function ProposalOptions({
     // sort by score desc
     .sort((a, b) => b.score - a.score);
 
-  const displayVotesByGroup = SUPPORTED_VOTING_TYPES_FOR_GROUP.includes(
-    proposal.type,
-  );
+  const displayVotesByGroup = true;
   let votesGroupByChoice: { [choice: string]: number } = {};
   if (!isOverview && displayVotesByGroup) {
     // iterate votesData and group by choice
-    votesGroupByChoice = data?.votesData.reduce(
-      (acc: { [choice: string]: number }, vote) => {
-        const choice = vote.choice;
-        if (!acc[choice]) {
-          acc[choice] = 0;
-        }
-        acc[choice]++;
-        return acc;
-      },
-      {},
+    votesGroupByChoice = merge(
+      data?.votesData.map((d) => processChoicesCount(proposal.type, d.choice))
     );
   }
 
@@ -57,17 +60,14 @@ export default function ProposalOptions({
         scores.map(({ score, index }) => (
           <div
             key={index}
-            className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+            className="overflow-hidden rounded-lg bg-white p-3 shadow"
           >
             <Tooltip content={proposal?.choices[index]} trigger="hover">
               <dt className="truncate text-sm font-medium text-gray-500">
                 {proposal?.choices[index]}
               </dt>
             </Tooltip>
-            <Tooltip
-              content={`${((score * 100) / proposal.scores_total).toFixed(2)}%`}
-              trigger="hover"
-            >
+            <div>
               {/* <dd className="mt-1 text-3xl tracking-tight font-semibold text-gray-900">{(proposal.voteByChoice[choice]*100/proposal.scores_total).toFixed(2)}%</dd> */}
               <dd className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
                 {formatNumber(score)}
@@ -82,7 +82,7 @@ export default function ProposalOptions({
                   {((score * 100) / proposal.scores_total).toFixed()}%
                 </span>
               )}
-            </Tooltip>
+            </div>
           </div>
         ))}
     </dl>

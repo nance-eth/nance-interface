@@ -38,6 +38,26 @@ export function getColorOfChoice(choice: string | string[]) {
   }
 }
 
+export function processChoicesCount(
+  type: string | undefined,
+  choice: any
+): { [k: string]: number } {
+  if (!choice || !type) return {};
+  if (choice === "🔐") return {}; // undefined entry appears with shutter voting
+  if (type == "approval" || type == "ranked-choice") {
+    const choices = choice as string[];
+    const ret: { [k: string]: number } = {};
+    choices.forEach((c) => (ret[c] = 1));
+    return ret;
+  } else if (type == "quadratic" || type == "weighted") {
+    const obj = choice as { [key: string]: number };
+    return obj;
+  } else {
+    const c = choice as string;
+    return { [c]: 1 };
+  }
+}
+
 export function processChoices(
   type: string | undefined,
   choice: any

@@ -9,6 +9,7 @@ import {
 } from "next-query-params";
 import ColorBar from "@/components/common/ColorBar";
 import { formatNumber } from "@/utils/functions/NumberFormatter";
+import { SnapshotVotingType } from "@/models/SnapshotTypes";
 
 export default function ProposalVoteOverview({
   temperatureCheckVotes,
@@ -25,13 +26,7 @@ export default function ProposalVoteOverview({
 
   const proposalType = proposalInfo?.type ?? "";
   const threshold = commonProps?.minTokenPassingAmount ?? 0;
-
-  const isSimpleVoting = ![
-    "approval",
-    "ranked-choice",
-    "quadratic",
-    "weighted",
-  ].includes(proposalType);
+  const isBasicVoting = proposalType === SnapshotVotingType.BASIC;
 
   if (!proposalInfo) {
     return (
@@ -85,7 +80,7 @@ export default function ProposalVoteOverview({
 
   return (
     <div className="mb-4">
-      {isSimpleVoting && (
+      {isBasicVoting && (
         <>
           <div className="flex justify-between">
             <p
@@ -140,7 +135,7 @@ export default function ProposalVoteOverview({
         </>
       )}
 
-      {!isSimpleVoting && (
+      {!isBasicVoting && (
         <>
           <div className="flex justify-between">
             <p className="text-sm text-green-500">

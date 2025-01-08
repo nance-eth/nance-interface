@@ -14,7 +14,6 @@ import { useProposal } from "@/utils/hooks/NanceHooks";
 import { useParams } from "next/navigation";
 import ProposalTabs from "@/components/Proposal/ProposalTabs";
 import ProposalHeader from "@/components/Proposal/ProposalHeader";
-import ProposalOptions from "@/components/Proposal/ProposalOptions";
 import ProposalVoteOverview from "@/components/Proposal/ProposalVoteOverview";
 
 export default function NanceProposalPage() {
@@ -141,21 +140,6 @@ export default function NanceProposalPage() {
                 <div className="space-y-4">
                   <ProposalHeader />
                   <ProposalContent />
-                </div>
-
-                {/* Display Options if not basic (For Against) */}
-                <div>
-                  {snapshotProposal &&
-                    [
-                      "approval",
-                      "ranked-choice",
-                      "quadratic",
-                      "weighted",
-                    ].includes(snapshotProposal.type) && (
-                      <div className="mt-6 flow-root">
-                        <ProposalOptions proposal={snapshotProposal} />
-                      </div>
-                    )}
                 </div>
               </div>
 

@@ -99,6 +99,15 @@ export interface FollowedSpacesData {
   activeProposals: number;
 }
 
+export enum SnapshotVotingType {
+  BASIC = "basic", // For Against Abstain
+  SINGLE_CHOICE = "single-choice",
+  APPROVAL = "approval", // Approve/Disapprove on multiple options
+  RANKED_CHOICE = "ranked-choice",
+  QUADRATIC = "quadratic",
+  WEIGHTED = "weighted", // give explicit weight
+}
+
 // Model for a single proposal
 export interface SnapshotProposal {
   id: string;

@@ -1,37 +1,43 @@
-import {
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { ProposalContext } from "./context/ProposalContext";
 import { useRouter } from "next/router";
 import { classNames } from "@/utils/functions/tailwind";
 import ProposalContent from "./ProposalContent";
 import ProposalActivityFeeds from "./sub/ProposalActivityFeeds";
 import ProposalMetadata from "./sub/ProposalMetadata";
+import { SnapshotVotingType } from "@/models/SnapshotTypes";
+import ProposalOptions from "./ProposalOptions";
 
-
-const TABS = ["Content", "Activity", "Actions"] as const;
+const TABS = ["Content", "Activity", "Actions", "Results"] as const;
 const LG_MIN_WIDTH = 1024;
 
 export default function ProposalTabs() {
   const router = useRouter();
-  const [query, setQuery] = useState<typeof TABS[number]>("Content");
-  const { commonProps } = useContext(ProposalContext);
+  const [query, setQuery] = useState<(typeof TABS)[number]>("Content");
+  const { commonProps, proposalInfo } = useContext(ProposalContext);
 
   // Memoize filtered tabs
   const filteredTabs = useMemo(() => {
-    const tabs = TABS.filter(t => t !== "Content");
+    const tabs = TABS.filter((t) => t !== "Content");
     if (commonProps.actions.length === 0) {
-      return tabs.filter(t => t !== "Actions");
+      return tabs.filter((t) => t !== "Actions");
+    }
+    if (
+      proposalInfo === undefined ||
+      proposalInfo?.type === SnapshotVotingType.BASIC
+    ) {
+      return tabs.filter((t) => t !== "Results");
     }
     return tabs;
   }, [commonProps.actions]);
 
   useEffect(() => {
     const correctContentTab = () => {
-      if (window.innerWidth >= LG_MIN_WIDTH && query === "Content" && router.isReady) {
+      if (
+        window.innerWidth >= LG_MIN_WIDTH &&
+        query === "Content" &&
+        router.isReady
+      ) {
         handleTabChange("Activity");
       }
     };
@@ -51,21 +57,18 @@ export default function ProposalTabs() {
     };
   }, [query, router.isReady]);
 
-  const handleTabChange = (tab: typeof TABS[number]) => {
+  const handleTabChange = (tab: (typeof TABS)[number]) => {
     setQuery(tab);
-    router.replace({
-      pathname: router.pathname,
-      query: { ...router.query, tab },
-    });
   };
 
-  const getTabClasses = useMemo(() => (isActive: boolean) =>
-    classNames(
-      isActive
-        ? "border-indigo-500 text-indigo-600"
-        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-      "whitespace-nowrap border-b-2 p-1 text-sm font-medium cursor-pointer"
-    ),
+  const getTabClasses = useMemo(
+    () => (isActive: boolean) =>
+      classNames(
+        isActive
+          ? "border-indigo-500 text-indigo-600"
+          : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
+        "whitespace-nowrap border-b-2 p-1 text-sm font-medium cursor-pointer"
+      ),
     []
   );
 
@@ -88,7 +91,7 @@ export default function ProposalTabs() {
 
         {/* Small screen nav */}
         <nav aria-label="Tabs" className="-mb-px flex lg:hidden space-x-8">
-          {TABS.map((tab) => (
+          {[TABS[0], ...filteredTabs].map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)}
@@ -102,13 +105,15 @@ export default function ProposalTabs() {
       </div>
 
       <div>
-        {(query === "Content" || (!query && window.innerWidth < LG_MIN_WIDTH)) && (
+        {(query === "Content" ||
+          (!query && window.innerWidth < LG_MIN_WIDTH)) && (
           <div className="hidden mt-4 w-[90vw] max-lg:block">
             <ProposalContent />
           </div>
         )}
 
-        {(query === "Activity" || (!query && window.innerWidth >= LG_MIN_WIDTH)) && (
+        {(query === "Activity" ||
+          (!query && window.innerWidth >= LG_MIN_WIDTH)) && (
           <div className="mt-4 max-lg:w-[90vw] block">
             <ProposalActivityFeeds />
           </div>
@@ -117,6 +122,12 @@ export default function ProposalTabs() {
         {query === "Actions" && commonProps.status !== "Draft" && (
           <div className="mt-4 max-lg:w-[90vw] overflow-x-auto block">
             <ProposalMetadata />
+          </div>
+        )}
+
+        {query === "Results" && proposalInfo !== undefined && (
+          <div className="mt-4 max-lg:w-[90vw] overflow-x-auto block">
+            <ProposalOptions proposal={proposalInfo} />
           </div>
         )}
       </div>
