@@ -20,6 +20,7 @@ import getVotedIcon from "./card/VoteIcon";
 import NewVoteButton from "@/components/Vote/NewVoteButton";
 import VotesBar from "./card/VotesBar";
 import ProposalRow from "./card/ProposalRow";
+import { AnimatePresence } from "motion/react";
 
 const SortOptionsArr = ["status", "title", "approval", "participants", "voted"];
 const StatusValue: { [key: string]: number } = {
@@ -333,51 +334,53 @@ export default function ProposalCards({
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {isLoading && (
-                <>
-                  <ProposalRowSkeleton isFirst />
-                  <ProposalRowSkeleton />
-                  <ProposalRowSkeleton />
-                </>
-              )}
-              {!isLoading &&
-                sortedProposals.map((proposal, proposalIdx) => (
-                  <ProposalRow
-                    key={proposal.uuid}
-                    proposal={proposal}
-                    snapshotProposal={snapshotProposalDict[proposal.voteURL!]}
-                    isFirst={proposalIdx === 0}
-                    proposalIdPrefix={
-                      proposalsPacket?.proposalInfo?.proposalIdPrefix || ""
-                    }
-                    votesBar={
-                      <VotesBar
-                        snapshotProposal={
-                          snapshotProposalDict[proposal.voteURL!]
-                        }
-                        proposal={proposal}
-                        threshold={
-                          proposalsPacket?.proposalInfo
-                            ?.minTokenPassingAmount ?? 0
-                        }
-                      />
-                    }
-                    voteActionOrStatus={
-                      <VoteActionOrLabel
-                        snapshotProposal={
-                          snapshotProposalDict[proposal.voteURL!]
-                        }
-                        snapshotSpace={
-                          proposalsPacket?.proposalInfo?.snapshotSpace || ""
-                        }
-                        votedData={votedData?.[proposal.voteURL!]}
-                        refetch={refetch}
-                      />
-                    }
-                  />
-                ))}
-            </tbody>
+            <AnimatePresence>
+              <tbody>
+                {isLoading && (
+                  <>
+                    <ProposalRowSkeleton isFirst />
+                    <ProposalRowSkeleton />
+                    <ProposalRowSkeleton />
+                  </>
+                )}
+                {!isLoading &&
+                  sortedProposals.map((proposal, proposalIdx) => (
+                    <ProposalRow
+                      key={proposal.uuid}
+                      proposal={proposal}
+                      snapshotProposal={snapshotProposalDict[proposal.voteURL!]}
+                      isFirst={proposalIdx === 0}
+                      proposalIdPrefix={
+                        proposalsPacket?.proposalInfo?.proposalIdPrefix || ""
+                      }
+                      votesBar={
+                        <VotesBar
+                          snapshotProposal={
+                            snapshotProposalDict[proposal.voteURL!]
+                          }
+                          proposal={proposal}
+                          threshold={
+                            proposalsPacket?.proposalInfo
+                              ?.minTokenPassingAmount ?? 0
+                          }
+                        />
+                      }
+                      voteActionOrStatus={
+                        <VoteActionOrLabel
+                          snapshotProposal={
+                            snapshotProposalDict[proposal.voteURL!]
+                          }
+                          snapshotSpace={
+                            proposalsPacket?.proposalInfo?.snapshotSpace || ""
+                          }
+                          votedData={votedData?.[proposal.voteURL!]}
+                          refetch={refetch}
+                        />
+                      }
+                    />
+                  ))}
+              </tbody>
+            </AnimatePresence>
           </table>
         </div>
       </div>

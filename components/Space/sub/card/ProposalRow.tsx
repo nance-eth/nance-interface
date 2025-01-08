@@ -18,6 +18,7 @@ import { formatNumber } from "@/utils/functions/NumberFormatter";
 import TokenSymbol from "@/components/AddressCard/TokenSymbol";
 import TooltipInfo from "@/components/common/TooltipInfo";
 import Image from "next/image";
+import { motion } from "motion/react";
 
 export function RequestingTokensOfProposal({ actions }: { actions: Action[] }) {
   // we only parse Payout and Transfer actions here
@@ -115,7 +116,14 @@ export default function ProposalRow({
   }
 
   return (
-    <tr className="hover:bg-slate-100">
+    <motion.tr
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="hover:bg-slate-100"
+    >
       <td
         className={classNames(
           isFirst ? "" : "border-t border-transparent",
@@ -176,9 +184,9 @@ export default function ProposalRow({
                           content={`The intended author does not have sufficient voting power to submit a proposal.\
                             An address with atleast\
                             ${formatNumber(
-                        spaceInfo?.proposalSubmissionValidation
-                          ?.minBalance || 0
-                      )}\
+                              spaceInfo?.proposalSubmissionValidation
+                                ?.minBalance || 0
+                            )}\
                             voting power must sponsor the proposal.`}
                         />
                       </div>
@@ -262,6 +270,6 @@ export default function ProposalRow({
       >
         {voteActionOrStatus}
       </td>
-    </tr>
+    </motion.tr>
   );
 }
