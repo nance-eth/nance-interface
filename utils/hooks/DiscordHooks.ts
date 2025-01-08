@@ -19,9 +19,9 @@ function jsonFetcher(): Fetcher<any, string> {
   return async (url) => {
     const res = await fetch(url);
     const json = await res.json();
-    if (json?.success === "false") {
+    if (json?.code) {
       throw new Error(
-        `An error occurred while fetching the data: ${json?.error}`
+        `An error occurred while fetching the data: ${json?.code} ${json?.message}`
       );
     }
     return json;
