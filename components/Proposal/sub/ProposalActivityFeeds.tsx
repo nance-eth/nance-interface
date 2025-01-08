@@ -114,7 +114,8 @@ export default function ProposalActivityFeeds() {
 
   const { data: messages } = useDiscordChannelMessages(
     commonProps.discussion.split("/").pop(),
-    50
+    50,
+    commonProps.discussion.startsWith("https://discord.com/channels/")
   );
 
   const data = {
