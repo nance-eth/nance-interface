@@ -193,7 +193,7 @@ export default function ProposalActivityFeeds() {
       ? {
           id: "threadArchive",
           type: "progress",
-          label: `Thread archived (${threadStarterMessage.thread?.member_count}👤 ${threadStarterMessage.thread?.message_count}✉️)`,
+          label: `Thread stats (${threadStarterMessage.thread?.member_count}👤 ${threadStarterMessage.thread?.message_count}✉️)`,
           date: format(new Date(lastMessageTimestamp * 1000), "MMM dd"),
           time: lastMessageTimestamp,
           link: openInDiscord(commonProps.discussion),
