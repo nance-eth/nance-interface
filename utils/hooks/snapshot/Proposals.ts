@@ -234,12 +234,6 @@ export function useProposalVotes(
 } {
   // sort after query if need reason
   const sortAfterQuery = withField === "reason" || withField === "app";
-  console.debug("🔧 useProposalVotes.args ->", {
-    proposalId: proposal?.id,
-    skip,
-    orderBy,
-    withField,
-  });
 
   // Load related votes
   const {
@@ -254,15 +248,14 @@ export function useProposalVotes(
       first: sortAfterQuery
         ? Math.min(proposal?.votes ?? 0, 1000)
         : overrideLimit === 0
-          ? VOTES_PER_PAGE
-          : Math.min(overrideLimit, 1000),
+        ? VOTES_PER_PAGE
+        : Math.min(overrideLimit, 1000),
       skip: sortAfterQuery ? 0 : skip,
       orderBy: orderBy,
       id: proposal?.id ?? "",
     },
     skip: skipThisHook,
   });
-  console.debug("🔧 useProposalVotes.cacheHit", cacheHit);
 
   let totalVotes = proposal?.votes || 0;
   let votes = voteData?.votes || [];
@@ -306,6 +299,5 @@ export function useProposalVotes(
     error: voteError,
     refetch,
   };
-  console.debug("🔧 useProposalVotes.return ->", { ret });
   return ret;
 }
