@@ -26,6 +26,11 @@ export interface DiscordGuild {
   approximate_presence_count: number;
 }
 
+export interface DiscordChannelMetadata {
+  archived: boolean;
+  create_timestamp?: string;
+}
+
 export interface DiscordChannel {
   id: string;
   name: string;
@@ -47,6 +52,7 @@ export interface DiscordChannel {
   member_count?: number;
   message_count?: number;
   total_message_sent?: number;
+  thread_metadata?: DiscordChannelMetadata;
 }
 
 export interface DiscordRole {

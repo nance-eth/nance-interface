@@ -90,6 +90,19 @@ export function useFetchDiscordChannels(
   );
 }
 
+export function useDiscordChannel(
+  channelId: string | undefined,
+  shouldFetch: boolean = true
+) {
+  const command = BOT_COMMANDS.channel.replace("{channelId}", channelId || "");
+  return useSWR<DiscordChannel, string>(
+    shouldFetch && channelId
+      ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
+      : null,
+    jsonFetcher()
+  );
+}
+
 export function useIsBotMemberOfGuild(
   guildId: string | undefined,
   shouldFetch: boolean = true
