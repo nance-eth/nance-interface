@@ -30,7 +30,10 @@ import {
   discordUserAvatarUrlOf,
   openInDiscord,
 } from "@/utils/functions/discord";
-import { useDiscordChannelMessages } from "@/utils/hooks/DiscordHooks";
+import {
+  useDiscordChannel,
+  useDiscordChannelMessages,
+} from "@/utils/hooks/DiscordHooks";
 import { DiscordMessage, DiscordMessageType } from "@/models/DiscordTypes";
 import DiscordMessageView from "./DiscordMessageView";
 
@@ -112,10 +115,15 @@ export default function ProposalActivityFeeds() {
     votes = votes.filter((v) => v.choice === "Abstain");
   }
 
+  const hasChannelId = commonProps.discussion.startsWith(
+    "https://discord.com/channels/"
+  );
+  const channelId = commonProps.discussion.split("/").pop();
+  const { data: channel } = useDiscordChannel(channelId, hasChannelId);
   const { data: messages } = useDiscordChannelMessages(
-    commonProps.discussion.split("/").pop(),
+    channelId,
     50,
-    commonProps.discussion.startsWith("https://discord.com/channels/")
+    hasChannelId
   );
 
   const data = {
@@ -154,20 +162,6 @@ export default function ProposalActivityFeeds() {
     };
   });
 
-  const threadStarterMessage = messages?.find(
-    (v) => v.type === DiscordMessageType.THREAD_STARTER_MESSAGE
-  )?.referenced_message;
-  const threadCreateProgressActivity: ProgressActivity | undefined =
-    threadStarterMessage
-      ? {
-          id: "threadCreate",
-          type: "progress",
-          label: `Thread created`,
-          date: format(new Date(threadStarterMessage.timestamp), "MMM dd"),
-          time: getUnixTime(new Date(threadStarterMessage.timestamp)),
-          link: openInDiscord(commonProps.discussion),
-        }
-      : undefined;
   const messageActivity: ActivityItem[] =
     messages
       ?.filter(
@@ -184,16 +178,43 @@ export default function ProposalActivityFeeds() {
           message: v,
         };
       }) || [];
+
+  const firstMessageTimestamp = messageActivity.length
+    ? // the first one is the oldest
+      messageActivity[messageActivity.length - 1].time - 1
+    : 0;
   const lastMessageTimestamp = messageActivity.length
     ? // the last one is the latest
       messageActivity[0].time + 1
     : 0;
+
+  const threadCreateProgressActivity: ProgressActivity | undefined = channel
+    ? {
+        id: "threadCreate",
+        type: "progress",
+        label: `Thread created`,
+        date: format(
+          new Date(
+            channel.thread_metadata?.create_timestamp || firstMessageTimestamp
+          ),
+          "MMM dd"
+        ),
+        time: getUnixTime(
+          new Date(
+            channel.thread_metadata?.create_timestamp || firstMessageTimestamp
+          )
+        ),
+        link: openInDiscord(commonProps.discussion),
+      }
+    : undefined;
   const threadArchivedProgressActivity: ProgressActivity | undefined =
-    threadStarterMessage && lastMessageTimestamp
+    channel && lastMessageTimestamp
       ? {
           id: "threadArchive",
           type: "progress",
-          label: `Thread stats (${threadStarterMessage.thread?.member_count}👤 ${threadStarterMessage.thread?.message_count}✉️)`,
+          label: `Thread stats (${channel.member_count || 0}👤 ${
+            channel.message_count || 0
+          }✉️)`,
           date: format(new Date(lastMessageTimestamp * 1000), "MMM dd"),
           time: lastMessageTimestamp,
           link: openInDiscord(commonProps.discussion),
