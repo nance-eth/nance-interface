@@ -16,4 +16,6 @@ export const BOT_COMMANDS = {
   channels: "guilds/{guildId}/channels",
   member: "guilds/{guildId}/members",
   roles: "guilds/{guildId}/roles",
+  // doc: https://discord.com/developers/docs/resources/message#get-channel-messages
+  messages: "channels/{channelId}/messages?limit={limit}",
 };

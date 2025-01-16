@@ -119,13 +119,14 @@ export function useDiscordGuildRoles(
   );
 }
 
-// doc: https://discord.com/developers/docs/resources/message#get-channel-messages
 export function useDiscordChannelMessages(
   channelId: string | undefined,
   limit: number = 50,
   shouldFetch: boolean = true
 ) {
-  const command = `/channels/${channelId}/messages?limit=${limit}`;
+  const command = BOT_COMMANDS.messages
+    .replace("{channelId}", channelId || "")
+    .replace("{limit}", limit.toString());
   return useSWR<DiscordMessage[], string>(
     shouldFetch && channelId
       ? `${DISCORD_PROXY_BOT_URL}?command=${command}`
