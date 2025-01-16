@@ -51,6 +51,7 @@ export function processChoicesCount(
     return ret;
   } else if (type == "quadratic" || type == "weighted") {
     const obj = choice as { [key: string]: number };
+    Object.entries(obj).map((entry) => (obj[entry[0]] = 1));
     return obj;
   } else {
     const c = choice as string;
