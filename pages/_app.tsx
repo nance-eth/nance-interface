@@ -44,7 +44,8 @@ const theme = {
   theme: {
     tooltip: {
       target: "",
-      content: "relative z-20 max-w-[200px] lg:max-w-[300px] 2xl:max-w-[500px]",
+      content:
+        "relative z-20 max-w-[200px] lg:max-w-[300px] 2xl:max-w-[500px] break-words",
     },
   },
 };
