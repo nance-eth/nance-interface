@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 export async function getStaticProps(context: any) {
   // fetch markdown from git raw
   const res = await fetch(
-    "https://raw.githubusercontent.com/jbx-protocol/juice-docs/main/docs/dao/process.md",
+    "https://raw.githubusercontent.com/jbx-protocol/juice-docs/refs/heads/master/docs/dao/process.md"
   );
   const markdown = await res.text();
 
