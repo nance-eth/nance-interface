@@ -30,7 +30,7 @@ export default function DiscordMessageView({
           <div className="text-gray-500">
             <a
               href={`#comment-${message.referenced_message.id}`}
-              className="hover:underline line-clamp-2"
+              className="line-clamp-3 hover:line-clamp-6 "
             >
               {`@${message.referenced_message.author.username}: `}
               {renderMentions(message.referenced_message)}
