@@ -8,28 +8,28 @@ import ProposalMetadata from "./sub/ProposalMetadata";
 import { SnapshotVotingType } from "@/models/SnapshotTypes";
 import ProposalOptions from "./ProposalOptions";
 
-const TABS = ["Content", "Activity", "Actions", "Results"] as const;
+//const TABS = ["Content", "Activity", "Actions", "Results"] as const;
 const LG_MIN_WIDTH = 1024;
 
 export default function ProposalTabs() {
   const router = useRouter();
-  const [query, setQuery] = useState<(typeof TABS)[number]>("Content");
+  const [query, setQuery] = useState<string>("Content");
   const { commonProps, proposalInfo } = useContext(ProposalContext);
 
   // Memoize filtered tabs
   const filteredTabs = useMemo(() => {
-    const tabs = TABS.filter((t) => t !== "Content");
-    if (commonProps.actions.length === 0) {
-      return tabs.filter((t) => t !== "Actions");
+    const tabs: string[] = ["Activity"];
+    if (commonProps.actions.length !== 0) {
+      tabs.push("Actions");
     }
     if (
-      proposalInfo === undefined ||
-      proposalInfo?.type === SnapshotVotingType.BASIC
+      proposalInfo !== undefined &&
+      proposalInfo?.type !== SnapshotVotingType.BASIC
     ) {
-      return tabs.filter((t) => t !== "Results");
+      tabs.push("Results");
     }
     return tabs;
-  }, [commonProps.actions]);
+  }, [commonProps, proposalInfo]);
 
   useEffect(() => {
     const correctContentTab = () => {
@@ -57,7 +57,7 @@ export default function ProposalTabs() {
     };
   }, [query, router.isReady]);
 
-  const handleTabChange = (tab: (typeof TABS)[number]) => {
+  const handleTabChange = (tab: string) => {
     setQuery(tab);
   };
 
@@ -91,7 +91,7 @@ export default function ProposalTabs() {
 
         {/* Small screen nav */}
         <nav aria-label="Tabs" className="-mb-px flex lg:hidden space-x-8">
-          {[TABS[0], ...filteredTabs].map((tab) => (
+          {["Content", ...filteredTabs].map((tab) => (
             <button
               key={tab}
               onClick={() => handleTabChange(tab)}
