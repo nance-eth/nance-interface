@@ -257,11 +257,11 @@ export default function ProposalEditForm({ space }: { space: string }) {
     if (!address) {
       throw new Error("Please connect the wallet first.");
     }
-    if (!spaceInfo?.snapshotSpace) {
-      throw new Error(
-        "Please contact support to configure snapshotSpace for this space."
-      );
-    }
+    // if (!spaceInfo?.snapshotSpace) {
+    //   throw new Error(
+    //     "Please contact support to configure snapshotSpace for this space."
+    //   );
+    // }
     // ===== SIGNATURE BASED AUTHENTICATION =====
     // const message = formatSnapshotProposalMessage(address, proposal, spaceInfo.snapshotSpace, new Date(), new Date());
     // signTypedDataAsync({

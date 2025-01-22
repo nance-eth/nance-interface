@@ -67,50 +67,52 @@ export default function SpaceHeader() {
             </p>
           </div>
         </div>
-        <div className="rounded-md border-2 border-blue-600 bg-indigo-100 py-2 px-3 w-min-fit text-xs">
-          <div className="flex flex-col">
-            <div className="flex flex-row items-center">
-              <div className="text-gray-500">Governance Cycle</div>
-              <div className="ml-2">{currentCycle}</div>
-            </div>
-            <div className="flex flex-row items-center">
-              <div className="text-gray-500">Current Event</div>
-              <div className="ml-8">{currentEvent.title}</div>
-            </div>
-            <div className="flex justify-start items-center">
-              <div className="text-gray-500">Time Remaining</div>
-              <Tooltip content={formattedEndTime}>
-                <div className="ml-5">
-                  <span className="countdown font-mono">
-                    <span
-                      style={
-                        { "--value": remainingTime[0] } as React.CSSProperties
-                      }
-                    ></span>
-                    :
-                    <span
-                      style={
-                        { "--value": remainingTime[1] } as React.CSSProperties
-                      }
-                    ></span>
-                    :
-                    <span
-                      style={
-                        { "--value": remainingTime[2] } as React.CSSProperties
-                      }
-                    ></span>
-                    :
-                    <span
-                      style={
-                        { "--value": remainingTime[3] } as React.CSSProperties
-                      }
-                    ></span>
-                  </span>
-                </div>
-              </Tooltip>
+        {currentEvent.end && (
+          <div className="rounded-md border-2 border-blue-600 bg-indigo-100 py-2 px-3 w-min-fit text-xs">
+            <div className="flex flex-col">
+              <div className="flex flex-row items-center">
+                <div className="text-gray-500">Governance Cycle</div>
+                <div className="ml-2">{currentCycle}</div>
+              </div>
+              <div className="flex flex-row items-center">
+                <div className="text-gray-500">Current Event</div>
+                <div className="ml-8">{currentEvent.title}</div>
+              </div>
+              <div className="flex justify-start items-center">
+                <div className="text-gray-500">Time Remaining</div>
+                <Tooltip content={formattedEndTime}>
+                  <div className="ml-5">
+                    <span className="countdown font-mono">
+                      <span
+                        style={
+                          { "--value": remainingTime[0] } as React.CSSProperties
+                        }
+                      ></span>
+                      :
+                      <span
+                        style={
+                          { "--value": remainingTime[1] } as React.CSSProperties
+                        }
+                      ></span>
+                      :
+                      <span
+                        style={
+                          { "--value": remainingTime[2] } as React.CSSProperties
+                        }
+                      ></span>
+                      :
+                      <span
+                        style={
+                          { "--value": remainingTime[3] } as React.CSSProperties
+                        }
+                      ></span>
+                    </span>
+                  </div>
+                </Tooltip>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

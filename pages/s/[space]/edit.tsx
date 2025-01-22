@@ -86,7 +86,7 @@ export default function NanceEditProposal() {
         <div className="w-full max-w-7xl">
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold">
-              {proposalId && !fork ? "Edit" : "New"} Proposal for {space}
+              {proposalId && !fork ? "Edit" : "New"} Proposal for {spaceInfo?.displayName}
             </p>
             <div className="flex items-center">
               <Link href={`/s/${space}`} legacyBehavior>

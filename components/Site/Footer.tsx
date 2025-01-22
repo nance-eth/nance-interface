@@ -57,8 +57,6 @@ export default function Footer() {
             src="https://status.nance.app/badge?theme=light"
             width="200"
             height="30"
-            frameBorder="0"
-            scrolling="no"
           ></iframe>
         </div>
         <div className="flex justify-center space-x-6">
