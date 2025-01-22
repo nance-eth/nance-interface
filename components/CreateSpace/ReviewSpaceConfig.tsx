@@ -4,7 +4,7 @@ import GovernanceCalendarMiniWrapped from "./sub/GovernanceCalendarMiniWrapped";
 import BasicFormattedCard from "../common/BasicFormattedCard";
 import useSnapshotSpaceInfo from "@/utils/hooks/snapshot/SpaceInfo";
 import { ConfigSnapshotSpaceField } from "./SnapshotForm";
-import { JUICEBOX_PROJECT_FIELD } from "pages/create";
+import { JUICEBOX_PROJECT_FIELD } from "pages/create2";
 import useJBMSearch from "@/utils/hooks/juicebox/ProjectSmartSearch";
 import { useContext, useEffect } from "react";
 import { JBDAO_LOGO, cidFromUrl, ipfsUrlOf } from "@/constants/Juicebox";
