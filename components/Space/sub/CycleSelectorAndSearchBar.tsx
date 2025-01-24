@@ -3,12 +3,13 @@ import SpaceAction from "./SpaceAction";
 import {
   MagnifyingGlassIcon,
   CalendarDaysIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/solid";
 import FlyoutMenu, { MenuEntry } from "@/components/FlyoutMenu/FlyoutMenu";
 
 function genOptions(
   setCycle: (c: string) => void,
-  currentCycle: number | undefined,
+  currentCycle: number | undefined
 ): MenuEntry[] {
   const allCycle: MenuEntry = {
     name: "All",
@@ -47,7 +48,9 @@ function genOptions(
 }
 
 export default function CycleSelectorAndSearchBar({
-  currentCycle, keywordInput, setKeywordInput
+  currentCycle,
+  keywordInput,
+  setKeywordInput,
 }: {
   currentCycle: number | undefined;
   keywordInput: string | undefined;
@@ -59,7 +62,7 @@ export default function CycleSelectorAndSearchBar({
   const { cycle } = query;
   const options = genOptions(
     (c: string) => setQuery({ cycle: c }),
-    currentCycle,
+    currentCycle
   );
 
   return (
@@ -84,6 +87,14 @@ export default function CycleSelectorAndSearchBar({
             value={keywordInput}
             onChange={(e) => setKeywordInput(e.target.value)}
           />
+          {keywordInput && keywordInput !== "" && (
+            <div
+              className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+              onClick={() => setKeywordInput("")}
+            >
+              <XMarkIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            </div>
+          )}
         </div>
         <div className="-ml-px flex items-center rounded-r-md border-[1px] border-gray-300 bg-white p-3">
           <FlyoutMenu placement="left" entries={options}>
