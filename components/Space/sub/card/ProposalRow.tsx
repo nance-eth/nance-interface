@@ -211,15 +211,20 @@ export default function ProposalRow({
                 </div>
               </div>
               {/* Tokens */}
-              <div className="flex items-center gap-x-1">
-                <BanknotesIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
-                <div>
-                  <p className="text-gray-500">Requesting</p>
-                  <div className="text-center text-black">
-                    <RequestingTokensOfProposal actions={actions} />
+              {actions?.filter(
+                (action) =>
+                  action.type === "Payout" || action.type === "Transfer"
+              ).length > 0 && (
+                <div className="flex items-center gap-x-1">
+                  <BanknotesIcon className="h-6 w-6 flex-none rounded-full bg-gray-50" />
+                  <div>
+                    <p className="text-gray-500">Requesting</p>
+                    <div className="text-center text-black">
+                      <RequestingTokensOfProposal actions={actions} />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <p className="flex-wrap gap-x-1 text-xs text-gray-500 hidden md:flex">
