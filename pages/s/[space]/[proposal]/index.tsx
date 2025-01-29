@@ -102,13 +102,11 @@ export default function NanceProposalPage() {
   return (
     <>
       <SiteNav
-        pageTitle={`${proposal?.title} | ${space}`}
-        description={getParagraphOfMarkdown(commonProps.body) || "No content"}
-        image={`https://cdn.stamp.fyi/avatar/${
-          commonProps.author || ZERO_ADDRESS
-        }?w=1200&h=630`}
+        pageTitle={`Proposal | ${space}`}
+        description="View this governance proposal on Nance"
+        image={`${process.env.NEXTAUTH_URL}/api/og/${space}/${params?.proposal}`}
         space={space}
-        proposalId={proposal?.voteURL}
+        proposalId={params?.proposal}
         withWallet
         withSiteSuffixInTitle={false}
       />

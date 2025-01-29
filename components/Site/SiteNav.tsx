@@ -43,7 +43,7 @@ export default function SiteNav({
     title: withSiteSuffixInTitle ? `${pageTitle} | Nance` : pageTitle,
     description: description || "Nance platform for automatic governance.",
     url: `https://nance.app${router.asPath}`,
-    image: image || "/images/opengraph/OG_splash.png",
+    image
   };
 
   return (
@@ -61,7 +61,7 @@ export default function SiteNav({
         <meta property="og:image" content={meta.image} />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta property="twitter:domain" content="jbdao.org" />
+        <meta property="twitter:domain" content="nance.app" />
         <meta property="twitter:url" content={meta.url} />
         <meta name="twitter:title" content={meta.title} />
         <meta name="twitter:description" content={meta.description} />
