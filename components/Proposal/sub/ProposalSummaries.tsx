@@ -1,5 +1,5 @@
 import { SparklesIcon } from "@heroicons/react/24/solid";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -64,14 +64,25 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
     setSummaryLoading(false);
   };
 
+  // This is a hack to ensure that the Proposal tab is checked when the component is mounted
+  useEffect(() => {
+    if (type === "Proposal" && markdown) {
+      const input = document.querySelector('input[name="summary_tabs"][aria-label="Proposal"]');
+      if (input) {
+        (input as HTMLInputElement).checked = true;
+      }
+    }
+  }, [markdown]);
+
   return (
     <>
       <input
         type="radio"
         name="summary_tabs"
         role="tab"
-        className="tab"
+        className="tab focus:outline-none focus:ring-0"
         aria-label={type}
+        defaultChecked={type === "Proposal" && !!markdown}
       />
       <div role="tabpanel" className="tab-content p-2">
         {summary && (

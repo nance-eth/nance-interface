@@ -102,9 +102,7 @@ export default function ProposalMenu() {
         shouldOpen={archiveConfirmModalIsOpen}
       />
 
-      <div className="">
-        <ProposalSummaries />
-      </div>
+      <ProposalSummaries />
 
       <Menu as="div" className="relative inline-block">
         <div>
