@@ -66,13 +66,13 @@ const Summary = ({ type, markdown }: { type: string; markdown?: string }) => {
 
   // This is a hack to ensure that the Proposal tab is checked when the component is mounted
   useEffect(() => {
-    if (type === "Proposal" && markdown) {
+    if (type === "Proposal" && summary) {
       const input = document.querySelector('input[name="summary_tabs"][aria-label="Proposal"]');
       if (input) {
         (input as HTMLInputElement).checked = true;
       }
     }
-  }, [markdown]);
+  }, [summary]);
 
   return (
     <>
