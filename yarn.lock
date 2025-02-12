@@ -3345,14 +3345,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nance/nance-editor@npm:^1.8.2":
-  version: 1.8.2
-  resolution: "@nance/nance-editor@npm:1.8.2"
+"@nance/nance-editor@npm:^1.8.4":
+  version: 1.8.4
+  resolution: "@nance/nance-editor@npm:1.8.4"
   dependencies:
     "@toast-ui/react-editor": ^3.2.3
   peerDependencies:
     react: ">=17.0.0"
-  checksum: 0c78a6b7b8baec18b41a0828e5c12ea44450d52cbe55673b286e7fa22463a3561ec1e5d12442586c6d3335afeddb7d04d7c0ccc2c6dfefff5aa7ad491bfe88cf
+  checksum: cbb3eafcb9e844e1a7efd7bda75cd2af618a917390ff4448f32d2e3bf0d4150671446f79b26205a13530ad0da14e23f8aa17aa8c42b55421cb5a9f2673d39887
   languageName: node
   linkType: hard
 
@@ -17508,7 +17508,7 @@ __metadata:
     "@heroicons/react": ^2.0.18
     "@hookform/error-message": ^2.0.1
     "@jbx-protocol/juice-contracts-v3": 5.0.0
-    "@nance/nance-editor": ^1.8.2
+    "@nance/nance-editor": ^1.8.4
     "@nance/nance-sdk": ^4.1.5
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": 2
