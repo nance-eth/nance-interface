@@ -1,3 +1,4 @@
+import { Tooltip } from "flowbite-react";
 import { PropsWithChildren } from "react";
 
 export default function TooltipInfo({
@@ -5,12 +6,12 @@ export default function TooltipInfo({
   children,
 }: PropsWithChildren<{ content: string }>) {
   return (
-    <div
-      className="tooltip cursor-pointer flex items-center gap-x-1"
-      data-tip={content}
+    <Tooltip
+      content={content}
+      className="cursor-pointer flex items-center gap-x-1"
     >
       {children}
       <span className="font-xs text-gray-400">[ ? ]</span>
-    </div>
+    </Tooltip>
   );
 }
