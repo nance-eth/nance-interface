@@ -1,11 +1,11 @@
 import { gnosis, mainnet, optimism, base, sepolia } from "wagmi/chains";
 
 export const customChains = [
-  mainnet,
-  base,
-  optimism,
+  { ...mainnet, iconUrl: "/images/chains/mainnet.svg" },
+  { ...base, iconUrl: "/images/chains/base.svg" },
+  { ...optimism, iconUrl: "/images/chains/optimism.svg" },
   { ...gnosis, iconUrl: "/images/chains/gnosis.png" }, // no icon built in for some reason
-  sepolia,
+  { ...sepolia, iconUrl: "/images/chains/sepolia.svg" },
 ];
 
 export const getChainByNetworkName = (networkName?: string) => {

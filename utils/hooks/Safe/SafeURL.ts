@@ -1,12 +1,19 @@
 import { useContext } from "react";
 import { NetworkContext } from "@/context/NetworkContext";
-import { mainnet, goerli, optimism, gnosis } from "wagmi/chains";
+import {
+  mainnet,
+  optimism,
+  gnosis,
+  sepolia,
+  base,
+} from "wagmi/chains";
 
 export const safeServiceURL = {
   [mainnet.name]: "mainnet",
-  [goerli.name]: "goerli",
+  [base.name]: "base",
   [optimism.name]: "optimism",
   [gnosis.name]: "gnosis-chain",
+  [sepolia.name]: "sepolia",
 };
 
 export type SupportedSafeNetwork = keyof typeof safeServiceURL;
