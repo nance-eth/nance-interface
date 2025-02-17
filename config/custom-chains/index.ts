@@ -1,10 +1,11 @@
-import { gnosis, goerli, mainnet, optimism } from "wagmi/chains";
+import { gnosis, mainnet, optimism, base, sepolia } from "wagmi/chains";
 
 export const customChains = [
-  { ...mainnet, iconUrl: "/images/chains/ethereum.svg" },
-  { ...optimism, iconUrl: "/images/chains/optimism.svg" },
-  { ...gnosis, iconUrl: "/images/chains/gnosis.png" },
-  { ...goerli, iconUrl: "" },
+  mainnet,
+  base,
+  optimism,
+  { ...gnosis, iconUrl: "/images/chains/gnosis.png" }, // no icon built in for some reason
+  sepolia,
 ];
 
 export const getChainByNetworkName = (networkName?: string) => {
