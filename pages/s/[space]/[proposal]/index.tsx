@@ -12,27 +12,13 @@ import { useProposal } from "@/utils/hooks/NanceHooks";
 import ProposalTabs from "@/components/Proposal/ProposalTabs";
 import ProposalHeader from "@/components/Proposal/ProposalHeader";
 import ProposalVoteOverview from "@/components/Proposal/ProposalVoteOverview";
-import { GetServerSideProps } from "next";
+import { useParams } from "next/navigation";
 
-interface NanceProposalPageProps {
-  space: string;
-  proposalId: string;
-}
+export default function NanceProposalPage() {
+  const params = useParams<{ space: string; proposal: string }>();
+  const args = { space: params?.space, uuid: params?.proposal };
+  const space = args.space;
 
-export const getServerSideProps: GetServerSideProps<NanceProposalPageProps> = async ({ params }) => {
-  const space = params?.space as string;
-  const proposalId = params?.proposal as string;
-
-  return {
-    props: {
-      space,
-      proposalId,
-    },
-  };
-};
-
-export default function NanceProposalPage({ space, proposalId }: NanceProposalPageProps) {
-  const args = { space, uuid: proposalId };
   const {
     data,
     isLoading: nanceProposalLoading,
@@ -57,7 +43,10 @@ export default function NanceProposalPage({ space, proposalId }: NanceProposalPa
   const isLoading =
     nanceProposalLoading ||
     proposalsLoading ||
-    willLoadSnapshotProposalsQuery;
+    willLoadSnapshotProposalsQuery ||
+    // If used in Pages Router, useParams will return null on the initial render
+    //   and updates with properties following the rules above once the router is ready.
+    !params;
 
   const snapshotProposal = proposalsData?.[0];
 
@@ -114,9 +103,7 @@ export default function NanceProposalPage({ space, proposalId }: NanceProposalPa
       <SiteNav
         pageTitle={`Proposal | ${space}`}
         description="View this governance proposal on Nance"
-        image={`${process.env.NEXTAUTH_URL}/api/og/${space}/${proposalId}`}
         space={space}
-        proposalId={proposalId}
         withWallet
         withSiteSuffixInTitle={false}
       />
