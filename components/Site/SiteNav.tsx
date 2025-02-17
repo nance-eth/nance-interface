@@ -24,7 +24,6 @@ export default function SiteNav({
   image,
   withWallet,
   space,
-  proposalId,
   withProposalButton = true,
   withSiteSuffixInTitle = true,
   mobileHeaderCenter = <></>,
@@ -43,7 +42,7 @@ export default function SiteNav({
     title: withSiteSuffixInTitle ? `${pageTitle} | Nance` : pageTitle,
     description: description || "Nance platform for automatic governance.",
     url: `https://nance.app${router.asPath}`,
-    image
+    image: image || "/images/opengraph/OG_splash.png",
   };
 
   return (

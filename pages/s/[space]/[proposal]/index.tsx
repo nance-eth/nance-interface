@@ -98,10 +98,12 @@ export default function NanceProposalPage() {
       proposal?.proposalInfo.minVotingPowerSubmissionBalance || 0,
   };
 
+  const pageTitle = space ? `${space} proposal` : "Nance: governance automated";
+
   return (
     <>
       <SiteNav
-        pageTitle={`Proposal | ${space}`}
+        pageTitle={pageTitle}
         description="View this governance proposal on Nance"
         space={space}
         withWallet
