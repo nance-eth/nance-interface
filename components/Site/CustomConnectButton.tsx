@@ -14,5 +14,5 @@ export default function CustomConnectButton() {
     }
   }, [sessionStatus, walletStatus]);
 
-  return <ConnectButton />;
+  return <ConnectButton showBalance={false} />;
 }

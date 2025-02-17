@@ -21,11 +21,10 @@ export default function ProposalBadgeLabel({ status }: { status: string }) {
 const statusToColor: Record<string, string> = {
   Archived: "gray",
   Discussion: "gray",
-  Draft: "gray",
+  Draft: "blue",
   Revoked: "gray",
   Approved: "green",
   Cancelled: "red",
-  Private: "red",
   "Temperature Check": "purple",
   Voting: "yellow",
 };

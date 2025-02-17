@@ -254,11 +254,17 @@ export default function ProposalCards({
     proposalsPacket?.proposals,
     snapshotProposalDict
   );
+
+  // Filter out proposals in "Draft" stage unless the user is the author
+  const filteredProposals = mergedProposals?.filter((proposal) => {
+    return proposal.status !== "Draft" || proposal.authorAddress === address;
+  });
+
   const votedData = data?.votedData;
 
   // sort proposals
   // FIXME this can only sort proposals in current page
-  let sortedProposals = mergedProposals || [];
+  let sortedProposals = filteredProposals || [];
   sortProposals(
     sortedProposals,
     query.sortBy,
