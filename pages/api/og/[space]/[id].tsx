@@ -1,5 +1,6 @@
 import { NANCE_API_URL } from "@/constants/Nance";
 import { ImageResponse } from '@vercel/og';
+import Image from "next/image";
 import { NextRequest } from 'next/server';
 export const config = {
   runtime: 'edge',
@@ -13,36 +14,10 @@ export default async function handler(req: NextRequest) {
 
   try {
     // Fetch proposal data and space info
-    const [proposalRes, spaceRes] = await Promise.all([
-      fetch(`${NANCE_API_URL}/${space}/proposal/${id}`),
-      fetch(`${NANCE_API_URL}/${space}`)
-    ]);
-    
-    const [proposalData, spaceData] = await Promise.all([
-      proposalRes.json(),
-      spaceRes.json()
-    ]);
+    const proposalRes = await fetch(`${NANCE_API_URL}/${space}/proposal/${id}`);
+    const proposalData = await proposalRes.json();
     
     const proposal = proposalData.data;
-    const spaceInfo = spaceData.data;
-
-    // Format the end date based on status and available data
-    let endDate = null;
-    if (proposal?.status?.toLowerCase() === 'voting' && spaceInfo?.currentEvent?.end) {
-      // Use currentEvent.end for active votes
-      endDate = new Date(spaceInfo.currentEvent.end).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } else if (proposal?.voteEndTime) {
-      // Fallback to proposal's voteEndTime
-      endDate = new Date(proposal.voteEndTime).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
 
     return new ImageResponse(
       (
@@ -70,7 +45,7 @@ export default async function handler(req: NextRequest) {
               textTransform: 'uppercase',
               fontWeight: 800
             }}>
-              {spaceInfo?.displayName || space}
+              {space}
             </span>
           </div>
           <div
@@ -101,18 +76,6 @@ export default async function handler(req: NextRequest) {
             >
               {proposal?.status || 'Loading...'}
             </div>
-            {endDate && (
-              <div
-                style={{
-                  fontSize: '24px',
-                  color: '#6B7280',
-                  display: 'flex',
-                  fontStyle: 'italic'
-                }}
-              >
-                Ends {endDate}
-              </div>
-            )}
           </div>
           <div
             style={{
@@ -127,7 +90,7 @@ export default async function handler(req: NextRequest) {
             }}
           >
             <span>powered by</span>
-            <img
+            <Image
               src="https://nance.app/images/logo-min.svg"
               alt="Nance Logo"
               width="32"
