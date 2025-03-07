@@ -123,3 +123,22 @@ export interface SafeTransactionBuilderTxn {
     string
   >;
 }
+
+export interface SafetransactionsResponseResult {
+  transaction: {
+    // multisig_0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e
+    //  _0x2b2a3167b4912af385fd1f6096e752e1b6cd91acb2bfb07914851399b03637cd
+    id: string;
+    timestamp: number;
+    txHash: string;
+  };
+}
+
+export interface SafeTransactionsResponse {
+  // https://safe-client.safe.global/v1/chains/1/safes
+  //   /0xAF28bcB48C40dBC86f52D459A6562F658fc94B1e/multisig-transactions
+  //   /?trusted=true&limit=10&cursor=limit%3D20%26offset%3D20
+  next: string;
+  previous: string;
+  results: SafetransactionsResponseResult[];
+}

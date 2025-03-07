@@ -1,8 +1,8 @@
 import {
   SafeInfoResponse,
-  SafeDelegatesResponse
+  SafeDelegatesResponse,
+  SafeTransactionsResponse,
 } from "@/models/SafeTypes";
-import { SafeMultisigTransactionListResponse } from "@safe-global/api-kit";
 import { Fetcher } from "swr";
 
 export function basicFetcher(): Fetcher<any, string> {
@@ -14,7 +14,7 @@ export function basicFetcher(): Fetcher<any, string> {
   };
 }
 
-export function jsonFetcher(): Fetcher<SafeMultisigTransactionListResponse, string> {
+export function jsonFetcher(): Fetcher<SafeTransactionsResponse, string> {
   return async (url) => {
     const res = await fetch(url);
     if (res.status == 400) {

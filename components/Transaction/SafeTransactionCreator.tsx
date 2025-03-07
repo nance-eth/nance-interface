@@ -54,9 +54,8 @@ export default function SafeTransactionCreator({
   }
 
   useEffect(() => {
-    const _historyTxs = historyTxs as any;
-    if (nonce === "" && _historyTxs?.countUniqueNonce) {
-      setNonce(_historyTxs.countUniqueNonce.toString());
+    if (nonce === "" && historyTxs?.results.length) {
+      setNonce(historyTxs?.results.length.toString());
     }
   }, [historyTxs]);
 
@@ -88,7 +87,7 @@ export default function SafeTransactionCreator({
         <input
           type="number"
           step={1}
-          min={historyTxs?.count || 0}
+          min={historyTxs?.results.length || 0}
           value={nonce}
           onChange={(e) => setNonce(e.target.value)}
           className="relative -ml-px inline-flex w-20 items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"
