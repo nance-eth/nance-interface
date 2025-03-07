@@ -15,7 +15,6 @@ import {
 import {
   safeNetworkAPI,
   useSafeNetworkAPI,
-  V1,
   SupportedSafeNetwork,
 } from "@/utils/hooks/Safe/SafeURL";
 import { useSafeAPIKit } from "./SafekitWrapper";
@@ -37,7 +36,7 @@ export function useMultisigTransactionOf(
   const api = useSafeNetworkAPI();
   return useSWR(
     shouldFetch
-      ? `${api}/${V1}/safes/${address}/multisig-transactions/?safe_tx_hash=${safeTxHash}`
+      ? `${api}/safes/${address}/multisig-transactions/?safe_tx_hash=${safeTxHash}`
       : null,
     jsonFetcher()
   );
@@ -51,7 +50,7 @@ export function useHistoryTransactions(
   const api = useSafeNetworkAPI();
   return useSWR(
     shouldFetch
-      ? `${api}/${V1}/safes/${address}/multisig-transactions/?executed=true&trusted=true&limit=${limit}`
+      ? `${api}/safes/${address}/multisig-transactions/?executed=true&trusted=true&limit=${limit}`
       : null,
     jsonFetcher()
   );
@@ -66,7 +65,7 @@ export function useQueuedTransactions(
   const api = useSafeNetworkAPI();
   return useSWR(
     shouldFetch
-      ? `${api}/${V1}/safes/${address}/multisig-transactions/?nonce__gte=${nonceGte}&trusted=true&limit=${limit}`
+      ? `${api}/safes/${address}/multisig-transactions/?nonce__gte=${nonceGte}&trusted=true&limit=${limit}`
       : null,
     jsonFetcher()
   );
@@ -80,7 +79,7 @@ export function useMultisigTransactions(
   const api = useSafeNetworkAPI();
   return useSWR(
     shouldFetch
-      ? `${api}/${V1}/safes/${address}/multisig-transactions/?trusted=true&limit=${limit}`
+      ? `${api}/safes/${address}/multisig-transactions/?trusted=true&limit=${limit}`
       : null,
     jsonFetcher()
   );
@@ -89,7 +88,7 @@ export function useMultisigTransactions(
 export function useSafeInfo(address: string, shouldFetch: boolean = true) {
   const api = useSafeNetworkAPI();
   return useSWR<SafeInfoResponse, Error>(
-    shouldFetch ? `${api}/${V1}/safes/${address}` : null,
+    shouldFetch ? `${api}/safes/${address}` : null,
     safeInfoJsonFetcher(),
     { shouldRetryOnError: false }
   );
@@ -98,7 +97,7 @@ export function useSafeInfo(address: string, shouldFetch: boolean = true) {
 export function useSafeDelegates(address: string, shouldFetch: boolean = true) {
   const api = useSafeNetworkAPI();
   return useSWR(
-    shouldFetch ? `${api}/${V1}/delegates/?safe=${address}` : null,
+    shouldFetch ? `${api}/delegates/?safe=${address}` : null,
     delegatesJsonFetcher()
   );
 }
@@ -332,7 +331,7 @@ export function useIsValidAddress(
 ) {
   const api = useSafeNetworkAPI();
   return useSWR(
-    shouldFetch ? `${api}/${V1}/safes/${address}` : null,
+    shouldFetch ? `${api}/safes/${address}` : null,
     validSafeFetcher()
   );
 }
@@ -342,14 +341,14 @@ export async function isValidSafe(
   network = "Ethereum" as SupportedSafeNetwork
 ) {
   const api = safeNetworkAPI(network);
-  return fetchSafeWithAddress(`${api}/${V1}/safes/${address}`);
+  return fetchSafeWithAddress(`${api}/safes/${address}`);
 }
 
 export function useSafeBalances(address: string, shouldFetch: boolean = true) {
   const api = useSafeNetworkAPI();
-  return useSWR<SafeBalanceUsdResponse[], Error>(
+  return useSWR<SafeBalanceUsdResponse, Error>(
     shouldFetch
-      ? `${api}/${V1}/safes/${address}/balances?trusted=true&exclude_spam=true`
+      ? `${api}/safes/${address}/balances/usd?trusted=true&exclude_spam=true`
       : null,
     basicFetcher(),
     { shouldRetryOnError: false }

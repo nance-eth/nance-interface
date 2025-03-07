@@ -1,12 +1,6 @@
 import { useContext } from "react";
 import { NetworkContext } from "@/context/NetworkContext";
-import {
-  mainnet,
-  optimism,
-  gnosis,
-  sepolia,
-  base,
-} from "wagmi/chains";
+import { mainnet, optimism, gnosis, sepolia, base } from "wagmi/chains";
 
 export const safeServiceURL = {
   [mainnet.name]: "mainnet",
@@ -16,15 +10,22 @@ export const safeServiceURL = {
   [sepolia.name]: "sepolia",
 };
 
+export const safeChainId = {
+  [mainnet.name]: mainnet.id,
+  [base.name]: base.id,
+  [optimism.name]: optimism.id,
+  [gnosis.name]: gnosis.id,
+  [sepolia.name]: sepolia.id,
+};
+
 export type SupportedSafeNetwork = keyof typeof safeServiceURL;
 
-export const V1 = "api/v1";
+export const safeNetworkAPI = (network: SupportedSafeNetwork) => {
+  return `https://safe-client.safe.global/v1/chains/${safeChainId[network]}`;
+};
 
 export const useSafeNetworkAPI = () => {
   const network = useContext(NetworkContext) as SupportedSafeNetwork;
-  return `https://safe-transaction-${safeServiceURL[network]}.safe.global`;
-};
-
-export const safeNetworkAPI = (name: SupportedSafeNetwork) => {
-  return `https://safe-transaction-${safeServiceURL[name]}.safe.global`;
+  //return `https://safe-transaction-${safeServiceURL[network]}.safe.global`;
+  return safeNetworkAPI(network);
 };

@@ -48,20 +48,23 @@ export interface QueueSafeTransaction extends SafeTransactionPartial {
   signature: string;
 }
 
-export interface SafeBalanceUsdResponse {
-  tokenAddress: string | null;
-  token: {
-    name: string;
-    symbol: string;
-    decimals: number;
-    logoUri: string;
-  } | null;
+export interface SafeBalanceUsdResponseItem {
   balance: string;
-  ethValue: string;
-  timestamp: string;
   fiatBalance: string;
   fiatConversion: string;
-  fiatCode: string;
+  tokenInfo: {
+    address: string;
+    decimals: number;
+    logoUri: string;
+    name: string;
+    symbol: string;
+    type: "NATIVE_TOKEN" | "ERC20";
+  };
+}
+
+export interface SafeBalanceUsdResponse {
+  fiatTotal: string;
+  items: SafeBalanceUsdResponseItem[];
 }
 
 export interface SafeInfoResponse {

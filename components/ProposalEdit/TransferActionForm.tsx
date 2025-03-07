@@ -3,7 +3,7 @@ import UIntForm from "../form/UIntForm";
 import { useSafeBalances } from "@/utils/hooks/Safe/SafeHooks";
 import GenericListbox from "../common/GenericListbox";
 import { Controller, useFormContext } from "react-hook-form";
-import { SafeBalanceUsdResponse } from "@/models/SafeTypes";
+import { SafeBalanceUsdResponseItem } from "@/models/SafeTypes";
 import { formatUnits } from "ethers/lib/utils";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { ETH_MOCK_CONTRACT } from "@/constants/Nance";
@@ -22,17 +22,17 @@ type ListBoxItem = {
   decimals: number;
 };
 
-const safeBalanceToItems = (b: SafeBalanceUsdResponse[]): ListBoxItem[] => {
+const safeBalanceToItems = (b: SafeBalanceUsdResponseItem[]): ListBoxItem[] => {
   return b.map((b) => {
-    const token = b.token?.symbol || "ETH";
+    const token = b.tokenInfo?.symbol || "ETH";
     const balance = numToPrettyString(
-      formatUnits(b.balance, b.token?.decimals || 18),
+      formatUnits(b.balance, b.tokenInfo.decimals || 18),
       2
     );
     return {
-      id: b.tokenAddress || ETH_MOCK_CONTRACT,
+      id: b.tokenInfo.address || ETH_MOCK_CONTRACT,
       name: `${token} (${balance})`,
-      decimals: b.token?.decimals || 18,
+      decimals: b.tokenInfo.decimals || 18,
     };
   });
 };
@@ -48,15 +48,15 @@ export default function TransferActionForm({
   const spaceInfo = useContext(SpaceContext);
 
   const { data, isLoading } = useSafeBalances(address, !!address);
-  const items: ListBoxItem[] = data
-    ? safeBalanceToItems(data)
+  const items: ListBoxItem[] = data?.items
+    ? safeBalanceToItems(data.items)
     : [
-      {
-        id: ETH_MOCK_CONTRACT,
-        name: "ETH",
-        decimals: 18,
-      },
-    ];
+        {
+          id: ETH_MOCK_CONTRACT,
+          name: "ETH",
+          decimals: 18,
+        },
+      ];
 
   const metadata = useContext(ProposalMetadataContext);
   const isNew = metadata.fork || metadata.loadedProposal === undefined;
@@ -127,7 +127,8 @@ export default function TransferActionForm({
         <span className="text-xs text-gray-400">
           Total:{" "}
           {numToPrettyString(
-            watch(genFieldName("count")) * watch(genFieldName("amount")), "auto"
+            watch(genFieldName("count")) * watch(genFieldName("amount")),
+            "auto"
           )}
         </span>
       </div>
