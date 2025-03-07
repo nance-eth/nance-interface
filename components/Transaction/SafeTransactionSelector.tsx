@@ -1,14 +1,16 @@
-import { formatDistanceToNowStrict, parseISO } from "date-fns";
+import { formatDistanceToNowStrict, toDate } from "date-fns";
 import { useMultisigTransactions } from "@/utils/hooks/Safe/SafeHooks";
 import SearchableComboBox, {
   Option,
 } from "@/components/common/SearchableComboBox";
-import { SafeMultisigTransactionListResponse } from "@safe-global/api-kit";
-import { RevisedSafeMultisigTransactionResponse } from "@/models/SafeTypes";
+import {
+  SafeTransactionsResponse,
+  SafetransactionsResponseResult,
+} from "@/models/SafeTypes";
 import { useQueryParams, withDefault, StringParam } from "next-query-params";
 import { useEffect } from "react";
 
-export type TxOption = Option & { tx: RevisedSafeMultisigTransactionResponse };
+export type TxOption = Option & { tx: SafetransactionsResponseResult };
 export type AddressMap = { [address: string]: string };
 
 export function SafeTransactionSelector({
@@ -29,21 +31,24 @@ export function SafeTransactionSelector({
   const { data: txns, isLoading } = useMultisigTransactions(safeAddress, 20);
 
   const convertToOptions = (
-    res: SafeMultisigTransactionListResponse | undefined,
-    status: boolean,
+    res: SafeTransactionsResponse | undefined,
+    status: boolean
   ) => {
     if (!res) return [];
-    return res.results.map((_tx) => {
-      const tx = _tx as any as RevisedSafeMultisigTransactionResponse;
-      const addressLabel = addressMap[tx.to] ? `${addressMap[tx.to]}.` : "";
+    return res.results.map((tx) => {
+      const txTo = tx.transaction.txInfo.to.value;
+      const addressLabel = addressMap[txTo] ? `${addressMap[txTo]}.` : "";
       return {
-        id: tx.safeTxHash,
-        label: `Tx ${tx.nonce} ${addressLabel}${
-          tx.dataDecoded ? tx.dataDecoded.method : "unknown"
+        id: tx.transaction.id,
+        label: `Tx ${tx.transaction.executionInfo.nonce} ${addressLabel}${
+          tx.transaction.txInfo.methodName || "unknown"
         }`,
-        extraLabel: formatDistanceToNowStrict(parseISO(tx.submissionDate), {
-          addSuffix: true,
-        }),
+        extraLabel: formatDistanceToNowStrict(
+          toDate(tx.transaction.timestamp),
+          {
+            addSuffix: true,
+          }
+        ),
         status,
         tx: tx,
       };

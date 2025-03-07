@@ -161,7 +161,7 @@ export function useCreateTransactionForSimulation(
 
   const { value: safe, error: safeError } = useSafe(safeAddress);
   const { data: safeInfo } = useSafeInfo(safeAddress, !!safeAddress);
-  const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
+  const firstOwnerAddress = safeInfo?.owners?.[0].value || zeroAddress;
 
   useEffect(() => {
     const fetch = async () => {

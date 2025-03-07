@@ -75,7 +75,7 @@ export function useContractType(rawAddress: string) {
     return ContractType.Unknown;
   }
 
-  if (!safeError && safeInfo?.masterCopy) {
+  if (!safeError && safeInfo?.owners) {
     return ContractType.Safe;
   } else {
     // there is no way to be sure if this is a governor contract

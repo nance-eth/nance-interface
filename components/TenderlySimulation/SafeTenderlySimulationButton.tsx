@@ -28,7 +28,7 @@ export default function SafeTenderlySimulationButton({
 
   const chain = useChainConfigOfSpace();
   const { data: safeInfo } = useSafeInfo(address, !!address);
-  const firstOwnerAddress = safeInfo?.owners?.[0] || zeroAddress;
+  const firstOwnerAddress = safeInfo?.owners?.[0].value || zeroAddress;
   const { encodedTransaction, safeTransaction, error } =
     useCreateTransactionForSimulation(address, transactions, true);
 

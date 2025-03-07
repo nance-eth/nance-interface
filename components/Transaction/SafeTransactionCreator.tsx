@@ -39,6 +39,8 @@ export default function SafeTransactionCreator({
     useHistoryTransactions(safeAddress, 1, safeAddress !== "");
   const { data: walletClient } = useWalletClient();
 
+  const nextNonce =
+    (historyTxs?.results?.[0].transaction.executionInfo.nonce || -1) + 1;
   const queueNotReady =
     !walletClient || !safeTransaction || !nonce || !safeAddress || loading;
 
@@ -54,10 +56,10 @@ export default function SafeTransactionCreator({
   }
 
   useEffect(() => {
-    if (nonce === "" && historyTxs?.results.length) {
-      setNonce(historyTxs?.results.length.toString());
+    if (nonce === "" && nextNonce) {
+      setNonce(nextNonce.toString());
     }
-  }, [historyTxs]);
+  }, [nextNonce]);
 
   return (
     <div className="flex flex-col space-y-2 sm:space-y-0 space-x-0 sm:space-x-2 sm:flex-row">
@@ -87,7 +89,7 @@ export default function SafeTransactionCreator({
         <input
           type="number"
           step={1}
-          min={historyTxs?.results.length || 0}
+          min={nextNonce}
           value={nonce}
           onChange={(e) => setNonce(e.target.value)}
           className="relative -ml-px inline-flex w-20 items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10"

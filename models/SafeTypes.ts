@@ -68,15 +68,19 @@ export interface SafeBalanceUsdResponse {
 }
 
 export interface SafeInfoResponse {
-  address: string;
+  address: {
+    value: string;
+  };
   nonce: number;
+  chainId: string;
   threshold: number;
-  owners: string[];
-  masterCopy: string;
-  modules: string[];
-  fallbackHandler: string;
+  owners: { value: string }[];
+  modules: string[] | null;
+  fallbackHandler: {
+    name: string;
+    value: string;
+  };
   version: string;
-  guard: string;
 }
 
 export interface SafeDelegatesResponse {
@@ -131,6 +135,17 @@ export interface SafetransactionsResponseResult {
     id: string;
     timestamp: number;
     txHash: string;
+    executionInfo: {
+      nonce: number;
+    };
+    txInfo: {
+      methodName: string;
+      humanDescription: string | null;
+      to: {
+        value: string;
+        name: string;
+      };
+    };
   };
 }
 

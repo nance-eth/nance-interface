@@ -8,7 +8,7 @@ import {
   withDefault,
 } from "next-query-params";
 import useProjectInfo from "../utils/hooks/juicebox/ProjectInfo";
-import { RevisedSafeMultisigTransactionResponse } from "../models/SafeTypes";
+import { SafetransactionsResponseResult } from "../models/SafeTypes";
 import parseSafeJuiceboxTx from "../utils/functions/SafeJuiceboxParser";
 import { useReconfigurationOfProject } from "../utils/hooks/juicebox/ReconfigurationOfProject";
 import DiffTableWithSection from "../components/form/DiffTableWithSection";
@@ -25,6 +25,7 @@ import {
 } from "@/components/Transaction/SafeTransactionSelector";
 import ProjectSearch from "@/components/ProjectSearch";
 import JBProjectInfo from "@/components/JuiceboxCard/JBProjectInfo";
+import { toDate } from "date-fns";
 
 const CONTRACT_MAP: AddressMap = {
   "0xFFdD70C318915879d5192e8a0dcbFcB0285b3C98": "JBController_V3",
@@ -115,13 +116,16 @@ function Compare({
   tx,
 }: {
   projectId: number;
-  tx: RevisedSafeMultisigTransactionResponse;
+  tx: SafetransactionsResponseResult;
 }) {
   const { value: currentConfig, loading: loading } =
     useReconfigurationOfProject(projectId);
   const newConfig = parseSafeJuiceboxTx(
-    tx.data || "",
-    tx?.submissionDate || "",
+    //tx.data || "",
+    // FIXME new Safe endpoint doesn't return data anymore
+    //   which makes Review page no longer working
+    "",
+    toDate(tx.transaction.timestamp).toISOString() || "",
     currentConfig.fundingCycle.fee || BigInt(0),
     currentConfig.fundingCycle.configuration || BigInt(0)
   );
