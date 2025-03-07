@@ -11,7 +11,7 @@ import {
   MetaTransactionData,
   SafeSignature,
   SafeTransaction,
-} from "@safe-global/safe-core-sdk-types";
+} from "@safe-global/types-kit";
 import {
   safeNetworkAPI,
   useSafeNetworkAPI,

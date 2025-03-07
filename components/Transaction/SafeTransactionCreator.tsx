@@ -8,7 +8,7 @@ import {
 } from "@/utils/hooks/Safe/SafeHooks";
 import ResultModal from "../modal/ResultModal";
 import { getSafeTxUrl } from "@/utils/functions/safe";
-import { MetaTransactionData } from "@safe-global/safe-core-sdk-types";
+import { MetaTransactionData } from "@safe-global/types-kit";
 import ToggleWithLabel from "../form/ToggleWithLabel";
 
 export default function SafeTransactionCreator({

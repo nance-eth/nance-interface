@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { classNames } from "@/utils/functions/tailwind";
-import { SafeTransactionDataPartial } from "@safe-global/safe-core-sdk-types";
+import { SafeTransactionDataPartial } from "@safe-global/types-kit";
 import GenericTenderlySimulationButton from "../TenderlySimulation/GenericTenderlySimulationButton";
 
 export interface TransactionEntry {
