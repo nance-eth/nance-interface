@@ -4,9 +4,15 @@ import { GraphQLClient, ClientContext } from "graphql-hooks";
 import memCache from "graphql-hooks-memcache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, http, useAccount } from "wagmi";
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { WagmiProvider, http, useAccount, createConfig } from "wagmi";
+import { connectorsForWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { base, mainnet, optimism, gnosis, sepolia } from "wagmi/chains";
+import {
+  safeWallet,
+  rainbowWallet,
+  walletConnectWallet,
+  coinbaseWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import { NextQueryParamProvider } from "next-query-params";
 
 import { Flowbite } from "flowbite-react";
@@ -40,10 +46,21 @@ const theme = {
   },
 };
 
-const wagmiConfig = getDefaultConfig({
-  appName: "Nance Interface",
+const connectors = connectorsForWallets([
+  {
+    groupName: "Recommended",
+    wallets: [rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet],
+  },
+], {
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
+  appName: "Nance Interface",
+  appDescription: "Nance Interface",
+  appUrl: "https://nance.app",
+});
+
+const wagmiConfig = createConfig({
   chains: customChains as any,
+  connectors,
   transports: {
     [mainnet.id]: http(
       `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
