@@ -4,19 +4,9 @@ import { GraphQLClient, ClientContext } from "graphql-hooks";
 import memCache from "graphql-hooks-memcache";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider, http, fallback, useAccount, createConfig } from "wagmi";
-import {
-  connectorsForWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import {
-  rainbowWallet,
-  walletConnectWallet,
-  safeWallet,
-  coinbaseWallet,
-} from "@rainbow-me/rainbowkit/wallets";
-import { gnosis, goerli, mainnet, optimism } from "wagmi/chains";
-
+import { WagmiProvider, http, useAccount } from "wagmi";
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { base, mainnet, optimism, gnosis, sepolia } from "wagmi/chains";
 import { NextQueryParamProvider } from "next-query-params";
 
 import { Flowbite } from "flowbite-react";
@@ -50,40 +40,24 @@ const theme = {
   },
 };
 
-const connectors = connectorsForWallets(
-  [
-    {
-      groupName: "Recommended",
-      wallets: [rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet],
-    },
-  ],
-  {
-    appName: "Nance Interface",
-    projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
-  }
-);
-
-const wagmiConfig = createConfig({
-  connectors,
+const wagmiConfig = getDefaultConfig({
+  appName: "Nance Interface",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
   chains: customChains as any,
   transports: {
-    [mainnet.id]: fallback([
-      http(
-        `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
-      ),
-      //http("https://eth.llamarpc.com"),
-    ]),
-    [optimism.id]: fallback([
-      http(
-        `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
-      ),
-      //http("https://rpc.ankr.com/optimism"),
-    ]),
+    [mainnet.id]: http(
+      `https://mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+    ),
+    [base.id]: http(
+      `https://base-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+    ),
+    [optimism.id]: http(
+      `https://optimism-mainnet.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+    ),
     [gnosis.id]: http("https://rpc.ankr.com/gnosis"),
-    [goerli.id]: fallback([
-      http(`https://goerli.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`),
-      //http("https://rpc.ankr.com/eth_goerli"),
-    ]),
+    [sepolia.id]: http(
+      `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`
+    ),
   },
 });
 
