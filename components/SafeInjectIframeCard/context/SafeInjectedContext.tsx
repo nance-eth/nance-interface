@@ -68,7 +68,7 @@ export const SafeInjectProvider: React.FunctionComponent<FCProps> = ({
   const [appUrl, setAppUrl] = useState<string>();
   const ethersProvider = useEthersProvider();
   const _provider =
-    ((ethersProvider as providers.FallbackProvider)?.providerConfigs[0]
+    ((ethersProvider as providers.FallbackProvider)?.providerConfigs?.[0]
       ?.provider as providers.JsonRpcProvider) ||
     (ethersProvider as providers.JsonRpcProvider);
   const provider = new providers.StaticJsonRpcProvider(
