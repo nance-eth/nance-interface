@@ -25,7 +25,7 @@ const fetcher = (url: string) =>
 
 export function useEtherscanAPIUrl() {
   const chain = useChainConfigOfSpace();
-  return chain.blockExplorers.default.apiUrl;
+  return `https://api.etherscan.io/v2/api?chainid=${chain.id}`;
 }
 
 // supported proxy pattern: EIP-1967 Proxy Storage Slots, EIP-897 DelegateProxy and Gnosis Safe Proxy
@@ -43,8 +43,8 @@ export function useEtherscanContractABI(
   } = useSWR<string>(
     shouldFetch
       ? `${apiUrl}?module=contract&action=getabi&address=${
-        implementationAddress || address
-      }&apikey=${API_KEY}`
+          implementationAddress || address
+        }&apikey=${API_KEY}`
       : null,
     fetcher
     //{ shouldRetryOnError: false }
