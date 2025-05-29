@@ -42,7 +42,7 @@ export function useEtherscanContractABI(
     error,
   } = useSWR<string>(
     shouldFetch
-      ? `${apiUrl}?module=contract&action=getabi&address=${
+      ? `${apiUrl}&module=contract&action=getabi&address=${
           implementationAddress || address
         }&apikey=${API_KEY}`
       : null,
@@ -184,7 +184,7 @@ export function useEtherscanContract(
   const apiUrl = useEtherscanAPIUrl();
   return useSWR<[EtherscanContractSource]>(
     shouldFetch
-      ? `${apiUrl}?module=contract&action=getsourcecode&address=${contract}&apikey=${API_KEY}`
+      ? `${apiUrl}&module=contract&action=getsourcecode&address=${contract}&apikey=${API_KEY}`
       : null,
     fetcher
   );
