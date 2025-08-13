@@ -19,10 +19,6 @@ vim .env.local
 
 Specify url of [Nance](https://nance.app/) backend as `NEXT_PUBLIC_NANCE_API_URL`, and your space id as `NEXT_PUBLIC_OVERRIDE_SPACE`.
 
-#### Nance Auto API
-
-Some tasks need to run at specific times, this is done by querying [Nance-auto](https://github.com/nance-eth/nance-ts/blob/main/src/api/auto.ts). We need a shared secret, `NANCE_AUTO_KEY`, to verify requests.
-
 #### Ethereum
 
 We need [Infura](https://www.infura.io/) RPC to interact with Ethereum. Please specify `NEXT_PUBLIC_INFURA_KEY`.
