@@ -13,9 +13,7 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "pages:build": "npx @opennextjs/cloudflare build",
-    "preview": "npx @opennextjs/cloudflare build && wrangler dev",
-    "deploy": "npx @opennextjs/cloudflare build && wrangler deploy"
+    "deploy": "opennextjs-cloudflare build && wrangler deploy"
   },
   "dependencies": {
     "@guildxyz/sdk": "^2.4.0",
