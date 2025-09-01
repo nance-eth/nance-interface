@@ -81,6 +81,7 @@ const nextConfig = {
       },
     ];
   },
+  serverExternalPackages: ["jose", "@panva/hkdf"]
 };
 
 module.exports = removeImports(nextConfig);
