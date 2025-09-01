@@ -35,6 +35,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# opennext
+.open-next
+
 .pnp.*
 .yarn/*
 !.yarn/patches
