@@ -52,7 +52,7 @@ const connectors = connectorsForWallets([
     wallets: [rainbowWallet, walletConnectWallet, safeWallet, coinbaseWallet],
   },
 ], {
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "blank",
   appName: "Nance Interface",
   appDescription: "Nance Interface",
   appUrl: "https://nance.app",
