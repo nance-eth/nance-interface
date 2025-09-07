@@ -37,6 +37,11 @@ const navigation = [
   }
 ];
 
+const GIT_COMMIT_SHA =
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
+  process.env.RAILWAY_GIT_COMMIT_SHA?.slice(0, 7) ||
+  "dev";
+
 export default function Footer() {
   return (
     <footer className="bg-slate-50">
@@ -45,10 +50,9 @@ export default function Footer() {
           <p className="text-center text-xs leading-5 text-gray-500">
             &infin; Built with{" "}
             <a
-              href={`https://github.com/nance-eth/nance-interface/tree/${process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA}`}
+              href={`https://github.com/nance-eth/nance-interface/tree/${GIT_COMMIT_SHA}`}
             >
-              {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ||
-                "dev"}
+              {GIT_COMMIT_SHA}
             </a>
           </p>
         </div>

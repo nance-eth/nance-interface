@@ -4,6 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
+    unoptimized: 'true',
     remotePatterns: [
       {
         protocol: "https",
@@ -80,6 +81,9 @@ const nextConfig = {
       },
     ];
   },
+  env: {
+    RAILWAY_GIT_COMMIT_SHA: process.env.RAILWAY_GIT_COMMIT_SHA
+  }
 };
 
 module.exports = removeImports(nextConfig);
