@@ -8,6 +8,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { numToPrettyString } from "@/utils/functions/NumberFormatter";
 import { ETH_MOCK_CONTRACT } from "@/constants/Nance";
 import { useContext } from "react";
+import { zeroAddress } from "viem";
 import { SpaceContext } from "@/context/SpaceContext";
 import {
   dateRangesOfCycles,
@@ -24,13 +25,17 @@ type ListBoxItem = {
 
 const safeBalanceToItems = (b: SafeBalanceUsdResponseItem[]): ListBoxItem[] => {
   return b.map((b) => {
-    const token = b.tokenInfo?.symbol || "ETH";
+    // Safe used to keep tokenInfo.symbol undefined for ETH but changed it to be defined
+    const isEth =
+      b.tokenInfo.symbol === "ETH" &&
+      b.tokenInfo.address === zeroAddress;
+    const token = b.tokenInfo.symbol;
     const balance = numToPrettyString(
       formatUnits(b.balance, b.tokenInfo.decimals || 18),
       2
     );
     return {
-      id: b.tokenInfo.address || ETH_MOCK_CONTRACT,
+      id: isEth ? ETH_MOCK_CONTRACT : b.tokenInfo.address, // nance-api expects contract to be "ETH"
       name: `${token} (${balance})`,
       decimals: b.tokenInfo.decimals || 18,
     };
