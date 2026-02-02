@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SimpleSpaceEntry } from ".";
-import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 
 export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEntry[]}) {
   return (
@@ -28,14 +27,7 @@ export default function HeroSection({ top4Spaces }: { top4Spaces: SimpleSpaceEnt
               Governance <span className="text-blue-600">Automated</span>
             </h2>
             <div className="mt-6 flex flex-col items-center justify-center gap-x-6">
-              <Link
-                href="https://cal.com/edsammy/30min?user=edsammy"
-                target="_blank"
-                className="rounded-md bg-blue-600 px-20 py-3 sm:px-28 text-lg font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-              >
-                <div className="flex flex-row items-center whitespace-nowrap">Book a Demo <CalendarDaysIcon className="ml-4 h-7 w-7" /></div>
-              </Link>
-              <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-4">
+              <div className="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-4">
                 {
                   top4Spaces.map((space) => (
                     <Link key={space.id} href={`/s/${space.id}`}>

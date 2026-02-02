@@ -1,5 +1,4 @@
 import { ArrowDownIcon } from "@heroicons/react/24/solid";
-import Contact from "./Contact";
 import FeatureSection from "./FeatureSection";
 import HeroSection from "./HeroSection";
 import StatsSection from "./StatsSection";
@@ -77,7 +76,6 @@ export default function Landing() {
       <StatsSection data={data?.data}/>
       <FeatureSection />
       <Testimonials />
-      <Contact />
     </>
   );
 }
