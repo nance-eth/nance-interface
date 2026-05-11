@@ -16,7 +16,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "jbm.infura-ipfs.io",
+        hostname: "ipfs.io",
       },
       {
         protocol: "https",
@@ -26,10 +26,6 @@ const nextConfig = {
         protocol: "https",
         hostname: "guild-xyz.mypinata.cloud",
       },
-      {
-        protocol: "https",
-        hostname: "nance.infura-ipfs.io"
-      }
     ],
   },
   async redirects() {

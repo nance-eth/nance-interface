@@ -33,7 +33,7 @@ import { driverSteps } from "./GuideSteps";
 import useLocalStorage from "@/utils/hooks/LocalStorage";
 import { getUnixTime } from "date-fns";
 import { ProposalMetadataContext } from "./context/ProposalMetadataContext";
-import { NANCE_DEFAULT_IPFS_GATEWAY, TEMPLATE } from "@/constants/Nance";
+import { TEMPLATE } from "@/constants/Nance";
 import { SpaceContext } from "@/context/SpaceContext";
 import { useAccount } from "wagmi";
 import "@nance/nance-editor/lib/css/editor.css";
@@ -58,13 +58,6 @@ const NanceEditor = dynamic(
     ssr: false,
   }
 );
-
-const fileUploadIPFS = {
-  gateway: NANCE_DEFAULT_IPFS_GATEWAY,
-  auth: `Basic ${Buffer.from(
-    `${process.env.NEXT_PUBLIC_INFURA_IPFS_ID}:${process.env.NEXT_PUBLIC_INFURA_IPFS_SECRET}`
-  ).toString("base64")}`,
-};
 
 const ResultModal = dynamic(() => import("../modal/ResultModal"), {
   ssr: false,
@@ -461,7 +454,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
                           onChange(value);
                         }}
-                        fileUploadIPFS={fileUploadIPFS}
+
                       />
                     )}
                   />
@@ -472,8 +465,7 @@ export default function ProposalEditForm({ space }: { space: string }) {
 
           <p className="mt-1 text-sm text-gray-500">
             <CheckCircleIcon className="mr-1 inline h-5 w-5" />
-            Drag and drop markdown file or image to attach content (images are
-            pinned to IPFS)
+            IPFS upload is currently disabled. Please host images externally and paste the link.
           </p>
         </div>
 

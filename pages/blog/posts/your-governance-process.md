@@ -9,7 +9,7 @@ Nance aims to be a light unto the organizations. We are not perfect, but we stri
 
 We started codifying governance processes in 2022 with our first user and primary backer, [JuiceboxDAO](https://docs.juicebox.money/dao). Since then we've automated the processing of over 300 proposals for them.
 
-![proof_of_nance.png](https://nance.infura-ipfs.io/ipfs/QmUcrrt1z5dKkYKDd3gfFers2KcmpkXoc2ScCRPJMjjF1e)
+![proof_of_nance.png](https://ipfs.io/ipfs/QmUcrrt1z5dKkYKDd3gfFers2KcmpkXoc2ScCRPJMjjF1e)
 
 More recently we worked with MoonDAO (the folks that raised $8M and sent [two](https://www.youtube.com/watch?v=YXXlSG-du7c) people [to space](https://www.space.com/blue-origin-eiman-jahangir-suborbital-flight-moondao)) to build [a custom interface](https://moondao.com/vote) and [actions palette](https://moondao.com/propose) that suits their organizational needs.
 
